@@ -9,6 +9,7 @@ Thumbs.db
 
 # Dependency Directories
 node_modules/
+**/node_modules/
 jspm_packages/
 .pnpm-store/
 
@@ -17,11 +18,17 @@ jspm_packages/
 
 # Build Artifacts
 dist/
+**/dist/
 build/
+**/build/
 target/
+**/target/
 out/
+**/out/
 out-tsc/
+**/out-tsc/
 .angular/
+**/ .angular/
 .next/
 .serverless/
 .output/
