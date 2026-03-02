@@ -4,16 +4,16 @@
     <property name="LOGS" value="./logs" />
     <property name="LOG_FILE_NAME" value="orthopedic-api" />
 
-    <!-- 🎨 Console Appender with Color Styling -->
+    <!-- 🎨 Premium Console Appender -->
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
             <Pattern>
-                %d{yyyy-MM-dd HH:mm:ss} [%thread] %highlight(%-5level) %cyan(%logger{36}) - %msg%n
+                %d{HH:mm:ss} %highlight(%-5level) %magenta([%15.15thread]) %cyan(%-30.30logger{29}) : %msg%n
             </Pattern>
         </layout>
     </appender>
 
-    <!-- 📂 Rolling File Appender (Daily Rotation + 10MB limit) -->
+    <!-- 📂 Professional File Appender -->
     <appender name="RollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOGS}/${LOG_FILE_NAME}.log</file>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -21,15 +21,22 @@
         </encoder>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- Daily rollover with compression -->
             <fileNamePattern>${LOGS}/archived/${LOG_FILE_NAME}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>10MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
-            <!-- Keep 30 days of history -->
             <maxHistory>30</maxHistory>
         </rollingPolicy>
     </appender>
+
+    <!-- 🔇 Silence Noisy Libraries -->
+    <logger name="org.hibernate" level="WARN" />
+    <logger name="org.springframework" level="WARN" />
+    <logger name="org.springframework.web" level="INFO" />
+    <logger name="org.springframework.security" level="INFO" />
+    <logger name="com.zaxxer.hikari" level="WARN" />
+    <logger name="org.flywaydb" level="INFO" />
+    <logger name="io.netty" level="WARN" />
 
     <!-- 🌐 Profile-specific Root Levels -->
     <springProfile name="dev">
