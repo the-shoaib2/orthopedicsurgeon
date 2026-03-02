@@ -37,6 +37,7 @@
     <logger name="com.zaxxer.hikari" level="WARN" />
     <logger name="org.flywaydb" level="INFO" />
     <logger name="io.netty" level="WARN" />
+    <logger name="org.zalando.logbook" level="TRACE" />
 
     <!-- 🌐 Profile-specific Root Levels -->
     <springProfile name="dev">

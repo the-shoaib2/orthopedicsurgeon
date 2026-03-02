@@ -6,8 +6,8 @@
     "start": "node scripts/start-all.js",
     "dev": "turbo dev",
     "dev:api": "turbo dev --filter=api",
-    "dev:admin": "turbo dev --filter=admin-dashboard",
-    "dev:public": "turbo dev --filter=public-site",
+    "dev:admin": "turbo dev --filter=admin",
+    "dev:public": "turbo dev --filter=web",
     "lint": "turbo lint",
     "test": "turbo test"
   },

@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: oklch(0.5 0.2 260);
+  --color-secondary: oklch(0.7 0.1 200);
+  --color-accent: oklch(0.6 0.2 300);
+  --color-background: oklch(0.1 0 0); /* Sleek Dark Theme */
+  --color-foreground: oklch(0.9 0 0);
+  
+  --font-sans: "Inter", system-ui, sans-serif;
+  
+  --radius-lg: 0.75rem;
+  --radius-md: 0.5rem;
+  --radius-sm: 0.25rem;
+  
+  /* Modern Glassmorphism Utilities */
+  --backdrop-blur-md: blur(12px);
+  --shadow-premium: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/5 backdrop-blur-md border border-white/10 shadow-premium;
+  }
+  
+  .gradient-text {
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-secondary;
+  }
+}

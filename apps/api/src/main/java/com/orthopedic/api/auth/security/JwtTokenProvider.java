@@ -86,7 +86,7 @@ public class JwtTokenProvider {
             Jwts.parser().verifyWith(publicKey).build().parseSignedClaims(token);
             return !isTokenBlacklisted(token);
         } catch (JwtException | IllegalArgumentException e) {
-            log.error("Invalid JWT token: {}", e.getMessage());
+            log.warn("Invalid JWT token: {}", e.getMessage());
         }
         return false;
     }

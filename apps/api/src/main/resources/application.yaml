@@ -81,5 +81,6 @@ aws:
 logging:
   level:
     root: INFO
-    com.orthopedic.api: DEBUG
+    "[com.orthopedic.api]": DEBUG
     org.springframework.security: INFO
+    org.zalando.logbook: TRACE

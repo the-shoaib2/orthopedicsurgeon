@@ -1,0 +1,43 @@
+{
+  "name": "web",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "dev": "ng serve",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test"
+  },
+  "private": true,
+  "packageManager": "pnpm@9.1.4",
+  "dependencies": {
+    "@angular/common": "latest",
+    "@angular/compiler": "latest",
+    "@angular/core": "latest",
+    "@angular/forms": "latest",
+    "@angular/platform-browser": "latest",
+    "@angular/router": "latest",
+    "@ngrx/effects": "latest",
+    "@ngrx/store": "latest",
+    "@ngrx/store-devtools": "latest",
+    "@repo/auth": "workspace:*",
+    "@repo/types": "workspace:*",
+    "@repo/ui": "workspace:*",
+    "rxjs": "latest",
+    "tslib": "latest"
+  },
+  "devDependencies": {
+    "@angular/build": "latest",
+    "@angular/cli": "latest",
+    "@angular/compiler-cli": "latest",
+    "@spartan-ng/cli": "0.0.1-alpha.644",
+    "@tailwindcss/vite": "^4.2.1",
+    "jsdom": "latest",
+    "lucide-angular": "^0.576.0",
+    "prettier": "latest",
+    "tailwindcss": "^4.2.1",
+    "typescript": "latest",
+    "vitest": "latest"
+  }
+}

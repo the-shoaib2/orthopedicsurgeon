@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+@theme {
+    --color-primary: oklch(0.55 0.18 240);
+    --color-secondary: oklch(0.75 0.08 180);
+    --color-accent: oklch(0.65 0.15 280);
+    --color-background: oklch(0.98 0 0);
+    /* Clean Modern Light Theme for Web */
+    --color-foreground: oklch(0.1 0 0);
+
+    --font-sans: "Outfit", system-ui, sans-serif;
+
+    --radius-lg: 1rem;
+    --radius-md: 0.75rem;
+    --radius-sm: 0.5rem;
+
+    /* Modern Soft Shadows */
+    --shadow-premium: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+@layer base {
+    body {
+        @apply bg-background text-foreground antialiased;
+    }
+}
+
+@layer utilities {
+    .premium-card {
+        @apply bg-white border border-gray-100 shadow-premium rounded-lg transition-transform hover:scale-[1.02] duration-300;
+    }
+
+    .hero-gradient {
+        @apply bg-gradient-to-br from-primary/10 via-accent/5 to-transparent;
+    }
+}

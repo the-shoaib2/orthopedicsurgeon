@@ -65,6 +65,9 @@ public class User {
     @Column(name = "lockout_until")
     private LocalDateTime lockoutUntil;
 
+    @Column(name = "last_login_at")
+    private LocalDateTime lastLoginAt;
+
     @CreationTimestamp
     @Column(name = "password_changed_at")
     private LocalDateTime passwordChangedAt;

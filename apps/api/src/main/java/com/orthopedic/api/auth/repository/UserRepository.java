@@ -10,6 +10,7 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
+    @org.springframework.cache.annotation.Cacheable(value = "user_entities", key = "#email")
     @EntityGraph(attributePaths = { "roles" })
     Optional<User> findByEmail(String email);
 

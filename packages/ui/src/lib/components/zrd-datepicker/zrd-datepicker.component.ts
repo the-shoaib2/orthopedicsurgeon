@@ -25,7 +25,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
           type="date"
           [disabled]="disabled"
           [value]="value"
-          [min]="minDate"
+          [min]="min"
           [max]="maxDate"
           (input)="onInputChange($event)"
           (blur)="onBlur()"
@@ -49,7 +49,7 @@ export class ZrdDatePickerComponent implements ControlValueAccessor {
   @Input() id = `zrd-datepicker-${Math.random().toString(36).substr(2, 9)}`;
   @Input() label?: string;
   @Input() error?: string;
-  @Input() minDate?: string;
+  @Input() min?: string;
   @Input() maxDate?: string;
   @Input({ transform: booleanAttribute }) required = false;
 

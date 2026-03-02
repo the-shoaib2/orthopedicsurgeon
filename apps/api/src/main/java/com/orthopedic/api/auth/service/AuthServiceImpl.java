@@ -7,6 +7,7 @@ import com.orthopedic.api.auth.exception.AuthException;
 import com.orthopedic.api.auth.exception.InvalidCredentialsException;
 import com.orthopedic.api.auth.repository.RoleRepository;
 import com.orthopedic.api.auth.repository.UserRepository;
+import com.orthopedic.api.auth.security.CustomUserDetailsService;
 import com.orthopedic.api.auth.security.JwtTokenProvider;
 import com.orthopedic.api.config.JwtConfig;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -30,6 +31,7 @@ public class AuthServiceImpl implements AuthService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final TwoFactorService twoFactorService;
     private final AuditService auditService;
+    private final CustomUserDetailsService userDetailsService;
     private final TokenService tokenService;
 
     public AuthServiceImpl(UserRepository userRepository,
@@ -40,6 +42,7 @@ public class AuthServiceImpl implements AuthService {
             RedisTemplate<String, Object> redisTemplate,
             TwoFactorService twoFactorService,
             AuditService auditService,
+            CustomUserDetailsService userDetailsService,
             TokenService tokenService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -49,12 +52,21 @@ public class AuthServiceImpl implements AuthService {
         this.redisTemplate = redisTemplate;
         this.twoFactorService = twoFactorService;
         this.auditService = auditService;
+        this.userDetailsService = userDetailsService;
         this.tokenService = tokenService;
     }
 
     @Override
     @Transactional
     public LoginResponse login(LoginRequest request, String ipAddress, String userAgent) {
+        // ⚡ PERF: Load from cache via CustomUserDetailsService if available
+        UserDetails userDetails;
+        try {
+            userDetails = userDetailsService.loadUserByUsername(request.getEmail());
+        } catch (Exception e) {
+            throw new InvalidCredentialsException("Invalid email or password");
+        }
+
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
 
@@ -68,27 +80,25 @@ public class AuthServiceImpl implements AuthService {
             throw new AuthException("Account is disabled. Please contact support.");
         }
 
-        // ⚡ PERF: Direct authentication check (avoid redundant DB lookup in
-        // UserDetailsService)
+        // ⚡ PERF: Redis-based failed attempt tracking (Near-zero DB overhead)
+        String attemptKey = "login_attempts:" + request.getEmail();
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            // 🔒 SECURITY: Increment failed attempts
-            user.incrementFailedAttempts();
-            if (user.getFailedLoginAttempts() >= 5) {
-                user.lock(30); // Lock for 30 minutes
+            Long attempts = redisTemplate.opsForValue().increment(attemptKey);
+            redisTemplate.expire(attemptKey, 30, TimeUnit.MINUTES);
+
+            if (attempts != null && attempts >= 5) {
+                user.lock(30);
+                userRepository.save(user);
                 auditService.logAudit(user, ipAddress, userAgent, "ACCOUNT_LOCKED");
             } else {
                 auditService.logAudit(user, ipAddress, userAgent, "FAILURE");
             }
-            userRepository.save(user);
             throw new InvalidCredentialsException("Invalid email or password");
         }
 
-        // 🔓 SUCCESS: Reset failed attempts ONLY if they were > 0 to save an UPDATE
-        // call
-        if (user.getFailedLoginAttempts() > 0) {
-            user.resetFailedAttempts();
-            userRepository.save(user);
-        }
+        // 🔓 SUCCESS: Clear Redis attempts and update last login (Async)
+        redisTemplate.delete(attemptKey);
+        updateLoginMetadataAsync(user);
 
         // 🔒 SECURITY: Check if 2FA is required for ADMIN roles
         boolean isAdmin = user.getRoles().stream()
@@ -105,7 +115,6 @@ public class AuthServiceImpl implements AuthService {
                     .build();
         }
 
-        UserDetails userDetails = new com.orthopedic.api.auth.security.CustomUserDetails(user);
         String accessToken = tokenProvider.generateAccessToken(userDetails);
         String refreshTokenString = tokenService.generateAndSaveRefreshToken(user, userAgent);
 
@@ -118,6 +127,13 @@ public class AuthServiceImpl implements AuthService {
                 .expiresIn(jwtConfig.getAccessTokenExpiry())
                 .requiresTwoFactor(false)
                 .build();
+    }
+
+    @org.springframework.scheduling.annotation.Async
+    protected void updateLoginMetadataAsync(User user) {
+        user.setLastLoginAt(java.time.LocalDateTime.now());
+        user.resetFailedAttempts();
+        userRepository.save(user);
     }
 
     @Override
