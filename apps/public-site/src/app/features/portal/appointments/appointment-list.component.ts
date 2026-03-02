@@ -1,11 +1,12 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ZrdTableComponent, ZrdBadgeComponent, ZrdButtonComponent, ZrdPageHeaderComponent, ZrdColumnDef } from '@repo/ui';
+import { RouterModule } from '@angular/router';
+import { ZrdTableComponent, ZrdBadgeComponent, ZrdButtonComponent, ZrdPageHeaderComponent } from '@repo/ui';
 
 @Component({
   selector: 'app-appointment-list',
   standalone: true,
-  imports: [CommonModule, ZrdTableComponent, ZrdBadgeComponent, ZrdButtonComponent, ZrdPageHeaderComponent],
+  imports: [CommonModule, RouterModule, ZrdTableComponent, ZrdBadgeComponent, ZrdButtonComponent, ZrdPageHeaderComponent],
   template: `
     <zrd-page-header title="My Appointments" subtitle="Manage your upcoming and past medical consultations.">
        <button actions zrdButton variant="primary" routerLink="/doctors">New Booking</button>
@@ -37,15 +38,18 @@ export class AppointmentListComponent {
     { id: '4', doctor: 'Dr. David King', hospital: 'Metro General', date: '2024-10-05', time: '09:00 AM', type: 'Surgery', status: 'COMPLETED' },
   ]);
 
-  columns: ZrdColumnDef[] = [
+  columns: any[] = [
     { key: 'doctor', header: 'Specialist' },
     { key: 'hospital', header: 'Location' },
     { key: 'date', header: 'Date', width: '120px' },
     { key: 'time', header: 'Time', width: '100px' },
     { key: 'type', header: 'Type' },
-    { key: 'status', header: 'Status', cellTemplate: 'statusTemplate', width: '120px' },
-    { key: 'actions', header: '', cellTemplate: 'actionTemplate', width: '150px' }
+    { key: 'status', header: 'Status', cellTemplate: null, width: '120px' },
+    { key: 'actions', header: '', cellTemplate: null, width: '150px' }
   ];
+
+  @ViewChild('statusTemplate') set statusTemplate(v: TemplateRef<any>) { this.columns[5].cellTemplate = v; }
+  @ViewChild('actionTemplate') set actionTemplate(v: TemplateRef<any>) { this.columns[6].cellTemplate = v; }
 
   getStatusVariant(status: string): any {
     switch (status) {

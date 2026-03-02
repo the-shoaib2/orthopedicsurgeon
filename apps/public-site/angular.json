@@ -18,6 +18,9 @@
           "options": {
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
+            "polyfills": [
+              "zone.js"
+            ],
             "assets": [
               {
                 "glob": "**/*",
@@ -59,7 +62,8 @@
               "buildTarget": "public-site:build:production"
             },
             "development": {
-              "buildTarget": "public-site:build:development"
+              "buildTarget": "public-site:build:development",
+              "port": 4201
             }
           },
           "defaultConfiguration": "development"

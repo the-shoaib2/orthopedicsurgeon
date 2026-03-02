@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ZrdTableComponent, ZrdBadgeComponent, ZrdButtonComponent, ZrdPageHeaderComponent, ZrdSearchInputComponent, ZrdAvatarComponent } from '@repo/ui';
 
@@ -60,10 +60,15 @@ export class UserManagementComponent {
     { id: '4', firstName: 'Mike', lastName: 'Reception', email: 'mike.r@hospital.com', roles: ['RECEPTIONIST'], status: 'INACTIVE' },
   ]);
 
-  columns = [
-    { key: 'user', header: 'Identity', cellTemplate: 'userTemplate' },
-    { key: 'roles', header: 'Roles & Permissions', cellTemplate: 'roleTemplate' },
-    { key: 'status', header: 'Access Status', cellTemplate: 'statusTemplate', width: '120px' },
-    { key: 'actions', header: '', cellTemplate: 'actionTemplate', width: '80px' }
+  columns: any[] = [
+    { key: 'user', header: 'Identity', cellTemplate: null },
+    { key: 'roles', header: 'Roles & Permissions', cellTemplate: null },
+    { key: 'status', header: 'Access Status', cellTemplate: null, width: '120px' },
+    { key: 'actions', header: '', cellTemplate: null, width: '80px' }
   ];
+
+  @ViewChild('userTemplate') set userTemplate(v: TemplateRef<any>) { this.columns[0].cellTemplate = v; }
+  @ViewChild('roleTemplate') set roleTemplate(v: TemplateRef<any>) { this.columns[1].cellTemplate = v; }
+  @ViewChild('statusTemplate') set statusTemplate(v: TemplateRef<any>) { this.columns[2].cellTemplate = v; }
+  @ViewChild('actionTemplate') set actionTemplate(v: TemplateRef<any>) { this.columns[3].cellTemplate = v; }
 }

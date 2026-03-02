@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .header {
+            background-color: #ffc107;
+            color: #212529;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 0.8em;
+            color: #888;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Upcoming Appointment Reminder</h2>
+        </div>
+        <div class="content">
+            <p>Dear <span th:text="${patientName}">Patient</span>,</p>
+            <p>This is a friendly reminder of your upcoming appointment tomorrow.</p>
+            <p><strong>Details:</strong></p>
+            <ul>
+                <li><strong>Time:</strong> <span th:text="${time}">Time</span></li>
+                <li><strong>Doctor:</strong> Dr. <span th:text="${doctorName}">Doctor</span></li>
+                <li><strong>Location:</strong> <span th:text="${hospitalName}">Hospital</span></li>
+            </ul>
+            <p>We look forward to seeing you. If you need to cancel, please let us know immediately.</p>
+        </div>
+        <div class="footer">
+            &copy; 2026 Orthopedic Surgeon Platform. All rights reserved.
+        </div>
+    </div>
+</body>
+
+</html>

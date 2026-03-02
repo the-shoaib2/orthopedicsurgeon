@@ -85,7 +85,7 @@ export class AdminLayoutComponent {
 
   userMenuItems = [
     { label: 'Control Panel', icon: 'pi pi-cog', action: () => {} },
-    { label: 'Switch Context', icon: 'pi pi-refresh', action: () => window.location.href = 'http://localhost:4200' },
+    { label: 'Switch Context', icon: 'pi pi-refresh', action: () => window.location.href = 'http://localhost:4201' },
     { label: 'Logout', icon: 'pi pi-power-off', danger: true, action: () => this.auth.logout() }
   ];
 }

@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { ZrdButtonComponent, ZrdCardComponent, ZrdStatComponent } from '@repo/ui';
+import { ZrdButtonComponent, ZrdCardComponent, ZrdStatComponent, ZrdBadgeComponent } from '@repo/ui';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule, ZrdButtonComponent, ZrdCardComponent, ZrdStatComponent],
+  imports: [CommonModule, RouterModule, ZrdButtonComponent, ZrdCardComponent, ZrdStatComponent, ZrdBadgeComponent],
   template: `
     <div class="flex flex-col">
       <!-- Hero Section -->

@@ -3,7 +3,11 @@
   "private": true,
   "scripts": {
     "build": "turbo build",
+    "start": "node scripts/start-all.js",
     "dev": "turbo dev",
+    "dev:api": "turbo dev --filter=api",
+    "dev:admin": "turbo dev --filter=admin-dashboard",
+    "dev:public": "turbo dev --filter=public-site",
     "lint": "turbo lint",
     "test": "turbo test"
   },

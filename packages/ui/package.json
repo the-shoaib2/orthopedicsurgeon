@@ -9,16 +9,20 @@
         "lint": "eslint ."
     },
     "peerDependencies": {
-        "@angular/common": "^17.0.0",
-        "@angular/core": "^17.0.0"
+        "@angular/common": "^21.2.0",
+        "@angular/core": "^21.2.0",
+        "@angular/forms": "^21.2.0",
+        "@angular/router": "^21.2.0"
     },
     "devDependencies": {
         "@angular/common": "^21.2.0",
         "@angular/compiler": "^21.2.0",
         "@angular/compiler-cli": "^21.2.0",
         "@angular/core": "^21.2.0",
+        "@angular/forms": "^21.2.0",
         "@angular/platform-browser": "^21.2.0",
         "@angular/platform-browser-dynamic": "^21.2.0",
+        "@angular/router": "^21.2.0",
         "autoprefixer": "^10.4.27",
         "ng-packagr": "^21.2.0",
         "postcss": "^8.5.6",

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Inject, InjectionToken, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject, InjectionToken, signal, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export type ZrdToastType = 'success' | 'error' | 'warning' | 'info';

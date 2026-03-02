@@ -18,11 +18,17 @@ export class AuthService {
 
   currentUser = signal<User | null>(null);
   loading = signal(false);
+  error = signal<string | null>(null);
 
   login(credentials: any): Observable<AuthResponse> {
     this.loading.set(true);
+    this.error.set(null);
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
-      tap(res => this.handleSuccess(res)),
+      tap((res: AuthResponse) => this.handleSuccess(res)),
+      catchError(err => {
+        this.error.set(err.error?.message || 'Login failed. Please check your credentials.');
+        throw err;
+      }),
       finalize(() => this.loading.set(false))
     );
   }

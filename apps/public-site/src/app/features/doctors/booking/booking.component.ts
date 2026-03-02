@@ -5,10 +5,10 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, Validators, FormGroup } 
 import { 
   ZrdButtonComponent, ZrdCardComponent, ZrdStepperComponent, ZrdStep, 
   ZrdDatePickerComponent, ZrdSelectComponent, ZrdInputComponent, ZrdToastComponent,
-  ZrdConfirmDialogComponent
+  ZrdConfirmDialogComponent, ZrdBadgeComponent, ZrdTextareaComponent
 } from '@repo/ui';
-import { PublicApiService } from '../../../../core/services/public-api.service';
-import { Doctor, AppointmentType } from '@repo/types';
+import { PublicApiService } from '../../../core/services/public-api.service';
+import { Doctor, AppointmentType, ApiResponse } from '@repo/types';
 
 @Component({
   selector: 'app-booking',
@@ -17,7 +17,7 @@ import { Doctor, AppointmentType } from '@repo/types';
     CommonModule, RouterModule, FormsModule, ReactiveFormsModule,
     ZrdButtonComponent, ZrdCardComponent, ZrdStepperComponent,
     ZrdDatePickerComponent, ZrdSelectComponent, ZrdInputComponent,
-    ZrdConfirmDialogComponent
+    ZrdConfirmDialogComponent, ZrdBadgeComponent, ZrdTextareaComponent
   ],
   template: `
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -209,7 +209,7 @@ export class BookingComponent {
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.api.getDoctorById(id).subscribe(res => this.doctor.set(res.data));
+      this.api.getDoctorById(id).subscribe((res: ApiResponse<Doctor>) => this.doctor.set(res.data));
     }
   }
 

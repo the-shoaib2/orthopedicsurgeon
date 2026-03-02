@@ -31,9 +31,11 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     private final PrescriptionRepository prescriptionRepository;
     private final AppointmentRepository appointmentRepository;
+    private final com.orthopedic.api.modules.patient.repository.PatientRepository patientRepository;
     private final PrescriptionMapper prescriptionMapper;
 
     @Override
+    @com.orthopedic.api.modules.audit.annotation.LogMutation(action = "CREATE_PRESCRIPTION", entityName = "Prescription")
     public PrescriptionResponse createPrescription(CreatePrescriptionRequest request, User currentUser) {
         Appointment appointment = appointmentRepository.findById(request.getAppointmentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
@@ -92,15 +94,24 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     @Override
     @Transactional(readOnly = true)
     public PageResponse<PrescriptionResponse> getPatientPrescriptions(UUID patientId, Pageable pageable, User currentUser) {
-        // Role check handled by Spring Security but added here for double safety if needed
+        validatePatientAccess(patientId, currentUser);
         Page<Prescription> page = prescriptionRepository.findAllByPatientId(patientId, pageable);
-        
-        // Scope filter: If user is patient, ensure they only see their own
-        if (hasRole(currentUser, "ROLE_PATIENT")) {
-            // Patient profile check (could be simplified if patientId is already validated as current user's)
-        }
-        
         return PageResponse.fromPage(page.map(prescriptionMapper::toResponse));
+    }
+
+    private void validatePatientAccess(UUID patientId, User currentUser) {
+        if (hasAnyRole(currentUser, "ROLE_ADMIN", "ROLE_STAFF", "ROLE_SUPER_ADMIN")) {
+            return;
+        }
+        if (hasRole(currentUser, "ROLE_PATIENT")) {
+            com.orthopedic.api.modules.patient.entity.Patient patient = patientRepository.findById(patientId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+            if (!patient.getUser().getId().equals(currentUser.getId())) {
+                throw new AccessDeniedException("Access denied: Not your records");
+            }
+        } else {
+            throw new AccessDeniedException("Access denied: Insufficient permissions");
+        }
     }
 
     private void validateOwnership(Prescription prescription, User currentUser) {

@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, Input, forwardRef, booleanAttribute } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule, FormControl } from '@angular/forms';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormControl } from '@angular/forms';
 
 @Component({
   selector: 'zrd-input',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule],
   template: `
     <div class="flex flex-col gap-1.5 w-full">
       <label *ngIf="label" [for]="id" class="text-sm font-medium text-secondary-700">
@@ -55,7 +55,7 @@ export class ZrdInputComponent implements ControlValueAccessor {
   @Input() id = `zrd-input-${Math.random().toString(36).substr(2, 9)}`;
   @Input() label?: string;
   @Input() placeholder = '';
-  @Input() type: 'text' | 'email' | 'password' | 'number' | 'tel' = 'text';
+  @Input() type: 'text' | 'email' | 'password' | 'number' | 'tel' | 'date' | 'time' | 'datetime-local' = 'text';
   @Input() hint?: string;
   @Input() error?: string;
   @Input({ transform: booleanAttribute }) required = false;

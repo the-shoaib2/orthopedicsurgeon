@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ZrdTableComponent, ZrdBadgeComponent, ZrdButtonComponent, ZrdPageHeaderComponent, ZrdSearchInputComponent, ZrdAvatarComponent } from '@repo/ui';
 
@@ -56,11 +56,15 @@ export class DoctorManagementComponent {
     { id: '3', name: 'Dr. David King', specialization: 'Pediatric Ortho', hospital: 'Metro General', status: 'ON_LEAVE', experience: '15 Yrs' },
   ]);
 
-  columns = [
-    { key: 'name', header: 'Specialist', cellTemplate: 'doctorTemplate' },
+  columns: any[] = [
+    { key: 'name', header: 'Specialist', cellTemplate: null },
     { key: 'hospital', header: 'Affiliated Hospital' },
     { key: 'experience', header: 'Exp.', width: '80px' },
-    { key: 'status', header: 'Status', cellTemplate: 'statusTemplate', width: '120px' },
-    { key: 'actions', header: '', cellTemplate: 'actionTemplate', width: '100px' }
+    { key: 'status', header: 'Status', cellTemplate: null, width: '120px' },
+    { key: 'actions', header: '', cellTemplate: null, width: '100px' }
   ];
+
+  @ViewChild('doctorTemplate') set doctorTemplate(v: TemplateRef<any>) { this.columns[0].cellTemplate = v; }
+  @ViewChild('statusTemplate') set statusTemplate(v: TemplateRef<any>) { this.columns[3].cellTemplate = v; }
+  @ViewChild('actionTemplate') set actionTemplate(v: TemplateRef<any>) { this.columns[4].cellTemplate = v; }
 }

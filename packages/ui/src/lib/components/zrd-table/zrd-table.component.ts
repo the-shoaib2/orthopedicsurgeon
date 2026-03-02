@@ -77,10 +77,10 @@ export interface ZrdColumnDef<T> {
                   [class.text-right]="col.align === 'right'"
               >
                 <ng-container *ngIf="col.cellTemplate; else defaultValue">
-                  <ng-container *ngTemplateOutlet="col.cellTemplate; context: { $implicit: item[col.key], row: item }"></ng-container>
+                  <ng-container *ngTemplateOutlet="col.cellTemplate; context: { $implicit: getCellValue(item, col.key), row: item }"></ng-container>
                 </ng-container>
                 <ng-template #defaultValue>
-                  {{ item[col.key] }}
+                  {{ getCellValue(item, col.key) }}
                 </ng-template>
               </td>
             </tr>
@@ -110,5 +110,9 @@ export class ZrdTableComponent<T> {
     }
     
     this.sortChange.emit({ key: col.key as string, direction });
+  }
+
+  getCellValue(item: any, key: any): any {
+    return item[key];
   }
 }

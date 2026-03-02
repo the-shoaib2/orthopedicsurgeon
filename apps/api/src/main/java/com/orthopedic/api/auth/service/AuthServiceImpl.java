@@ -38,6 +38,7 @@ public class AuthServiceImpl implements AuthService {
     private final JwtTokenProvider tokenProvider;
     private final JwtConfig jwtConfig;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final TwoFactorService twoFactorService;
 
     @Override
     @Transactional
@@ -157,6 +158,12 @@ public class AuthServiceImpl implements AuthService {
                 token.setRevoked(true);
                 refreshTokenRepository.save(token);
             });
+    }
+
+    @Override
+    @Transactional
+    public TokenResponse verify2fa(Verify2faRequest request, String userAgent) {
+        return twoFactorService.verifyTotpLogin(request.getTempToken(), request.getTotpCode(), userAgent);
     }
 
     private String generateAndSaveRefreshToken(User user, String deviceInfo) {

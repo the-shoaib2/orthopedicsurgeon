@@ -4,6 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "dev": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
@@ -24,7 +25,8 @@
     "@repo/types": "workspace:*",
     "@ngrx/store": "^17.0.0",
     "@ngrx/effects": "^17.0.0",
-    "@ngrx/store-devtools": "^17.0.0"
+    "@ngrx/store-devtools": "^17.0.0",
+    "zone.js": "^0.16.1"
   },
   "devDependencies": {
     "@angular/build": "^21.2.0",

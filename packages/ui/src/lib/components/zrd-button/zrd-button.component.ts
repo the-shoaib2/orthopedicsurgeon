@@ -23,7 +23,7 @@ export type ZrdButtonSize = 'sm' | 'md' | 'lg';
   `,
   host: {
     '[class]': 'classes',
-    '[disabled]': 'disabled || loading',
+    '[attr.disabled]': '(disabled || loading) ? true : null',
     '[attr.aria-busy]': 'loading',
     '[attr.aria-disabled]': 'disabled || loading'
   },

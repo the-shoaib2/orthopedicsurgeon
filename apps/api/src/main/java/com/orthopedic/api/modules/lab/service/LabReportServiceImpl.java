@@ -36,6 +36,7 @@ public class LabReportServiceImpl implements LabReportService {
     private final LabReportMapper labReportMapper;
 
     @Override
+    @com.orthopedic.api.modules.audit.annotation.LogMutation(action = "CREATE_LAB_REQUEST", entityName = "LabReport")
     public LabReportResponse createReportRequest(CreateLabReportRequest request) {
         LabReport report = labReportMapper.toEntity(request);
         
@@ -56,6 +57,7 @@ public class LabReportServiceImpl implements LabReportService {
     }
 
     @Override
+    @com.orthopedic.api.modules.audit.annotation.LogMutation(action = "UPDATE_LAB_RESULT", entityName = "LabReport")
     public LabReportResponse updateReportResult(UUID id, UpdateLabReportResultRequest request) {
         LabReport report = labReportRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Lab report not found"));
@@ -85,7 +87,7 @@ public class LabReportServiceImpl implements LabReportService {
     @Override
     @Transactional(readOnly = true)
     public PageResponse<LabReportResponse> getPatientReports(UUID patientId, Pageable pageable, User currentUser) {
-        // Permission check for patient owner or staff
+        validatePatientAccess(patientId, currentUser);
         Page<LabReport> page = labReportRepository.findAllByPatientId(patientId, pageable);
         return PageResponse.fromPage(page.map(labReportMapper::toResponse));
     }
@@ -93,8 +95,39 @@ public class LabReportServiceImpl implements LabReportService {
     @Override
     @Transactional(readOnly = true)
     public PageResponse<LabReportResponse> getDoctorReports(UUID doctorId, Pageable pageable, User currentUser) {
+        validateDoctorAccess(doctorId, currentUser);
         Page<LabReport> page = labReportRepository.findAllByDoctorId(doctorId, pageable);
         return PageResponse.fromPage(page.map(labReportMapper::toResponse));
+    }
+
+    private void validatePatientAccess(UUID patientId, User currentUser) {
+        if (hasAnyRole(currentUser, "ROLE_ADMIN", "ROLE_STAFF", "ROLE_SUPER_ADMIN")) {
+            return;
+        }
+        if (hasRole(currentUser, "ROLE_PATIENT")) {
+            Patient patient = patientRepository.findById(patientId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+            if (!patient.getUser().getId().equals(currentUser.getId())) {
+                throw new AccessDeniedException("Access denied: Not your records");
+            }
+        } else {
+            throw new AccessDeniedException("Access denied: Insufficient permissions");
+        }
+    }
+
+    private void validateDoctorAccess(UUID doctorId, User currentUser) {
+        if (hasAnyRole(currentUser, "ROLE_ADMIN", "ROLE_STAFF", "ROLE_SUPER_ADMIN")) {
+            return;
+        }
+        if (hasRole(currentUser, "ROLE_DOCTOR")) {
+            Doctor doctor = doctorRepository.findById(doctorId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Doctor not found"));
+            if (!doctor.getUser().getId().equals(currentUser.getId())) {
+                throw new AccessDeniedException("Access denied: Not your records");
+            }
+        } else {
+            throw new AccessDeniedException("Access denied: Insufficient permissions");
+        }
     }
 
     private void validateOwnership(LabReport report, User currentUser) {

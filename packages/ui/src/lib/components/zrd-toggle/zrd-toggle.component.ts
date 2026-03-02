@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, Input, forwardRef, booleanAttribute } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
   selector: 'zrd-toggle',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule],
   template: `
     <label [for]="id" class="inline-flex items-center cursor-pointer group">
       <div class="relative">

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ZrdStatComponent, ZrdCardComponent, ZrdTableComponent, ZrdBadgeComponent, ZrdAvatarComponent, ZrdButtonComponent, ZrdPageHeaderComponent } from '@repo/ui';
 import { AuthService } from '@repo/auth';
@@ -78,12 +78,16 @@ export class AdminDashboardComponent {
     { patient: 'Emily Davis', doctor: 'Dr. Sarah Johnson', time: '11:45 AM', status: 'WAITING' },
   ];
 
-  columns = [
+  columns: any[] = [
     { key: 'patient', header: 'Patient' },
     { key: 'doctor', header: 'Specialist' },
     { key: 'time', header: 'Time' },
-    { key: 'status', header: 'Status', cellTemplate: 'statusTemplate' }
+    { key: 'status', header: 'Status', cellTemplate: null }
   ];
+
+  @ViewChild('statusTemplate') set statusTemplate(v: TemplateRef<any>) { 
+    this.columns[3].cellTemplate = v; 
+  }
 
   topHospitals = [
     { name: 'City Orthopedic', city: 'Dhaka', revenue: '$12,450', growth: '+15%' },

@@ -45,15 +45,14 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             String tempToken = UUID.randomUUID().toString();
             redisTemplate.opsForValue().set("temp_auth:" + tempToken, user.getEmail(), 10, TimeUnit.MINUTES);
             
-            targetUrl = UriComponentsBuilder.fromUriString("http://localhost:4201/auth/2fa")
-                .queryParam("tempToken", tempToken)
+            targetUrl = UriComponentsBuilder.fromUriString("http://localhost:4200/auth/2fa")
+                .fragment("tempToken=" + tempToken)
                 .build().toUriString();
         } else {
             String accessToken = tokenProvider.generateAccessToken(userDetails);
-            // Refresh token handling left for client side to fetch via /refresh or similar
-            // Or just append to URL for simple implementation
-            targetUrl = UriComponentsBuilder.fromUriString("http://localhost:4200/auth/callback")
-                .queryParam("token", accessToken)
+            String baseUrl = isAdmin ? "http://localhost:4200" : "http://localhost:4201";
+            targetUrl = UriComponentsBuilder.fromUriString(baseUrl + "/auth/callback")
+                .fragment("token=" + accessToken)
                 .build().toUriString();
         }
 

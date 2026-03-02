@@ -1,0 +1,17 @@
+name: deploy-production
+
+on:
+    release:
+        types: [published]
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        environment: production
+        steps:
+            - uses: actions/checkout@v4
+            - name: Deploy to Production
+              run: |
+                  echo "Deploying to production environment..."
+                  # Example: Use a cloud-provider specific CLI (AWS CLI, gcloud, etc.)
+                  # aws ecs update-service --cluster ortho-cluster --service ortho-api --force-new-deployment

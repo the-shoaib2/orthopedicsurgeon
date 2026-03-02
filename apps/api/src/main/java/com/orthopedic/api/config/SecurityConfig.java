@@ -34,10 +34,13 @@ public class SecurityConfig {
         "/api/v1/auth/reset-password/**",
         "/v3/api-docs/**",
         "/swagger-ui/**",
-        "/oauth2/**"
+        "/oauth2/**",
+        "/ws/**"
     };
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final SecurityHeadersFilter securityHeadersFilter;
+    private final RateLimitingFilter rateLimitingFilter;
     private final OAuth2UserService oauth2UserService;
     private final OAuth2AuthenticationSuccessHandler oauth2AuthenticationSuccessHandler;
     private final OAuth2AuthenticationFailureHandler oauth2AuthenticationFailureHandler;
@@ -51,6 +54,8 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(PUBLIC_URLS).permitAll()
+                .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                .requestMatchers("/actuator/**").hasRole("SUPER_ADMIN")
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2
@@ -59,7 +64,9 @@ public class SecurityConfig {
                 .failureHandler(oauth2AuthenticationFailureHandler)
             );
 
-        // Add JWT filter
+        // Add Filters
+        http.addFilterBefore(securityHeadersFilter, org.springframework.security.web.header.HeaderWriterFilter.class);
+        http.addFilterBefore(rateLimitingFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(jwtAuthenticationFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

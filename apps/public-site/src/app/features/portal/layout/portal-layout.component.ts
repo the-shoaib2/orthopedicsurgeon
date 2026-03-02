@@ -1,13 +1,13 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { ZrdSidebarComponent, ZrdNavItem, ZrdAvatarComponent, ZrdDropdownComponent, ZrdButtonComponent } from '@repo/ui';
+import { ZrdSidebarComponent, ZrdNavItem, ZrdAvatarComponent, ZrdDropdownComponent } from '@repo/ui';
 import { AuthService } from '@repo/auth';
 
 @Component({
   selector: 'app-portal-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, ZrdSidebarComponent, ZrdAvatarComponent, ZrdDropdownComponent, ZrdButtonComponent],
+  imports: [CommonModule, RouterModule, ZrdSidebarComponent, ZrdAvatarComponent, ZrdDropdownComponent],
   template: `
     <div class="flex h-screen bg-secondary-50 overflow-hidden">
       <!-- Sidebar -->

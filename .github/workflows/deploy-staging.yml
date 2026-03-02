@@ -1,0 +1,16 @@
+name: deploy-staging
+
+on:
+    push:
+        branches: [develop]
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Deploy to Staging
+              run: |
+                  echo "Deploying to staging environment..."
+                  # Example: SSH into staging and run docker-compose pull && docker-compose up -d
+                  # ssh staging-server "cd /opt/ortho && docker-compose pull && docker-compose up -d"

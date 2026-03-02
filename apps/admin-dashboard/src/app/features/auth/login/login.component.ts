@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Store } from '@ngrx/store';
-import { login, selectIsLoading, selectAuthError } from '@repo/auth';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AuthService } from '@repo/auth';
 
 @Component({
   selector: 'app-login',
@@ -20,10 +20,10 @@ import { login, selectIsLoading, selectAuthError } from '@repo/auth';
           <label>Password</label>
           <input type="password" formControlName="password" />
         </div>
-        <button type="submit" [disabled]="isLoading$ | async">
-          {{ (isLoading$ | async) ? 'Logging in...' : 'Login' }}
+        <button type="submit" [disabled]="auth.loading()">
+          {{ auth.loading() ? 'Logging in...' : 'Login' }}
         </button>
-        <div *ngIf="error$ | async" class="error">{{ error$ | async }}</div>
+        <div *ngIf="auth.error()" class="error">{{ auth.error() }}</div>
       </form>
     </div>
   `,
@@ -36,20 +36,21 @@ import { login, selectIsLoading, selectAuthError } from '@repo/auth';
   `]
 })
 export class LoginComponent {
-  loginForm: FormGroup;
-  isLoading$ = this.store.select(selectIsLoading);
-  error$ = this.store.select(selectAuthError);
+  private fb = inject(FormBuilder);
+  public auth = inject(AuthService);
+  private router = inject(Router);
 
-  constructor(private fb: FormBuilder, private store: Store) {
-    this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
-    });
-  }
+  loginForm = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', Validators.required]
+  });
 
   onSubmit() {
     if (this.loginForm.valid) {
-      this.store.dispatch(login({ credentials: this.loginForm.value }));
+      this.auth.login(this.loginForm.value).subscribe({
+        next: () => this.router.navigate(['/dashboard']),
+        error: () => {} // Error handled by AuthService signal
+      });
     }
   }
 }

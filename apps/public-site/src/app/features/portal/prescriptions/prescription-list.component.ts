@@ -1,11 +1,11 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ZrdTableComponent, ZrdBadgeComponent, ZrdButtonComponent, ZrdPageHeaderComponent, ZrdColumnDef } from '@repo/ui';
+import { ZrdTableComponent, ZrdBadgeComponent, ZrdButtonComponent, ZrdPageHeaderComponent } from '@repo/ui';
 
 @Component({
   selector: 'app-prescription-list',
   standalone: true,
-  imports: [CommonModule, ZrdTableComponent, ZrdBadgeComponent, ZrdButtonComponent, ZrdPageHeaderComponent],
+  imports: [CommonModule, ZrdTableComponent, ZrdButtonComponent, ZrdPageHeaderComponent],
   template: `
     <zrd-page-header title="Prescriptions" subtitle="A digital record of all medications prescribed to you."></zrd-page-header>
 
@@ -29,11 +29,15 @@ export class PrescriptionListComponent {
     { id: '3', doctor: 'Dr. David King', date: '2024-08-15', diagnosis: 'Post-Surgery recovery', medicines: 'Antibiotics, Pain killers', status: 'COMPLETED' },
   ]);
 
-  columns: ZrdColumnDef[] = [
+  columns: any[] = [
     { key: 'date', header: 'Date', width: '120px' },
     { key: 'doctor', header: 'Doctor' },
     { key: 'diagnosis', header: 'Diagnosis' },
     { key: 'medicines', header: 'Medicines' },
-    { key: 'actions', header: 'Download', cellTemplate: 'actionTemplate', width: '120px' }
+    { key: 'actions', header: 'Download', cellTemplate: null, width: '120px' }
   ];
+
+  @ViewChild('actionTemplate') set actionTemplate(v: TemplateRef<any>) {
+    this.columns[4].cellTemplate = v;
+  }
 }

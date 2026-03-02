@@ -53,9 +53,9 @@ export class NavbarComponent {
   auth = inject(AuthService);
   
   userMenuItems = [
-    { label: 'My Dashboard', icon: 'pi pi-th-large', action: () => window.location.href = '/portal' },
-    { label: 'My Appointments', icon: 'pi pi-calendar', action: () => window.location.href = '/portal/appointments' },
-    { label: 'Profile Settings', icon: 'pi pi-user', action: () => window.location.href = '/portal/settings' },
+    { label: 'My Dashboard', icon: 'pi pi-th-large', action: () => window.location.href = 'http://localhost:4200' },
+    { label: 'My Appointments', icon: 'pi pi-calendar', action: () => window.location.href = 'http://localhost:4200/appointments' },
+    { label: 'Profile Settings', icon: 'pi pi-user', action: () => window.location.href = 'http://localhost:4200/settings' },
     { label: 'Logout', icon: 'pi pi-power-off', danger: true, action: () => this.auth.logout() }
   ];
 }

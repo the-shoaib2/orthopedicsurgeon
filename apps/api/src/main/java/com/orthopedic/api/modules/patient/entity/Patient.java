@@ -35,10 +35,16 @@ public class Patient extends BaseEntity {
     private Gender gender;
 
     private String emergencyContactName;
+    @Convert(converter = com.orthopedic.api.shared.converter.PiiEncryptionConverter.class)
     private String emergencyContactPhone;
+    
+    @Convert(converter = com.orthopedic.api.shared.converter.PiiEncryptionConverter.class)
     private String address;
+    
     private String city;
     private String insuranceProvider;
+    
+    @Convert(converter = com.orthopedic.api.shared.converter.PiiEncryptionConverter.class)
     private String insuranceNumber;
 
     @Column(columnDefinition = "TEXT")

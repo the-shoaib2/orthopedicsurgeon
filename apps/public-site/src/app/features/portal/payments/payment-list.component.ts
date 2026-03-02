@@ -1,6 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ZrdTableComponent, ZrdBadgeComponent, ZrdButtonComponent, ZrdPageHeaderComponent, ZrdColumnDef } from '@repo/ui';
+import { ZrdTableComponent, ZrdBadgeComponent, ZrdButtonComponent, ZrdPageHeaderComponent } from '@repo/ui';
 
 @Component({
   selector: 'app-payment-list',
@@ -32,12 +32,15 @@ export class PaymentListComponent {
     { id: 'INV-103', date: '2024-10-22', doctor: 'Dr. Sarah Johnson', service: 'MRI Scan', amount: 450.00, status: 'UNPAID' },
   ]);
 
-  columns: ZrdColumnDef[] = [
+  columns: any[] = [
     { key: 'id', header: 'Invoice ID', width: '120px' },
     { key: 'date', header: 'Date', width: '120px' },
     { key: 'service', header: 'Service' },
     { key: 'amount', header: 'Amount', width: '100px' },
-    { key: 'status', header: 'Status', cellTemplate: 'statusTemplate', width: '120px' },
-    { key: 'actions', header: '', cellTemplate: 'actionTemplate', width: '150px' }
+    { key: 'status', header: 'Status', cellTemplate: null, width: '120px' },
+    { key: 'actions', header: '', cellTemplate: null, width: '150px' }
   ];
+
+  @ViewChild('statusTemplate') set statusTemplate(v: TemplateRef<any>) { this.columns[4].cellTemplate = v; }
+  @ViewChild('actionTemplate') set actionTemplate(v: TemplateRef<any>) { this.columns[5].cellTemplate = v; }
 }

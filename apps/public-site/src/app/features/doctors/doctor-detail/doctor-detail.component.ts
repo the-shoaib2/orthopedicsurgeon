@@ -45,7 +45,7 @@ import { Doctor } from '@repo/types';
                </div>
             </zrd-card>
 
-            <zrd-tabs [tabs]="detailTabs" [activeTabId]="activeTab()" (tabChange)="activeTab.set($event)">
+            <zrd-tabs [tabs]="detailTabs" [activeTabId]="activeTab()" (tabChange)="activeTab.set($any($event))">
                <div *ngIf="activeTab() === 'about'" class="space-y-6 animate-in fade-in duration-300">
                   <div>
                     <h3 class="text-lg font-bold text-secondary-900 mb-3">Professional Biography</h3>

@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@repo/ui": [
+                "packages/ui/src/index.ts"
+            ],
+            "@repo/auth": [
+                "packages/auth/src/index.ts"
+            ],
+            "@repo/types": [
+                "packages/types/src/index.ts"
+            ]
+        },
+        "allowImportingTsExtensions": true,
+        "rewriteRelativeImportExtensions": true,
+        "noEmit": true,
+        "module": "preserve",
+        "moduleResolution": "bundler",
+        "target": "ES2022",
+        "skipLibCheck": true,
+        "strict": true
+    }
+}

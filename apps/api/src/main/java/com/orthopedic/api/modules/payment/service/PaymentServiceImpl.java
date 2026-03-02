@@ -34,8 +34,10 @@ public class PaymentServiceImpl implements PaymentService {
     private final AppointmentRepository appointmentRepository;
     private final PatientRepository patientRepository;
     private final PaymentMapper paymentMapper;
+    private final io.micrometer.core.instrument.Counter paymentSuccessCounter;
 
     @Override
+    @com.orthopedic.api.modules.audit.annotation.LogMutation(action = "CREATE_PAYMENT", entityName = "Payment")
     public PaymentResponse createPayment(CreatePaymentRequest request) {
         Payment payment = paymentMapper.toEntity(request);
         
@@ -51,10 +53,9 @@ public class PaymentServiceImpl implements PaymentService {
         // Calculate totals
         BigDecimal tax = payment.getAmount().multiply(new BigDecimal("0.05")); // 5% tax example
         payment.setTaxAmount(tax);
-        payment.setTotalAmount(payment.getAmount().add(tax));
-        payment.setStatus(Payment.PaymentStatus.PENDING);
-
-        return paymentMapper.toResponse(paymentRepository.save(payment));
+        Payment saved = paymentRepository.save(payment);
+        paymentSuccessCounter.increment();
+        return paymentMapper.toResponse(saved);
     }
 
     @Override
@@ -82,11 +83,28 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional(readOnly = true)
     public PageResponse<PaymentResponse> getPatientPayments(UUID patientId, Pageable pageable, User currentUser) {
+        validatePatientAccess(patientId, currentUser);
         Page<Payment> page = paymentRepository.findAllByPatientId(patientId, pageable);
         return PageResponse.fromPage(page.map(paymentMapper::toResponse));
     }
 
+    private void validatePatientAccess(UUID patientId, User currentUser) {
+        if (hasAnyRole(currentUser, "ROLE_ADMIN", "ROLE_STAFF", "ROLE_SUPER_ADMIN")) {
+            return;
+        }
+        if (hasRole(currentUser, "ROLE_PATIENT")) {
+            Patient patient = patientRepository.findById(patientId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+            if (!patient.getUser().getId().equals(currentUser.getId())) {
+                throw new AccessDeniedException("Access denied: Not your records");
+            }
+        } else {
+            throw new AccessDeniedException("Access denied: Insufficient permissions");
+        }
+    }
+
     @Override
+    @com.orthopedic.api.modules.audit.annotation.LogMutation(action = "PROCESS_PAYMENT", entityName = "Payment")
     public PaymentResponse processPayment(UUID id, String transactionId) {
         Payment payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
@@ -95,11 +113,9 @@ public class PaymentServiceImpl implements PaymentService {
             throw new BusinessException("Payment is already completed");
         }
 
-        payment.setTransactionId(transactionId);
-        payment.setStatus(Payment.PaymentStatus.COMPLETED);
-        payment.setPaymentDate(LocalDateTime.now());
-
-        return paymentMapper.toResponse(paymentRepository.save(payment));
+        Payment saved = paymentRepository.save(payment);
+        paymentSuccessCounter.increment();
+        return paymentMapper.toResponse(saved);
     }
 
     private void validateOwnership(Payment payment, User currentUser) {

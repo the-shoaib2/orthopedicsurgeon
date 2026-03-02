@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input, forwardRef, booleanAttribute } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 export interface ZrdSelectOption {
   label: string;
@@ -11,7 +11,7 @@ export interface ZrdSelectOption {
 @Component({
   selector: 'zrd-select',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule],
   template: `
     <div class="flex flex-col gap-1.5 w-full">
       <label *ngIf="label" [for]="id" class="text-sm font-medium text-secondary-700">

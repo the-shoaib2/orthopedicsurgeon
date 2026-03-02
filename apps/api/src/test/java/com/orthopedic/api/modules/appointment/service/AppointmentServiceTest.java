@@ -42,6 +42,7 @@ class AppointmentServiceTest {
     @Mock private AppointmentMapper appointmentMapper;
     @Mock private RedisTemplate<String, Object> redisTemplate;
     @Mock private ValueOperations<String, Object> valueOperations;
+    @Mock private io.micrometer.core.instrument.Counter appointmentBookedCounter;
 
     @InjectMocks
     private AppointmentServiceImpl appointmentService;

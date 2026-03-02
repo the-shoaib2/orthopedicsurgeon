@@ -1,12 +1,13 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ZrdStatComponent, ZrdCardComponent, ZrdButtonComponent, ZrdTableComponent, ZrdBadgeComponent, ZrdAvatarComponent } from '@repo/ui';
+import { RouterModule } from '@angular/router';
+import { ZrdStatComponent, ZrdCardComponent, ZrdBadgeComponent, ZrdAvatarComponent, ZrdButtonComponent } from '@repo/ui';
 import { AuthService } from '@repo/auth';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, ZrdStatComponent, ZrdCardComponent, ZrdButtonComponent, ZrdTableComponent, ZrdBadgeComponent, ZrdAvatarComponent],
+  imports: [CommonModule, RouterModule, ZrdStatComponent, ZrdCardComponent, ZrdBadgeComponent, ZrdAvatarComponent, ZrdButtonComponent],
   template: `
     <div class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <!-- Welcome -->
@@ -93,7 +94,7 @@ import { AuthService } from '@repo/auth';
 export class DashboardComponent {
   auth = inject(AuthService);
 
-  activities = [
+  activities: any[] = [
     { title: 'New Prescription Added', date: 'Today, 11:30 AM', icon: 'pi pi-file-medical', iconBg: 'bg-green-500', status: 'Added', statusVariant: 'success' },
     { title: 'Lab Report: Blood Test', date: 'Yesterday, 04:15 PM', icon: 'pi pi-chart-bar', iconBg: 'bg-primary-500', status: 'Pending', statusVariant: 'warning' },
     { title: 'Payment Confirmed', date: 'Oct 21, 2024', icon: 'pi pi-wallet', iconBg: 'bg-amber-500', status: 'Paid', statusVariant: 'success' },

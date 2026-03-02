@@ -52,6 +52,7 @@ public class HospitalServiceImpl implements HospitalService {
 
     @Override
     @Transactional(readOnly = true)
+    @org.springframework.cache.annotation.Cacheable(value = "hospitals", key = "#id")
     public HospitalResponse getHospitalById(UUID id) {
         return hospitalRepository.findById(id)
                 .map(this::mapToResponse)
@@ -91,6 +92,7 @@ public class HospitalServiceImpl implements HospitalService {
 
     @Override
     @Transactional(readOnly = true)
+    @org.springframework.cache.annotation.Cacheable(value = "hospital_services", key = "#hospitalId")
     public List<ServiceResponse> getServicesByHospital(UUID hospitalId) {
         return serviceRepository.findAllByHospitalId(hospitalId).stream()
                 .map(hospitalMapper::toServiceResponse)

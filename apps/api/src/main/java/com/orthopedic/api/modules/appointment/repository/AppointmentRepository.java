@@ -43,4 +43,5 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
 
     @Query("SELECT COUNT(a) FROM Appointment a WHERE a.status = :status")
     long countByStatus(@Param("status") Appointment.AppointmentStatus status);
+    List<Appointment> findAllByAppointmentDateAndStatus(java.time.LocalDate date, Appointment.AppointmentStatus status);
 }

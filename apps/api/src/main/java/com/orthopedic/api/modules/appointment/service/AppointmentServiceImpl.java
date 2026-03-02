@@ -48,11 +48,13 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final ServiceRepository serviceRepository;
     private final AppointmentMapper appointmentMapper;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final io.micrometer.core.instrument.Counter appointmentBookedCounter;
 
     private static final String LOCK_PREFIX = "lock:appointment:";
 
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
+    @com.orthopedic.api.modules.audit.annotation.LogMutation(action = "BOOK_APPOINTMENT", entityName = "Appointment")
     public AppointmentResponse bookAppointment(BookAppointmentRequest request, User currentUser) {
         String lockKey = LOCK_PREFIX + request.getDoctorId() + ":" + request.getAppointmentDate() + ":" + request.getStartTime();
         Boolean locked = redisTemplate.opsForValue().setIfAbsent(lockKey, "LOCKED", Duration.ofSeconds(30));
@@ -110,6 +112,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             // TODO: Create Payment record (will be implemented in Payments module)
             // TODO: Send notification (will be implemented in Notifications module)
 
+            appointmentBookedCounter.increment();
             return appointmentMapper.toResponse(saved);
         } finally {
             redisTemplate.delete(lockKey);
@@ -163,6 +166,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     @Transactional
+    @com.orthopedic.api.modules.audit.annotation.LogMutation(action = "CONFIRM_APPOINTMENT", entityName = "Appointment")
     public AppointmentResponse confirmAppointment(UUID id) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
@@ -205,6 +209,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     @Transactional
+    @com.orthopedic.api.modules.audit.annotation.LogMutation(action = "CANCEL_APPOINTMENT", entityName = "Appointment")
     public AppointmentResponse cancelAppointment(UUID id, String reason, User currentUser) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));

@@ -1,0 +1,119 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: ortho-db
+    environment:
+      POSTGRES_DB: orthopedic_db
+      POSTGRES_USER: shoaib
+      POSTGRES_PASSWORD: shoaib123
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - ortho-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: ortho-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - ortho-network
+
+  minio:
+    image: minio/minio
+    container_name: ortho-minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - miniodata:/data
+    networks:
+      - ortho-network
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: ortho-api
+    depends_on:
+      - db
+      - redis
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/orthopedic_db
+      SPRING_DATASOURCE_USERNAME: shoaib
+      SPRING_DATASOURCE_PASSWORD: shoaib123
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      MINIO_ENDPOINT: http://minio:9000
+    ports:
+      - "8080:8080"
+    networks:
+      - ortho-network
+
+  admin-dashboard:
+    build:
+      context: .
+      dockerfile: apps/admin-dashboard/Dockerfile
+    container_name: ortho-admin
+    ports:
+      - "4200:80"
+    depends_on:
+      - api
+    networks:
+      - ortho-network
+
+  public-site:
+    build:
+      context: .
+      dockerfile: apps/public-site/Dockerfile
+    container_name: ortho-public
+    ports:
+      - "4201:80"
+    depends_on:
+      - api
+    networks:
+      - ortho-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ortho-grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./infra/monitoring/grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - ortho-network
+
+  loki:
+    image: grafana/loki:latest
+    container_name: ortho-loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./infra/monitoring/loki/loki-config.yml:/etc/loki/local-config.yaml
+    networks:
+      - ortho-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ortho-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infra/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - ortho-network
+
+networks:
+  ortho-network:
+    driver: bridge
+
+volumes:
+  pgdata:
+  miniodata:

@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class TwoFactorRequest {
+public class Verify2faRequest {
     @NotBlank(message = "Temporary token is required")
     private String tempToken;
 
