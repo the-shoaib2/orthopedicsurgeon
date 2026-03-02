@@ -95,10 +95,18 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         user.setLastName(names.length > 1 ? names[1] : "");
         user.setEnabled(true);
 
-        Role role = roleRepository.findByName("ROLE_PATIENT")
-                .orElseThrow(() -> new AuthException("Default role not found"));
+        // 🔒 SECURITY: Assign ROLE_ADMIN for internal domains
+        String roleName = "ROLE_PATIENT";
+        if (email.endsWith("@orthosync.com") || email.endsWith("@orthopedic.com")) {
+            roleName = "ROLE_ADMIN";
+        }
+
+        String finalRoleName = roleName;
+        Role role = roleRepository.findByName(roleName)
+                .orElseThrow(() -> new AuthException("Default role not found: " + finalRoleName));
         user.setRoles(Set.of(role));
 
+        log.info("Registering new OAuth2 user: {} with role: {}", email, finalRoleName);
         return userRepository.save(user);
     }
 }

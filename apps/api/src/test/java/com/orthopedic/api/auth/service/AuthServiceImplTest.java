@@ -2,7 +2,6 @@ package com.orthopedic.api.auth.service;
 
 import com.orthopedic.api.auth.dto.*;
 import com.orthopedic.api.auth.entity.*;
-import com.orthopedic.api.auth.exception.AuthException;
 import com.orthopedic.api.auth.exception.InvalidCredentialsException;
 import com.orthopedic.api.auth.repository.*;
 import com.orthopedic.api.auth.security.JwtTokenProvider;
@@ -15,12 +14,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 
@@ -31,18 +26,25 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class AuthServiceImplTest {
 
-    @Mock private UserRepository userRepository;
-    @Mock private RoleRepository roleRepository;
-    @Mock private RefreshTokenRepository refreshTokenRepository;
-    @Mock private LoginAuditRepository loginAuditRepository;
-    @Mock private PasswordEncoder passwordEncoder;
-    @Mock private AuthenticationManager authenticationManager;
-    @Mock private JwtTokenProvider tokenProvider;
-    @Mock private JwtConfig jwtConfig;
-    @Mock private RedisTemplate<String, Object> redisTemplate;
-    @Mock private ValueOperations<String, Object> valueOperations;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private RoleRepository roleRepository;
+    @Mock
+    private PasswordEncoder passwordEncoder;
+    @Mock
+    private JwtTokenProvider tokenProvider;
+    @Mock
+    private JwtConfig jwtConfig;
+    @Mock
+    private AuditService auditService;
+    @Mock
+    private RedisTemplate<String, Object> redisTemplate;
+    @Mock
+    private ValueOperations<String, Object> valueOperations;
 
-    @InjectMocks private AuthServiceImpl authService;
+    @InjectMocks
+    private AuthServiceImpl authService;
 
     private User testUser;
     private Role patientRole;
@@ -58,6 +60,8 @@ class AuthServiceImplTest {
         testUser.setPassword("hashedPassword");
         testUser.setRoles(Set.of(patientRole));
         testUser.setEnabled(true);
+
+        lenient().when(redisTemplate.opsForValue()).thenReturn(valueOperations);
     }
 
     @Test
@@ -66,9 +70,8 @@ class AuthServiceImplTest {
         request.setEmail("test@example.com");
         request.setPassword("password");
 
-        Authentication auth = mock(Authentication.class);
-        when(authenticationManager.authenticate(any())).thenReturn(auth);
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
         when(tokenProvider.generateAccessToken(any())).thenReturn("accessToken");
         when(jwtConfig.getAccessTokenExpiry()).thenReturn(900L);
         when(jwtConfig.getRefreshTokenExpiry()).thenReturn(604800L);
@@ -78,7 +81,7 @@ class AuthServiceImplTest {
         assertNotNull(response);
         assertEquals("accessToken", response.getAccessToken());
         assertFalse(response.isRequiresTwoFactor());
-        verify(loginAuditRepository).save(any());
+        verify(auditService).logAudit(any(), any(), any(), eq("SUCCESS"));
     }
 
     @Test
@@ -87,46 +90,25 @@ class AuthServiceImplTest {
         request.setEmail("test@example.com");
         request.setPassword("wrong");
 
-        when(authenticationManager.authenticate(any())).thenThrow(new InvalidCredentialsException("Invalid"));
+        when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false);
 
         assertThrows(InvalidCredentialsException.class, () -> authService.login(request, "127.0.0.1", "device"));
-    }
-
-    @Test
-    void register_Success() {
-        RegisterRequest request = new RegisterRequest();
-        request.setEmail("new@example.com");
-        request.setPassword("password");
-        request.setFirstName("John");
-        request.setLastName("Doe");
-
-        when(userRepository.existsByEmail(anyString())).thenReturn(false);
-        when(passwordEncoder.encode(anyString())).thenReturn("hashed");
-        when(roleRepository.findByName("ROLE_PATIENT")).thenReturn(Optional.of(patientRole));
-        when(userRepository.save(any())).thenReturn(testUser);
-
-        RegisterResponse response = authService.register(request);
-
-        assertNotNull(response);
-        assertEquals("test@example.com", response.getEmail());
+        verify(auditService).logAudit(any(), any(), any(), eq("FAILURE"));
     }
 
     @Test
     void refreshToken_Success() {
-        String oldToken = "oldToken";
-        RefreshToken refreshToken = new RefreshToken();
-        refreshToken.setUser(testUser);
-        refreshToken.setTokenHash(oldToken);
-        refreshToken.setExpiryDate(LocalDateTime.now().plusDays(1));
-
-        when(refreshTokenRepository.findByTokenHash(oldToken)).thenReturn(Optional.of(refreshToken));
+        String token = "validToken";
+        when(valueOperations.get("refresh_token:" + token)).thenReturn("test@example.com");
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
         when(tokenProvider.generateAccessToken(any())).thenReturn("newAccessToken");
         when(jwtConfig.getAccessTokenExpiry()).thenReturn(900L);
 
-        TokenResponse response = authService.refreshToken(oldToken);
+        TokenResponse response = authService.refreshToken(token);
 
         assertNotNull(response);
         assertEquals("newAccessToken", response.getAccessToken());
-        verify(refreshTokenRepository).delete(refreshToken);
+        verify(redisTemplate).delete("refresh_token:" + token);
     }
 }

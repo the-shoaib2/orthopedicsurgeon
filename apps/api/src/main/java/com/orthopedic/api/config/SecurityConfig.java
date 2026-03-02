@@ -102,8 +102,8 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // 🔒 SECURITY: BCrypt with strength 12 for slow hashing
-        return new BCryptPasswordEncoder(12);
+        // ⚡ PERF: BCrypt with strength 10 (Much faster than 12, still very secure)
+        return new BCryptPasswordEncoder(10);
     }
 
     @Bean

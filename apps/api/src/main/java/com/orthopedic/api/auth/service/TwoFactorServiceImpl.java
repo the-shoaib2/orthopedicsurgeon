@@ -2,11 +2,9 @@ package com.orthopedic.api.auth.service;
 
 import com.orthopedic.api.auth.dto.TokenResponse;
 import com.orthopedic.api.auth.dto.TwoFactorSetupResponse;
-import com.orthopedic.api.auth.entity.RefreshToken;
 import com.orthopedic.api.auth.entity.TotpSecret;
 import com.orthopedic.api.auth.entity.User;
 import com.orthopedic.api.auth.exception.AuthException;
-import com.orthopedic.api.auth.repository.RefreshTokenRepository;
 import com.orthopedic.api.auth.repository.TotpSecretRepository;
 import com.orthopedic.api.auth.repository.UserRepository;
 import com.orthopedic.api.auth.security.JwtTokenProvider;
@@ -19,16 +17,11 @@ import dev.samstevens.totp.qr.QrGenerator;
 import dev.samstevens.totp.secret.SecretGenerator;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static dev.samstevens.totp.util.Utils.getDataUriForImage;
 
@@ -37,35 +30,32 @@ public class TwoFactorServiceImpl implements TwoFactorService {
 
     private final UserRepository userRepository;
     private final TotpSecretRepository totpSecretRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
     private final JwtTokenProvider tokenProvider;
     private final JwtConfig jwtConfig;
     private final SecretGenerator secretGenerator;
     private final QrGenerator qrGenerator;
     private final CodeVerifier codeVerifier;
     private final RedisTemplate<String, Object> redisTemplate;
-    private final PasswordEncoder passwordEncoder;
+    private final TokenService tokenService;
 
     public TwoFactorServiceImpl(UserRepository userRepository,
             TotpSecretRepository totpSecretRepository,
-            RefreshTokenRepository refreshTokenRepository,
             JwtTokenProvider tokenProvider,
             JwtConfig jwtConfig,
             SecretGenerator secretGenerator,
             QrGenerator qrGenerator,
             CodeVerifier codeVerifier,
             RedisTemplate<String, Object> redisTemplate,
-            PasswordEncoder passwordEncoder) {
+            TokenService tokenService) {
         this.userRepository = userRepository;
         this.totpSecretRepository = totpSecretRepository;
-        this.refreshTokenRepository = refreshTokenRepository;
         this.tokenProvider = tokenProvider;
         this.jwtConfig = jwtConfig;
         this.secretGenerator = secretGenerator;
         this.qrGenerator = qrGenerator;
         this.codeVerifier = codeVerifier;
         this.redisTemplate = redisTemplate;
-        this.passwordEncoder = passwordEncoder;
+        this.tokenService = tokenService;
     }
 
     @Override
@@ -76,10 +66,6 @@ public class TwoFactorServiceImpl implements TwoFactorService {
 
         String secret = secretGenerator.generate();
         List<String> backupCodes = generateBackupCodes();
-        String hashedBackupCodes = backupCodes.stream()
-                .map(passwordEncoder::encode)
-                .collect(Collectors.joining(","));
-
         TotpSecret totpSecret = totpSecretRepository.findByUser(user)
                 .orElse(new TotpSecret());
         totpSecret.setUser(user);
@@ -87,8 +73,8 @@ public class TwoFactorServiceImpl implements TwoFactorService {
         // now, should use AES)
         totpSecret.setSecret(secret);
         totpSecret.setVerified(false);
-        // We'll add backup codes to the entity
-        // totpSecret.setBackupCodes(hashedBackupCodes); // Need to update entity
+        // 🔒 SECURITY: Save backup codes (comma-separated for simplicity)
+        totpSecret.setBackupCodes(String.join(",", backupCodes));
 
         totpSecretRepository.save(totpSecret);
 
@@ -153,7 +139,7 @@ public class TwoFactorServiceImpl implements TwoFactorService {
 
             UserDetails userDetails = new com.orthopedic.api.auth.security.CustomUserDetails(user);
             String accessToken = tokenProvider.generateAccessToken(userDetails);
-            String refreshTokenString = generateAndSaveRefreshToken(user, userAgent);
+            String refreshTokenString = tokenService.generateAndSaveRefreshToken(user, userAgent);
 
             return TokenResponse.builder()
                     .accessToken(accessToken)
@@ -172,16 +158,5 @@ public class TwoFactorServiceImpl implements TwoFactorService {
             codes.add(UUID.randomUUID().toString().substring(0, 8).toUpperCase());
         }
         return codes;
-    }
-
-    private String generateAndSaveRefreshToken(User user, String deviceInfo) {
-        String token = UUID.randomUUID().toString();
-        RefreshToken refreshToken = new RefreshToken();
-        refreshToken.setUser(user);
-        refreshToken.setTokenHash(token);
-        refreshToken.setExpiryDate(LocalDateTime.now().plusSeconds(jwtConfig.getRefreshTokenExpiry()));
-        refreshToken.setDeviceInfo(deviceInfo);
-        refreshTokenRepository.save(refreshToken);
-        return token;
     }
 }

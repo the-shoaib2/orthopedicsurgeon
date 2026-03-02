@@ -1,23 +1,20 @@
 package com.orthopedic.api.auth.service;
 
 import com.orthopedic.api.auth.dto.*;
-import com.orthopedic.api.auth.entity.*;
+import com.orthopedic.api.auth.entity.Role;
+import com.orthopedic.api.auth.entity.User;
 import com.orthopedic.api.auth.exception.AuthException;
 import com.orthopedic.api.auth.exception.InvalidCredentialsException;
-import com.orthopedic.api.auth.repository.*;
+import com.orthopedic.api.auth.repository.RoleRepository;
+import com.orthopedic.api.auth.repository.UserRepository;
 import com.orthopedic.api.auth.security.JwtTokenProvider;
 import com.orthopedic.api.config.JwtConfig;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -27,81 +24,100 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
-    private final LoginAuditRepository loginAuditRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
     private final JwtConfig jwtConfig;
     private final RedisTemplate<String, Object> redisTemplate;
     private final TwoFactorService twoFactorService;
+    private final AuditService auditService;
+    private final TokenService tokenService;
 
     public AuthServiceImpl(UserRepository userRepository,
             RoleRepository roleRepository,
-            RefreshTokenRepository refreshTokenRepository,
-            LoginAuditRepository loginAuditRepository,
             PasswordEncoder passwordEncoder,
-            AuthenticationManager authenticationManager,
             JwtTokenProvider tokenProvider,
             JwtConfig jwtConfig,
             RedisTemplate<String, Object> redisTemplate,
-            TwoFactorService twoFactorService) {
+            TwoFactorService twoFactorService,
+            AuditService auditService,
+            TokenService tokenService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
-        this.refreshTokenRepository = refreshTokenRepository;
-        this.loginAuditRepository = loginAuditRepository;
         this.passwordEncoder = passwordEncoder;
-        this.authenticationManager = authenticationManager;
         this.tokenProvider = tokenProvider;
         this.jwtConfig = jwtConfig;
         this.redisTemplate = redisTemplate;
         this.twoFactorService = twoFactorService;
+        this.auditService = auditService;
+        this.tokenService = tokenService;
     }
 
     @Override
     @Transactional
     public LoginResponse login(LoginRequest request, String ipAddress, String userAgent) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
 
-            User user = userRepository.findByEmail(request.getEmail())
-                    .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
+        // 🔒 SECURITY: Check if account is locked
+        if (user.isLocked()) {
+            auditService.logAudit(user, ipAddress, userAgent, "LOCKED_OUT");
+            throw new AuthException("Account is temporarily locked. Please try again later.");
+        }
 
-            // 🔒 SECURITY: Check if 2FA is required for ADMIN roles
-            boolean isAdmin = user.getRoles().stream()
-                    .anyMatch(r -> r.getName().equals("ROLE_ADMIN") || r.getName().equals("ROLE_SUPER_ADMIN"));
+        if (!user.isEnabled()) {
+            throw new AuthException("Account is disabled. Please contact support.");
+        }
 
-            if (isAdmin && user.isUsing2fa()) {
-                String tempToken = UUID.randomUUID().toString();
-                redisTemplate.opsForValue().set("temp_auth:" + tempToken, user.getEmail(), 10, TimeUnit.MINUTES);
-
-                logAudit(user, ipAddress, userAgent, "2FA_PENDING");
-                return LoginResponse.builder()
-                        .requiresTwoFactor(true)
-                        .tempToken(tempToken)
-                        .build();
+        // ⚡ PERF: Direct authentication check (avoid redundant DB lookup in
+        // UserDetailsService)
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            // 🔒 SECURITY: Increment failed attempts
+            user.incrementFailedAttempts();
+            if (user.getFailedLoginAttempts() >= 5) {
+                user.lock(30); // Lock for 30 minutes
+                auditService.logAudit(user, ipAddress, userAgent, "ACCOUNT_LOCKED");
+            } else {
+                auditService.logAudit(user, ipAddress, userAgent, "FAILURE");
             }
-
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            String accessToken = tokenProvider.generateAccessToken(userDetails);
-            String refreshTokenString = generateAndSaveRefreshToken(user, userAgent);
-
-            logAudit(user, ipAddress, userAgent, "SUCCESS");
-
-            return LoginResponse.builder()
-                    .accessToken(accessToken)
-                    .refreshToken(refreshTokenString)
-                    .tokenType("Bearer")
-                    .expiresIn(jwtConfig.getAccessTokenExpiry())
-                    .requiresTwoFactor(false)
-                    .build();
-
-        } catch (AuthenticationException e) {
-            userRepository.findByEmail(request.getEmail())
-                    .ifPresent(user -> logAudit(user, ipAddress, userAgent, "FAILURE"));
+            userRepository.save(user);
             throw new InvalidCredentialsException("Invalid email or password");
         }
+
+        // 🔓 SUCCESS: Reset failed attempts ONLY if they were > 0 to save an UPDATE
+        // call
+        if (user.getFailedLoginAttempts() > 0) {
+            user.resetFailedAttempts();
+            userRepository.save(user);
+        }
+
+        // 🔒 SECURITY: Check if 2FA is required for ADMIN roles
+        boolean isAdmin = user.getRoles().stream()
+                .anyMatch(r -> r.getName().equals("ROLE_ADMIN") || r.getName().equals("ROLE_SUPER_ADMIN"));
+
+        if (isAdmin && user.isUsing2fa()) {
+            String tempToken = UUID.randomUUID().toString();
+            redisTemplate.opsForValue().set("temp_auth:" + tempToken, user.getEmail(), 10, TimeUnit.MINUTES);
+
+            auditService.logAudit(user, ipAddress, userAgent, "2FA_PENDING");
+            return LoginResponse.builder()
+                    .requiresTwoFactor(true)
+                    .tempToken(tempToken)
+                    .build();
+        }
+
+        UserDetails userDetails = new com.orthopedic.api.auth.security.CustomUserDetails(user);
+        String accessToken = tokenProvider.generateAccessToken(userDetails);
+        String refreshTokenString = tokenService.generateAndSaveRefreshToken(user, userAgent);
+
+        auditService.logAudit(user, ipAddress, userAgent, "SUCCESS");
+
+        return LoginResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshTokenString)
+                .tokenType("Bearer")
+                .expiresIn(jwtConfig.getAccessTokenExpiry())
+                .requiresTwoFactor(false)
+                .build();
     }
 
     @Override
@@ -137,24 +153,21 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public TokenResponse refreshToken(String refreshTokenString) {
-        // 🔒 SECURITY: Refresh token rotation
-        RefreshToken refreshToken = refreshTokenRepository.findByTokenHash(refreshTokenString)
-                .orElseThrow(() -> new AuthException("Invalid refresh token"));
-
-        if (refreshToken.isRevoked() || refreshToken.getExpiryDate().isBefore(LocalDateTime.now())) {
-            refreshTokenRepository.delete(refreshToken);
-            throw new AuthException("Refresh token expired or revoked");
+        // 🔒 SECURITY: Redis-backed refresh tokens (ultra-fast)
+        String email = (String) redisTemplate.opsForValue().get("refresh_token:" + refreshTokenString);
+        if (email == null) {
+            throw new AuthException("Invalid or expired refresh token");
         }
 
-        User user = refreshToken.getUser();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AuthException("User not found"));
 
-        // Load UserDetails for access token generation
         UserDetails userDetails = new com.orthopedic.api.auth.security.CustomUserDetails(user);
         String newAccessToken = tokenProvider.generateAccessToken(userDetails);
 
-        // Rotate refresh token
-        refreshTokenRepository.delete(refreshToken);
-        String newRefreshTokenString = generateAndSaveRefreshToken(user, refreshToken.getDeviceInfo());
+        // Rotate token: delete old, create new
+        tokenService.deleteRefreshToken(refreshTokenString);
+        String newRefreshTokenString = tokenService.generateAndSaveRefreshToken(user, "rotated");
 
         return TokenResponse.builder()
                 .accessToken(newAccessToken)
@@ -170,12 +183,10 @@ public class AuthServiceImpl implements AuthService {
         // Blacklist access token
         tokenProvider.blacklistToken(accessToken, jwtConfig.getAccessTokenExpiry());
 
-        // Revoke refresh token
-        refreshTokenRepository.findByTokenHash(refreshTokenString)
-                .ifPresent(token -> {
-                    token.setRevoked(true);
-                    refreshTokenRepository.save(token);
-                });
+        // Revoke refresh token from Redis
+        if (refreshTokenString != null) {
+            tokenService.deleteRefreshToken(refreshTokenString);
+        }
     }
 
     @Override
@@ -184,23 +195,4 @@ public class AuthServiceImpl implements AuthService {
         return twoFactorService.verifyTotpLogin(request.getTempToken(), request.getTotpCode(), userAgent);
     }
 
-    private String generateAndSaveRefreshToken(User user, String deviceInfo) {
-        String token = UUID.randomUUID().toString();
-        RefreshToken refreshToken = new RefreshToken();
-        refreshToken.setUser(user);
-        refreshToken.setTokenHash(token);
-        refreshToken.setExpiryDate(LocalDateTime.now().plusSeconds(jwtConfig.getRefreshTokenExpiry()));
-        refreshToken.setDeviceInfo(deviceInfo);
-        refreshTokenRepository.save(refreshToken);
-        return token;
-    }
-
-    private void logAudit(User user, String ip, String device, String status) {
-        LoginAudit audit = new LoginAudit();
-        audit.setUser(user);
-        audit.setIpAddress(ip);
-        audit.setDeviceInfo(device);
-        audit.setStatus(status);
-        loginAuditRepository.save(audit);
-    }
 }

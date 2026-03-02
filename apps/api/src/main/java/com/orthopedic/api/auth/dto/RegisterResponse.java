@@ -1,69 +1,24 @@
 package com.orthopedic.api.auth.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Schema(description = "Response object for user registration")
 public class RegisterResponse {
+
+    @Schema(description = "Newly created user ID", example = "101")
     private Long userId;
+
+    @Schema(description = "Registered email address", example = "shoaib@orthosync.com")
     private String email;
+
+    @Schema(description = "Success message", example = "User registered successfully")
     private String message;
-
-    public RegisterResponse() {
-    }
-
-    public RegisterResponse(Long userId, String email, String message) {
-        this.userId = userId;
-        this.email = email;
-        this.message = message;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public static RegisterResponseBuilder builder() {
-        return new RegisterResponseBuilder();
-    }
-
-    public static class RegisterResponseBuilder {
-        private Long userId;
-        private String email;
-        private String message;
-
-        public RegisterResponseBuilder userId(Long userId) {
-            this.userId = userId;
-            return this;
-        }
-
-        public RegisterResponseBuilder email(String email) {
-            this.email = email;
-            return this;
-        }
-
-        public RegisterResponseBuilder message(String message) {
-            this.message = message;
-            return this;
-        }
-
-        public RegisterResponse build() {
-            return new RegisterResponse(userId, email, message);
-        }
-    }
 }

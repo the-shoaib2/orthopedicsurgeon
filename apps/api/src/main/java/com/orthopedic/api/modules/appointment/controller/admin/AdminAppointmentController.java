@@ -1,9 +1,10 @@
-package com.orthopedic.api.modules.appointment.controller;
+package com.orthopedic.api.modules.appointment.controller.admin;
 
 import com.orthopedic.api.auth.entity.User;
 import com.orthopedic.api.modules.appointment.dto.request.AppointmentFilterRequest;
 import com.orthopedic.api.modules.appointment.dto.request.BookAppointmentRequest;
 import com.orthopedic.api.modules.appointment.dto.response.AppointmentResponse;
+import com.orthopedic.api.modules.appointment.dto.response.AppointmentStatsResponse;
 import com.orthopedic.api.modules.appointment.dto.response.AppointmentSummaryResponse;
 import com.orthopedic.api.modules.appointment.service.AppointmentService;
 import com.orthopedic.api.rbac.annotation.CurrentUser;
@@ -17,25 +18,27 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/appointments")
-@Tag(name = "Appointment Management", description = "Endpoints for booking and managing appointments")
-public class AppointmentController extends BaseController {
+@RequestMapping("/api/v1/admin/appointments")
+@Tag(name = "Admin Appointment Management", description = "Endpoints for administrators and staff to manage all appointments")
+@PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
+public class AdminAppointmentController extends BaseController {
 
     private final AppointmentService appointmentService;
 
-    public AppointmentController(AppointmentService appointmentService) {
+    public AdminAppointmentController(AppointmentService appointmentService) {
         this.appointmentService = appointmentService;
     }
 
     @GetMapping
-    @Operation(summary = "List appointments based on user role and filters")
-    public ResponseEntity<ApiResponse<PageResponse<AppointmentSummaryResponse>>> getAppointments(
+    @Operation(summary = "List all appointments with filters")
+    public ResponseEntity<ApiResponse<PageResponse<AppointmentSummaryResponse>>> getAll(
             AppointmentFilterRequest filters,
             @CurrentUser User currentUser,
             @RequestParam(defaultValue = "0") int page,
@@ -49,6 +52,12 @@ public class AppointmentController extends BaseController {
         return ok(appointmentService.getAppointments(filters, pageable, currentUser));
     }
 
+    @GetMapping("/stats")
+    @Operation(summary = "Get global appointment statistics")
+    public ResponseEntity<ApiResponse<AppointmentStatsResponse>> getStats(@CurrentUser User currentUser) {
+        return ok(appointmentService.getStats(currentUser));
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Get appointment detail by ID")
     public ResponseEntity<ApiResponse<AppointmentResponse>> getById(
@@ -58,7 +67,7 @@ public class AppointmentController extends BaseController {
     }
 
     @PostMapping
-    @Operation(summary = "Book a new appointment")
+    @Operation(summary = "Book a new appointment for a patient")
     public ResponseEntity<ApiResponse<AppointmentResponse>> book(
             @Valid @RequestBody BookAppointmentRequest request,
             @CurrentUser User currentUser) {
@@ -68,25 +77,13 @@ public class AppointmentController extends BaseController {
     }
 
     @PostMapping("/{id}/confirm")
-    @Operation(summary = "Confirm a pending appointment")
+    @Operation(summary = "Confirm an appointment")
     public ResponseEntity<ApiResponse<AppointmentResponse>> confirm(@PathVariable UUID id) {
         return ok("Appointment confirmed", appointmentService.confirmAppointment(id));
     }
 
-    @PostMapping("/{id}/start")
-    @Operation(summary = "Start an appointment (Doctor only)")
-    public ResponseEntity<ApiResponse<AppointmentResponse>> start(@PathVariable UUID id) {
-        return ok("Appointment started", appointmentService.startAppointment(id));
-    }
-
-    @PostMapping("/{id}/complete")
-    @Operation(summary = "Complete an appointment (Doctor only)")
-    public ResponseEntity<ApiResponse<AppointmentResponse>> complete(@PathVariable UUID id) {
-        return ok("Appointment completed", appointmentService.completeAppointment(id));
-    }
-
     @PostMapping("/{id}/cancel")
-    @Operation(summary = "Cancel an appointment with a reason")
+    @Operation(summary = "Cancel an appointment")
     public ResponseEntity<ApiResponse<AppointmentResponse>> cancel(
             @PathVariable UUID id,
             @RequestParam String reason,

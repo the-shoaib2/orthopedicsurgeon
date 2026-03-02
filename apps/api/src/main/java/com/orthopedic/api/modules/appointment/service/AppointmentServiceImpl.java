@@ -268,15 +268,28 @@ public class AppointmentServiceImpl implements AppointmentService {
                     .map(Doctor::getId).orElseThrow(() -> new BusinessException("Doctor profile not found"));
         }
 
-        long total = appointmentRepository.countByFilters(doctorId, patientId, null, null, null, null, null);
-        long pending = appointmentRepository.countByFilters(doctorId, patientId, null,
-                Appointment.AppointmentStatus.PENDING, null, null, null);
-        long confirmed = appointmentRepository.countByFilters(doctorId, patientId, null,
-                Appointment.AppointmentStatus.CONFIRMED, null, null, null);
-        long completed = appointmentRepository.countByFilters(doctorId, patientId, null,
-                Appointment.AppointmentStatus.COMPLETED, null, null, null);
-        long cancelled = appointmentRepository.countByFilters(doctorId, patientId, null,
-                Appointment.AppointmentStatus.CANCELLED, null, null, null);
+        List<Object[]> results = appointmentRepository.countAppointmentsByStatus(doctorId, patientId);
+
+        long total = 0;
+        long pending = 0;
+        long confirmed = 0;
+        long completed = 0;
+        long cancelled = 0;
+
+        for (Object[] result : results) {
+            Appointment.AppointmentStatus status = (Appointment.AppointmentStatus) result[0];
+            long count = (Long) result[1];
+            total += count;
+            switch (status) {
+                case PENDING -> pending = count;
+                case CONFIRMED -> confirmed = count;
+                case COMPLETED -> completed = count;
+                case CANCELLED -> cancelled = count;
+                default -> {
+                } // Other statuses like NO_SHOW, IN_PROGRESS, RESCHEDULED are not specifically
+                  // tracked in main counters
+            }
+        }
 
         return new AppointmentStatsResponse(total, pending, confirmed, completed, cancelled, new HashMap<>());
     }

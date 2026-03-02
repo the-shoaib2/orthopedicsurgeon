@@ -3,7 +3,7 @@ package com.orthopedic.api.auth.service;
 import com.orthopedic.api.auth.dto.TwoFactorSetupResponse;
 import com.orthopedic.api.auth.entity.TotpSecret;
 import com.orthopedic.api.auth.entity.User;
-import com.orthopedic.api.auth.repository.RefreshTokenRepository;
+import com.orthopedic.api.auth.entity.TotpSecret;
 import com.orthopedic.api.auth.repository.TotpSecretRepository;
 import com.orthopedic.api.auth.repository.UserRepository;
 import com.orthopedic.api.auth.security.JwtTokenProvider;
@@ -29,18 +29,27 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class TwoFactorServiceImplTest {
 
-    @Mock private UserRepository userRepository;
-    @Mock private TotpSecretRepository totpSecretRepository;
-    @Mock private RefreshTokenRepository refreshTokenRepository;
-    @Mock private JwtTokenProvider tokenProvider;
-    @Mock private JwtConfig jwtConfig;
-    @Mock private SecretGenerator secretGenerator;
-    @Mock private QrGenerator qrGenerator;
-    @Mock private CodeVerifier codeVerifier;
-    @Mock private RedisTemplate<String, Object> redisTemplate;
-    @Mock private PasswordEncoder passwordEncoder;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private TotpSecretRepository totpSecretRepository;
+    @Mock
+    private JwtTokenProvider tokenProvider;
+    @Mock
+    private JwtConfig jwtConfig;
+    @Mock
+    private SecretGenerator secretGenerator;
+    @Mock
+    private QrGenerator qrGenerator;
+    @Mock
+    private CodeVerifier codeVerifier;
+    @Mock
+    private RedisTemplate<String, Object> redisTemplate;
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
-    @InjectMocks private TwoFactorServiceImpl twoFactorService;
+    @InjectMocks
+    private TwoFactorServiceImpl twoFactorService;
 
     private User testUser;
 
@@ -55,7 +64,7 @@ class TwoFactorServiceImplTest {
     void setupTotp_Success() throws Exception {
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(secretGenerator.generate()).thenReturn("SECRET");
-        when(qrGenerator.generate(any())).thenReturn(new byte[]{1, 2, 3});
+        when(qrGenerator.generate(any())).thenReturn(new byte[] { 1, 2, 3 });
         when(qrGenerator.getImageMimeType()).thenReturn("image/png");
 
         TwoFactorSetupResponse response = twoFactorService.setupTotp(1L);
@@ -70,7 +79,7 @@ class TwoFactorServiceImplTest {
     void verifyAndEnableTotp_Success() {
         TotpSecret secret = new TotpSecret();
         secret.setSecret("SECRET");
-        
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(totpSecretRepository.findByUser(any())).thenReturn(Optional.of(secret));
         when(codeVerifier.isValidCode(anyString(), anyString())).thenReturn(true);
