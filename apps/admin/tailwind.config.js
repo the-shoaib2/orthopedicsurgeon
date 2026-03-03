@@ -2,6 +2,8 @@
 module.exports = {
     content: [
         "./src/**/*.{html,ts}",
+        "../../packages/ui/src/**/*.{html,ts}",
+        "../../packages/auth/src/**/*.{html,ts}"
     ],
     theme: {
         extend: {
