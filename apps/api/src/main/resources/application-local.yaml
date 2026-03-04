@@ -54,7 +54,8 @@ spring:
 # ── Logging: more verbose for local dev ───────────────────────────────────────
 logging:
     level:
-        root: INFO
-        "[com.orthopedic.api]": DEBUG
-        org.hibernate.SQL: DEBUG
-        "[org.hibernate.orm.jdbc.bind]": TRACE
+        root: WARN
+        com.orthopedic.api: ERROR
+        org.hibernate.SQL: ERROR
+        org.hibernate.orm.jdbc.bind: ERROR
+        org.zalando.logbook: ERROR

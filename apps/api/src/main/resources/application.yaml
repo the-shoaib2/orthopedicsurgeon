@@ -10,6 +10,11 @@ management:
       enabled: true
 
 spring:
+  profiles:
+    active: local
+  devtools:
+    restart:
+      enabled: false
   flyway:
     clean-on-validation-error: false
   datasource:
@@ -68,8 +73,8 @@ spring:
       client:
         registration:
           google:
-            client-id: ${GOOGLE_CLIENT_ID}
-            client-secret: ${GOOGLE_CLIENT_SECRET}
+            client-id: ${GOOGLE_CLIENT_ID:default-client-id}
+            client-secret: ${GOOGLE_CLIENT_SECRET:default-client-secret}
             scope:
               - email
               - profile
@@ -91,7 +96,7 @@ aws:
 
 logging:
   level:
-    root: INFO
-    "[com.orthopedic.api]": DEBUG
-    org.springframework.security: INFO
-    org.zalando.logbook: TRACE
+    root: WARN
+    com.orthopedic.api: ERROR
+    org.springframework.security: WARN
+    org.zalando.logbook: ERROR

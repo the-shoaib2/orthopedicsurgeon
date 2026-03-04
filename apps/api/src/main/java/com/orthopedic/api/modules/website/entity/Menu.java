@@ -37,7 +37,9 @@ public class Menu {
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("order ASC")
+    @Builder.Default
     private List<Menu> children = new ArrayList<>();
 
+    @Builder.Default
     private boolean isActive = true;
 }

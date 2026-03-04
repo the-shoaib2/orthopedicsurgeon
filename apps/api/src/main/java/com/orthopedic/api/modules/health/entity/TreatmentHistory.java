@@ -50,6 +50,7 @@ public class TreatmentHistory {
     private String outcome;
 
     @Column(name = "follow_up_required", nullable = false)
+    @Builder.Default
     private Boolean followUpRequired = false;
 
     @Column(name = "follow_up_date")

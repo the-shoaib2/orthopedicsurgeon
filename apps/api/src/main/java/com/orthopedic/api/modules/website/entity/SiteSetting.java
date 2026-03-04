@@ -29,6 +29,7 @@ public class SiteSetting {
     private String category;
 
     @Column(name = "is_public", nullable = false)
+    @Builder.Default
     private Boolean isPublic = true;
 
     @Column(name = "created_at", nullable = false, updatable = false)

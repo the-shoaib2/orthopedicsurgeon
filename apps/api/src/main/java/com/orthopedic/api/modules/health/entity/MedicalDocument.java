@@ -39,6 +39,7 @@ public class MedicalDocument {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "document_type", nullable = false)
+    @Builder.Default
     private DocumentType documentType = DocumentType.OTHER;
 
     @Column(name = "document_name", length = 300, nullable = false)
@@ -60,9 +61,11 @@ public class MedicalDocument {
     private LocalDate documentDate;
 
     @Column(name = "is_private", nullable = false)
+    @Builder.Default
     private Boolean isPrivate = false;
 
     @Column(name = "is_deleted", nullable = false)
+    @Builder.Default
     private Boolean isDeleted = false;
 
     @Column(name = "created_at", nullable = false, updatable = false)

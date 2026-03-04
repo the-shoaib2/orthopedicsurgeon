@@ -43,6 +43,7 @@ public class TeamMember {
     private Integer displayOrder;
 
     @Column(name = "show_on_website", nullable = false)
+    @Builder.Default
     private Boolean showOnWebsite = true;
 
     @JdbcTypeCode(SqlTypes.JSON)

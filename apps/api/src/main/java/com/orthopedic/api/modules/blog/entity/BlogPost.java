@@ -57,15 +57,19 @@ public class BlogPost {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
+    @Builder.Default
     private BlogPostStatus status = BlogPostStatus.DRAFT;
 
     @Column(name = "is_featured", nullable = false)
+    @Builder.Default
     private Boolean isFeatured = false;
 
     @Column(name = "view_count", nullable = false)
+    @Builder.Default
     private Integer viewCount = 0;
 
     @Column(name = "read_time_minutes", nullable = false)
+    @Builder.Default
     private Integer readTimeMinutes = 1;
 
     @Column(name = "meta_title", length = 160)

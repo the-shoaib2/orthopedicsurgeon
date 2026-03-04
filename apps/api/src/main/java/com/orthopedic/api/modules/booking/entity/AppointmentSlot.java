@@ -38,6 +38,7 @@ public class AppointmentSlot {
     private LocalTime slotTime;
 
     @Column(name = "is_booked", nullable = false)
+    @Builder.Default
     private Boolean isBooked = false;
 
     @ManyToOne(fetch = FetchType.LAZY)

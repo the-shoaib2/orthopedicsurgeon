@@ -48,6 +48,7 @@ public class BlogComment {
     private List<BlogComment> replies;
 
     @Column(name = "is_approved", nullable = false)
+    @Builder.Default
     private Boolean isApproved = false;
 
     @Column(name = "created_at", nullable = false, updatable = false)

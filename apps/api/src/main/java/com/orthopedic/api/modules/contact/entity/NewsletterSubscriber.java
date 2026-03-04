@@ -29,6 +29,7 @@ public class NewsletterSubscriber {
     private String name;
 
     @Column(name = "is_active", nullable = false)
+    @Builder.Default
     private Boolean isActive = false;
 
     @Column(name = "subscribed_at", nullable = false)

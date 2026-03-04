@@ -8,19 +8,20 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
 
 @Repository
 public interface ServiceRepository extends JpaRepository<ServiceEntity, UUID> {
-    List<ServiceEntity> findAllByHospitalId(UUID hospitalId);
+        List<ServiceEntity> findAllByHospitalId(UUID hospitalId);
 
-    @Query("SELECT s FROM ServiceEntity s WHERE " +
-            "(LOWER(s.name) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
-            "LOWER(s.description) LIKE LOWER(CONCAT('%', :query, '%'))) AND " +
-            "s.status = 'ACTIVE'")
-    List<ServiceEntity> searchServices(@Param("query") String query);
+        @Query("SELECT s FROM ServiceEntity s WHERE " +
+                        "(LOWER(s.name) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+                        "LOWER(s.description) LIKE LOWER(CONCAT('%', :query, '%'))) AND " +
+                        "s.status = 'ACTIVE'")
+        List<ServiceEntity> searchServices(@Param("query") String query);
 
-    List<ServiceEntity> findByIsFeaturedTrueAndStatus(ServiceEntity.ServiceStatus status);
+        List<ServiceEntity> findByIsFeaturedTrueAndStatus(ServiceEntity.ServiceStatus status);
 
-    Page<ServiceEntity> findAllByStatus(ServiceEntity.ServiceStatus status,
-            org.springframework.data.domain.Pageable pageable);
+        Page<ServiceEntity> findAllByStatus(ServiceEntity.ServiceStatus status,
+                        org.springframework.data.domain.Pageable pageable);
 }

@@ -81,7 +81,7 @@ class AuthServiceImplTest {
 
         assertNotNull(response);
         assertEquals("accessToken", response.getAccessToken());
-        assertFalse(response.isRequiresTwoFactor());
+        assertFalse(response.isRequiresMfa());
         verify(auditService).logAudit(any(), any(), any(), eq("SUCCESS"));
     }
 

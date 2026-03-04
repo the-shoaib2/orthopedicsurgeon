@@ -52,7 +52,7 @@ public class DataInitializer implements CommandLineRunner {
                     .roles(Set.of(adminRole))
                     .build();
             userRepository.save(admin);
-            System.out.println("✅ Seeded default admin user: " + adminEmail + " / password");
+
         }
     }
 

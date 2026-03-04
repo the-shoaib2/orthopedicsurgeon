@@ -33,6 +33,7 @@ public class SearchLog {
     private Map<String, Object> filters;
 
     @Column(name = "result_count", nullable = false)
+    @Builder.Default
     private Integer resultCount = 0;
 
     @ManyToOne(fetch = FetchType.LAZY)

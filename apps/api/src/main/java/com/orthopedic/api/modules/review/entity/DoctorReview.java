@@ -46,9 +46,11 @@ public class DoctorReview {
     private String reviewText;
 
     @Column(name = "is_verified", nullable = false)
+    @Builder.Default
     private Boolean isVerified = false;
 
     @Column(name = "is_published", nullable = false)
+    @Builder.Default
     private Boolean isPublished = false;
 
     @Column(name = "created_at", nullable = false, updatable = false)

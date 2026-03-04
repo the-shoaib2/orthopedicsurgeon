@@ -1,0 +1,67 @@
+spring:
+    config:
+        activate:
+            on-profile: prod
+
+    # ── Database: PostgreSQL (Mandatory Environment Variables) ──────────────────
+    datasource:
+        url: ${SPRING_DATASOURCE_URL}
+        username: ${SPRING_DATASOURCE_USERNAME}
+        password: ${SPRING_DATASOURCE_PASSWORD}
+        driver-class-name: org.postgresql.Driver
+        hikari:
+            maximum-pool-size: 20
+            minimum-idle: 5
+            idle-timeout: 300000
+            connection-timeout: 20000
+            max-lifetime: 1200000
+            pool-name: OrthopedicProdPool
+
+    # ── JPA: Validation only for production safety ──────────────────────────────
+    jpa:
+        hibernate:
+            ddl-auto: validate
+        show-sql: false
+        open-in-view: false
+        properties:
+            hibernate:
+                format_sql: false
+                jdbc:
+                    batch_size: 25
+                    order_inserts: true
+                    order_updates: true
+
+    # ── Flyway: Enabled for managed migrations ──────────────────────────────────
+    flyway:
+        enabled: true
+        baseline-on-migrate: true
+        fail-on-missing-locations: true
+
+    # ── Redis: Production Cache ────────────────────────────────────────────────
+    data:
+        redis:
+            host: ${REDIS_HOST:localhost}
+            port: ${REDIS_PORT:6379}
+            password: ${REDIS_PASSWORD:}
+    cache:
+        type: redis
+        redis:
+            time-to-live: 3600000
+
+    # ── Security: All secrets MUST be provided via Environment Variables ────────
+    security:
+        oauth2:
+            client:
+                registration:
+                    google:
+                        client-id: ${GOOGLE_CLIENT_ID}
+                        client-secret: ${GOOGLE_CLIENT_SECRET}
+
+# ── Logging: Concise for production ──────────────────────────────────────────
+logging:
+    level:
+        root: INFO
+        com.orthopedic.api: INFO
+        org.springframework: WARN
+        org.hibernate: WARN
+        org.zalando.logbook: ERROR

@@ -44,9 +44,11 @@ public class Testimonial {
     private ServiceEntity service;
 
     @Column(name = "is_verified", nullable = false)
+    @Builder.Default
     private Boolean isVerified = false;
 
     @Column(name = "is_featured", nullable = false)
+    @Builder.Default
     private Boolean isFeatured = false;
 
     @Column(name = "created_at", nullable = false, updatable = false)

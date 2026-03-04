@@ -7,6 +7,7 @@ import com.orthopedic.api.modules.hospital.dto.request.UpdateServiceRequest;
 import com.orthopedic.api.modules.hospital.dto.response.HospitalResponse;
 import com.orthopedic.api.modules.hospital.dto.response.ServiceResponse;
 import com.orthopedic.api.modules.hospital.entity.Hospital;
+import com.orthopedic.api.modules.hospital.entity.ServiceEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

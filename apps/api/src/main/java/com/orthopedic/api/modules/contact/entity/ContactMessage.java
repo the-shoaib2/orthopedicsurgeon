@@ -43,6 +43,7 @@ public class ContactMessage {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
+    @Builder.Default
     private ContactMessageStatus status = ContactMessageStatus.NEW;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -59,6 +59,18 @@ public class HospitalServiceImpl implements HospitalService {
 
     @Override
     @Transactional(readOnly = true)
+    public Page<ServiceResponse> getAllServices(ServiceEntity.ServiceStatus status, Pageable pageable) {
+        Page<ServiceEntity> services;
+        if (status != null) {
+            services = serviceRepository.findAllByStatus(status, pageable);
+        } else {
+            services = serviceRepository.findAll(pageable);
+        }
+        return services.map(hospitalMapper::toServiceResponse);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     @org.springframework.cache.annotation.Cacheable(value = "hospitals", key = "#id")
     public HospitalResponse getHospitalById(UUID id) {
         return hospitalRepository.findById(id)

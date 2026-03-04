@@ -60,7 +60,7 @@ public class PatientPortalController {
     /**
      * K-02: Get vitals history for charting (default 30 days).
      */
-    @GetMapping("/health/vitals/history")
+    @GetMapping("/health/vitals/chart")
     public ResponseEntity<List<VitalSignsResponse>> getVitalsHistory(
             @RequestParam UUID userId,
             @RequestParam(defaultValue = "30") int days) {
@@ -72,7 +72,7 @@ public class PatientPortalController {
     /**
      * L-01: Get patient's own profile.
      */
-    @GetMapping("/profile")
+    @GetMapping("/portal/profile")
     public ResponseEntity<PatientResponse> getMyProfile(@RequestParam UUID userId) {
         return ResponseEntity.ok(portalService.getMyProfile(userId));
     }
@@ -80,7 +80,7 @@ public class PatientPortalController {
     /**
      * L-02: Update patient's own profile.
      */
-    @PutMapping("/profile")
+    @PutMapping("/portal/profile")
     public ResponseEntity<PatientResponse> updateMyProfile(
             @RequestParam UUID userId,
             @Valid @RequestBody UpdatePatientProfileRequest request) {

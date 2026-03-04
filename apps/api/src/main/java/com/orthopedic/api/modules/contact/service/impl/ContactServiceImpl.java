@@ -61,12 +61,12 @@ public class ContactServiceImpl {
     @Async
     protected void sendAutoReplyAsync(String email, String name) {
         // Implementation for email service
-        System.out.println("Async Auto Reply sent to " + email);
+        // Implementation for email service
     }
 
     @Async
     protected void notifyAdminsAsync(ContactMessage message) {
         // Implementation for notifying admins
-        System.out.println("Async Admin Notification for message from " + message.getEmail());
+        // Implementation for notifying admins
     }
 }

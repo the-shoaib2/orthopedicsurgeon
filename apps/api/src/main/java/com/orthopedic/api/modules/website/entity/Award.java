@@ -37,6 +37,7 @@ public class Award {
     private Integer displayOrder;
 
     @Column(name = "is_active", nullable = false)
+    @Builder.Default
     private Boolean isActive = true;
 
     @PrePersist

@@ -40,7 +40,7 @@ class AuthControllerTest {
         LoginResponse response = LoginResponse.builder()
                 .accessToken("access")
                 .refreshToken("refresh")
-                .requiresTwoFactor(false)
+                .requiresMfa(false)
                 .build();
 
         when(authService.login(any(), any(), any())).thenReturn(response);
@@ -50,6 +50,6 @@ class AuthControllerTest {
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken").value("access"))
-                .andExpect(jsonPath("$.requiresTwoFactor").value(false));
+                .andExpect(jsonPath("$.requiresMfa").value(false));
     }
 }
