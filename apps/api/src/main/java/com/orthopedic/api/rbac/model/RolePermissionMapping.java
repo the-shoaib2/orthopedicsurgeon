@@ -9,31 +9,28 @@ public class RolePermissionMapping {
     private static final Map<String, Set<Permission>> mapping = new ConcurrentHashMap<>();
 
     static {
-        mapping.put("ROLE_SUPER_ADMIN", EnumSet.allOf(Permission.class));
-        
-        mapping.put("ROLE_ADMIN", EnumSet.of(
-            Permission.MANAGE_USERS,
-            Permission.MANAGE_DOCTORS,
-            Permission.MANAGE_APPOINTMENTS_ALL,
-            Permission.VIEW_REPORTS_ALL,
-            Permission.MANAGE_PAYMENTS,
-            Permission.UPLOAD_REPORTS,
-            Permission.VIEW_PRESCRIPTIONS,
-            Permission.MANAGE_SERVICES
-        ));
+        mapping.put("SUPER_ADMIN'", EnumSet.allOf(Permission.class));
 
-        mapping.put("ROLE_DOCTOR", EnumSet.of(
-            Permission.MANAGE_APPOINTMENTS_OWN,
-            Permission.VIEW_REPORTS_OWN,
-            Permission.UPLOAD_REPORTS,
-            Permission.VIEW_PRESCRIPTIONS
-        ));
+        mapping.put("ADMIN", EnumSet.of(
+                Permission.MANAGE_USERS,
+                Permission.MANAGE_DOCTORS,
+                Permission.MANAGE_APPOINTMENTS_ALL,
+                Permission.VIEW_REPORTS_ALL,
+                Permission.MANAGE_PAYMENTS,
+                Permission.UPLOAD_REPORTS,
+                Permission.VIEW_PRESCRIPTIONS,
+                Permission.MANAGE_SERVICES));
 
-        mapping.put("ROLE_PATIENT", EnumSet.of(
-            Permission.MANAGE_APPOINTMENTS_OWN,
-            Permission.VIEW_PRESCRIPTIONS
-        ));
-        
+        mapping.put("DOCTOR", EnumSet.of(
+                Permission.MANAGE_APPOINTMENTS_OWN,
+                Permission.VIEW_REPORTS_OWN,
+                Permission.UPLOAD_REPORTS,
+                Permission.VIEW_PRESCRIPTIONS));
+
+        mapping.put("PATIENT", EnumSet.of(
+                Permission.MANAGE_APPOINTMENTS_OWN,
+                Permission.VIEW_PRESCRIPTIONS));
+
         // Add other roles as needed
     }
 

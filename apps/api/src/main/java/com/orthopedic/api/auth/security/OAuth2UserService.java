@@ -95,10 +95,10 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         user.setLastName(names.length > 1 ? names[1] : "");
         user.setEnabled(true);
 
-        // 🔒 SECURITY: Assign ROLE_ADMIN for internal domains
-        String roleName = "ROLE_PATIENT";
+        // 🔒 SECURITY: Assign ADMIN for internal domains
+        String roleName = "PATIENT";
         if (email.endsWith("@orthosync.com") || email.endsWith("@orthopedic.com")) {
-            roleName = "ROLE_ADMIN";
+            roleName = "ADMIN";
         }
 
         String finalRoleName = roleName;

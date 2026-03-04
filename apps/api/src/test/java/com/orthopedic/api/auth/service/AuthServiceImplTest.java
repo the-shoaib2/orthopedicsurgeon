@@ -53,7 +53,7 @@ class AuthServiceImplTest {
     @BeforeEach
     void setUp() {
         patientRole = new Role();
-        patientRole.setName("ROLE_PATIENT");
+        patientRole.setName("PATIENT");
 
         testUser = new User();
         testUser.setId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));

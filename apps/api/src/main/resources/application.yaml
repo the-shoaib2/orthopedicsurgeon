@@ -1,3 +1,12 @@
+app:
+  rate-limit:
+    default-limit: 60
+    default-window: 60
+    login-limit: 5
+    login-window: 900
+    search-limit: 20
+    search-window: 60
+
 management:
   endpoints:
     web:

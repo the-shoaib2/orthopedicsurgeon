@@ -111,7 +111,7 @@ public class AuthServiceImpl implements AuthService {
         updateLoginMetadataAsync(user);
 
         boolean isAdmin = user.getRoles().stream()
-                .anyMatch(r -> r.getName().equals("ROLE_ADMIN") || r.getName().equals("ROLE_SUPER_ADMIN")
+                .anyMatch(r -> r.getName().equals("ADMIN") || r.getName().equals("SUPER_ADMIN'")
                         || r.getName().equals("ADMIN") || r.getName().equals("SUPER_ADMIN"));
 
         if (isAdmin || user.isUsing2fa()) {
@@ -188,7 +188,7 @@ public class AuthServiceImpl implements AuthService {
         user.setGender(request.getGender());
         user.setEnabled(false); // Mandatory verification as per Phase 1 spec
 
-        String roleName = request.getRole() != null ? request.getRole() : "ROLE_PATIENT";
+        String roleName = request.getRole() != null ? request.getRole() : "PATIENT";
         Role role = roleRepository.findByName(roleName)
                 .orElseThrow(() -> new AuthException("Role not found: " + roleName));
         user.setRoles(Set.of(role));
@@ -403,7 +403,7 @@ public class AuthServiceImpl implements AuthService {
             user.setLastName((String) payload.get("family_name"));
             user.setEnabled(true);
 
-            Role patientRole = roleRepository.findByName("ROLE_PATIENT")
+            Role patientRole = roleRepository.findByName("PATIENT")
                     .orElseThrow(() -> new AuthException("Default role not found"));
             user.setRoles(Set.of(patientRole));
 
@@ -422,7 +422,7 @@ public class AuthServiceImpl implements AuthService {
         updateLoginMetadataAsync(user);
 
         boolean isAdmin = user.getRoles().stream()
-                .anyMatch(r -> r.getName().equals("ROLE_ADMIN") || r.getName().equals("ROLE_SUPER_ADMIN"));
+                .anyMatch(r -> r.getName().equals("ADMIN") || r.getName().equals("SUPER_ADMIN'"));
 
         if (isAdmin || user.isUsing2fa()) {
             String tempToken = UUID.randomUUID().toString();

@@ -35,10 +35,10 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
         // 1. Seed Roles
-        Role adminRole = getOrCreateRole("ROLE_ADMIN");
-        getOrCreateRole("ROLE_DOCTOR");
-        getOrCreateRole("ROLE_PATIENT");
-        getOrCreateRole("ROLE_SUPER_ADMIN");
+        Role adminRole = getOrCreateRole("ADMIN");
+        getOrCreateRole("DOCTOR");
+        getOrCreateRole("PATIENT");
+        getOrCreateRole("SUPER_ADMIN'");
 
         // 2. Seed Admin User if not exists
         String adminEmail = "admin@orthosync.com";

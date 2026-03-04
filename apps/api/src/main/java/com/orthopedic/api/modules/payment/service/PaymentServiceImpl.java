@@ -36,10 +36,10 @@ public class PaymentServiceImpl implements PaymentService {
     private final io.micrometer.core.instrument.Counter paymentSuccessCounter;
 
     public PaymentServiceImpl(PaymentRepository paymentRepository,
-                             AppointmentRepository appointmentRepository,
-                             PatientRepository patientRepository,
-                             PaymentMapper paymentMapper,
-                             io.micrometer.core.instrument.Counter paymentSuccessCounter) {
+            AppointmentRepository appointmentRepository,
+            PatientRepository patientRepository,
+            PaymentMapper paymentMapper,
+            io.micrometer.core.instrument.Counter paymentSuccessCounter) {
         this.paymentRepository = paymentRepository;
         this.appointmentRepository = appointmentRepository;
         this.patientRepository = patientRepository;
@@ -51,7 +51,7 @@ public class PaymentServiceImpl implements PaymentService {
     @com.orthopedic.api.modules.audit.annotation.LogMutation(action = "CREATE_PAYMENT", entityName = "Payment")
     public PaymentResponse createPayment(CreatePaymentRequest request) {
         Payment payment = paymentMapper.toEntity(request);
-        
+
         if (request.getAppointmentId() != null) {
             Appointment appointment = appointmentRepository.findById(request.getAppointmentId())
                     .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
@@ -74,9 +74,9 @@ public class PaymentServiceImpl implements PaymentService {
     public PaymentResponse getPaymentById(UUID id, User currentUser) {
         Payment payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
-        
+
         validateOwnership(payment, currentUser);
-        
+
         return paymentMapper.toResponse(payment);
     }
 
@@ -85,9 +85,9 @@ public class PaymentServiceImpl implements PaymentService {
     public PaymentResponse getPaymentByAppointment(UUID appointmentId, User currentUser) {
         Payment payment = paymentRepository.findByAppointmentId(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment not found for this appointment"));
-        
+
         validateOwnership(payment, currentUser);
-        
+
         return paymentMapper.toResponse(payment);
     }
 
@@ -100,10 +100,10 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private void validatePatientAccess(UUID patientId, User currentUser) {
-        if (hasAnyRole(currentUser, "ROLE_ADMIN", "ROLE_STAFF", "ROLE_SUPER_ADMIN")) {
+        if (hasAnyRole(currentUser, "ADMIN", "STAFF", "SUPER_ADMIN'")) {
             return;
         }
-        if (hasRole(currentUser, "ROLE_PATIENT")) {
+        if (hasRole(currentUser, "PATIENT")) {
             Patient patient = patientRepository.findById(patientId)
                     .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
             if (!patient.getUser().getId().equals(currentUser.getId())) {
@@ -119,7 +119,7 @@ public class PaymentServiceImpl implements PaymentService {
     public PaymentResponse processPayment(UUID id, String transactionId) {
         Payment payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
-        
+
         if (payment.getStatus() == Payment.PaymentStatus.COMPLETED) {
             throw new BusinessException("Payment is already completed");
         }
@@ -130,11 +130,11 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private void validateOwnership(Payment payment, User currentUser) {
-        if (hasAnyRole(currentUser, "ROLE_ADMIN", "ROLE_STAFF", "ROLE_SUPER_ADMIN")) {
+        if (hasAnyRole(currentUser, "ADMIN", "STAFF", "SUPER_ADMIN'")) {
             return;
         }
-        
-        if (hasRole(currentUser, "ROLE_PATIENT")) {
+
+        if (hasRole(currentUser, "PATIENT")) {
             if (!payment.getPatient().getUser().getId().equals(currentUser.getId())) {
                 throw new AccessDeniedException("Access denied: Not your payment record");
             }

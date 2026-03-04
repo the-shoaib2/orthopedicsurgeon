@@ -1,5 +1,6 @@
 package com.orthopedic.api.auth.security;
 
+import com.orthopedic.api.config.RateLimitProperties;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,9 +15,11 @@ import java.io.IOException;
 public class RateLimitingFilter extends OncePerRequestFilter {
 
     private final RedisRateLimiter redisRateLimiter;
+    private final RateLimitProperties rateLimitProperties;
 
-    public RateLimitingFilter(RedisRateLimiter redisRateLimiter) {
+    public RateLimitingFilter(RedisRateLimiter redisRateLimiter, RateLimitProperties rateLimitProperties) {
         this.redisRateLimiter = redisRateLimiter;
+        this.rateLimitProperties = rateLimitProperties;
     }
 
     @Override
@@ -27,15 +30,15 @@ public class RateLimitingFilter extends OncePerRequestFilter {
         String clientIp = getClientIP(request);
 
         // Define limits based on route
-        int limit = 60; // default
-        long window = 60; // 1 min
+        int limit = rateLimitProperties.getDefaultLimit();
+        long window = rateLimitProperties.getDefaultWindow();
 
         if (path.startsWith("/api/v1/auth/login")) {
-            limit = 5;
-            window = 15 * 60; // 15 mins
+            limit = rateLimitProperties.getLoginLimit();
+            window = rateLimitProperties.getLoginWindow();
         } else if (path.startsWith("/api/v1/public/search")) {
-            limit = 20;
-            window = 60;
+            limit = rateLimitProperties.getSearchLimit();
+            window = rateLimitProperties.getSearchWindow();
         }
 
         String key = "ratelimit:" + clientIp + ":" + path;

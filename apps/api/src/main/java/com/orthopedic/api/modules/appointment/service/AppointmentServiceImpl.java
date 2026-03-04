@@ -91,7 +91,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 throw new BusinessException("Doctor is not associated with any hospital");
 
             Patient patient;
-            if (Arrays.asList("ROLE_ADMIN", "ROLE_STAFF", "ROLE_SUPER_ADMIN").stream()
+            if (Arrays.asList("ADMIN", "STAFF", "SUPER_ADMIN'").stream()
                     .anyMatch(role -> currentUser.getAuthorities().stream()
                             .anyMatch(a -> a.getAuthority().equals(role)))) {
                 if (request.getPatientId() == null)
@@ -155,13 +155,13 @@ public class AppointmentServiceImpl implements AppointmentService {
         UUID patientId = null;
         UUID doctorId = null;
 
-        if (hasRole(currentUser, "ROLE_PATIENT")) {
+        if (hasRole(currentUser, "PATIENT")) {
             patientId = patientRepository.findByUserId(currentUser.getId())
                     .map(Patient::getId).orElseThrow(() -> new BusinessException("Patient profile not found"));
-        } else if (hasRole(currentUser, "ROLE_DOCTOR")) {
+        } else if (hasRole(currentUser, "DOCTOR")) {
             doctorId = doctorRepository.findByUserId(currentUser.getId())
                     .map(Doctor::getId).orElseThrow(() -> new BusinessException("Doctor profile not found"));
-        } else if (hasAnyRole(currentUser, "ROLE_ADMIN", "ROLE_STAFF", "ROLE_SUPER_ADMIN")) {
+        } else if (hasAnyRole(currentUser, "ADMIN", "STAFF", "SUPER_ADMIN'")) {
             patientId = filters.getPatientId();
             doctorId = filters.getDoctorId();
         } else {
@@ -298,10 +298,10 @@ public class AppointmentServiceImpl implements AppointmentService {
         UUID patientId = null;
         UUID doctorId = null;
 
-        if (hasRole(currentUser, "ROLE_PATIENT")) {
+        if (hasRole(currentUser, "PATIENT")) {
             patientId = patientRepository.findByUserId(currentUser.getId())
                     .map(Patient::getId).orElseThrow(() -> new BusinessException("Patient profile not found"));
-        } else if (hasRole(currentUser, "ROLE_DOCTOR")) {
+        } else if (hasRole(currentUser, "DOCTOR")) {
             doctorId = doctorRepository.findByUserId(currentUser.getId())
                     .map(Doctor::getId).orElseThrow(() -> new BusinessException("Doctor profile not found"));
         }
@@ -348,15 +348,15 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     private void validateOwnership(Appointment appointment, User currentUser) {
-        if (hasAnyRole(currentUser, "ROLE_ADMIN", "ROLE_STAFF", "ROLE_SUPER_ADMIN")) {
+        if (hasAnyRole(currentUser, "ADMIN", "STAFF", "SUPER_ADMIN'")) {
             return;
         }
 
-        if (hasRole(currentUser, "ROLE_PATIENT")) {
+        if (hasRole(currentUser, "PATIENT")) {
             if (!appointment.getPatient().getUser().getId().equals(currentUser.getId())) {
                 throw new AccessDeniedException("Access denied: Not your appointment");
             }
-        } else if (hasRole(currentUser, "ROLE_DOCTOR")) {
+        } else if (hasRole(currentUser, "DOCTOR")) {
             if (!appointment.getDoctor().getUser().getId().equals(currentUser.getId())) {
                 throw new AccessDeniedException("Access denied: Not your appointment");
             }

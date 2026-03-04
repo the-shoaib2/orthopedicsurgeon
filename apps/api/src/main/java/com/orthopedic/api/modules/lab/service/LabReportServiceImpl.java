@@ -36,10 +36,10 @@ public class LabReportServiceImpl implements LabReportService {
     private final LabReportMapper labReportMapper;
 
     public LabReportServiceImpl(LabReportRepository labReportRepository,
-                               AppointmentRepository appointmentRepository,
-                               PatientRepository patientRepository,
-                               DoctorRepository doctorRepository,
-                               LabReportMapper labReportMapper) {
+            AppointmentRepository appointmentRepository,
+            PatientRepository patientRepository,
+            DoctorRepository doctorRepository,
+            LabReportMapper labReportMapper) {
         this.labReportRepository = labReportRepository;
         this.appointmentRepository = appointmentRepository;
         this.patientRepository = patientRepository;
@@ -51,15 +51,15 @@ public class LabReportServiceImpl implements LabReportService {
     @com.orthopedic.api.modules.audit.annotation.LogMutation(action = "CREATE_LAB_REQUEST", entityName = "LabReport")
     public LabReportResponse createReportRequest(CreateLabReportRequest request) {
         LabReport report = labReportMapper.toEntity(request);
-        
+
         if (request.getAppointmentId() != null) {
             report.setAppointment(appointmentRepository.findById(request.getAppointmentId())
                     .orElseThrow(() -> new ResourceNotFoundException("Appointment not found")));
         }
-        
+
         report.setPatient(patientRepository.findById(request.getPatientId())
                 .orElseThrow(() -> new ResourceNotFoundException("Patient not found")));
-        
+
         if (request.getDoctorId() != null) {
             report.setDoctor(doctorRepository.findById(request.getDoctorId())
                     .orElseThrow(() -> new ResourceNotFoundException("Doctor not found")));
@@ -73,11 +73,11 @@ public class LabReportServiceImpl implements LabReportService {
     public LabReportResponse updateReportResult(UUID id, UpdateLabReportResultRequest request) {
         LabReport report = labReportRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Lab report not found"));
-        
+
         report.setStatus(request.getStatus());
         report.setResultSummary(request.getResultSummary());
         report.setFilePath(request.getFilePath());
-        
+
         if (request.getStatus() == LabReport.LabReportStatus.COMPLETED) {
             report.setReportDate(LocalDateTime.now());
         }
@@ -90,9 +90,9 @@ public class LabReportServiceImpl implements LabReportService {
     public LabReportResponse getReportById(UUID id, User currentUser) {
         LabReport report = labReportRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Lab report not found"));
-        
+
         validateOwnership(report, currentUser);
-        
+
         return labReportMapper.toResponse(report);
     }
 
@@ -113,10 +113,10 @@ public class LabReportServiceImpl implements LabReportService {
     }
 
     private void validatePatientAccess(UUID patientId, User currentUser) {
-        if (hasAnyRole(currentUser, "ROLE_ADMIN", "ROLE_STAFF", "ROLE_SUPER_ADMIN")) {
+        if (hasAnyRole(currentUser, "ADMIN", "STAFF", "SUPER_ADMIN'")) {
             return;
         }
-        if (hasRole(currentUser, "ROLE_PATIENT")) {
+        if (hasRole(currentUser, "PATIENT")) {
             Patient patient = patientRepository.findById(patientId)
                     .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
             if (!patient.getUser().getId().equals(currentUser.getId())) {
@@ -128,10 +128,10 @@ public class LabReportServiceImpl implements LabReportService {
     }
 
     private void validateDoctorAccess(UUID doctorId, User currentUser) {
-        if (hasAnyRole(currentUser, "ROLE_ADMIN", "ROLE_STAFF", "ROLE_SUPER_ADMIN")) {
+        if (hasAnyRole(currentUser, "ADMIN", "STAFF", "SUPER_ADMIN'")) {
             return;
         }
-        if (hasRole(currentUser, "ROLE_DOCTOR")) {
+        if (hasRole(currentUser, "DOCTOR")) {
             Doctor doctor = doctorRepository.findById(doctorId)
                     .orElseThrow(() -> new ResourceNotFoundException("Doctor not found"));
             if (!doctor.getUser().getId().equals(currentUser.getId())) {
@@ -143,15 +143,15 @@ public class LabReportServiceImpl implements LabReportService {
     }
 
     private void validateOwnership(LabReport report, User currentUser) {
-        if (hasAnyRole(currentUser, "ROLE_ADMIN", "ROLE_STAFF", "ROLE_SUPER_ADMIN")) {
+        if (hasAnyRole(currentUser, "ADMIN", "STAFF", "SUPER_ADMIN'")) {
             return;
         }
-        
-        if (hasRole(currentUser, "ROLE_PATIENT")) {
+
+        if (hasRole(currentUser, "PATIENT")) {
             if (!report.getPatient().getUser().getId().equals(currentUser.getId())) {
                 throw new AccessDeniedException("Access denied: Not your lab report");
             }
-        } else if (hasRole(currentUser, "ROLE_DOCTOR")) {
+        } else if (hasRole(currentUser, "DOCTOR")) {
             if (report.getDoctor() != null && !report.getDoctor().getUser().getId().equals(currentUser.getId())) {
                 throw new AccessDeniedException("Access denied: Not your assigned report");
             }

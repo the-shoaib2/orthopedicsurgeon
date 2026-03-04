@@ -47,7 +47,7 @@ public class AdminAuthServiceImpl implements AdminAuthService {
 
         // 1. Check if user is an ADMIN or SUPER_ADMIN
         Set<String> roles = user.getRoles().stream().map(Role::getName).collect(Collectors.toSet());
-        if (!roles.contains("ROLE_ADMIN") && !roles.contains("ROLE_SUPER_ADMIN")) {
+        if (!roles.contains("ADMIN") && !roles.contains("SUPER_ADMIN'")) {
             auditService.logFailedLogin(request.getEmail(), ipAddress, userAgent, "Not an admin account");
             throw new AuthException("Access denied: Not an admin account");
         }

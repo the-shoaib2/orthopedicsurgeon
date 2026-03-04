@@ -50,6 +50,6 @@ public class RegisterRequest {
     @Schema(description = "Device fingerprint for registration", example = "df78-gh90-23kj-90lk")
     private String deviceFingerprint;
 
-    @Schema(description = "User's role (defaults to ROLE_PATIENT)", example = "ROLE_PATIENT")
+    @Schema(description = "User's role (defaults to PATIENT)", example = "PATIENT")
     private String role;
 }

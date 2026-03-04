@@ -36,6 +36,6 @@ public class LoginResponse {
     @Schema(description = "User's unique identifier", example = "550e8400-e29b-41d4-a716-446655440000")
     private java.util.UUID userId;
 
-    @Schema(description = "User's assigned roles", example = "[\"ROLE_PATIENT\"]")
+    @Schema(description = "User's assigned roles", example = "[\"PATIENT\"]")
     private java.util.List<String> roles;
 }

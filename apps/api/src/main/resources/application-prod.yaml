@@ -1,3 +1,9 @@
+app:
+    rate-limit:
+        default-limit: 240
+        login-limit: 20
+        search-limit: 80
+
 spring:
     config:
         activate:

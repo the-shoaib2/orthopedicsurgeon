@@ -109,10 +109,10 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     }
 
     private void validatePatientAccess(UUID patientId, User currentUser) {
-        if (hasAnyRole(currentUser, "ROLE_ADMIN", "ROLE_STAFF", "ROLE_SUPER_ADMIN")) {
+        if (hasAnyRole(currentUser, "ADMIN", "STAFF", "SUPER_ADMIN'")) {
             return;
         }
-        if (hasRole(currentUser, "ROLE_PATIENT")) {
+        if (hasRole(currentUser, "PATIENT")) {
             com.orthopedic.api.modules.patient.entity.Patient patient = patientRepository.findById(patientId)
                     .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
             if (!patient.getUser().getId().equals(currentUser.getId())) {
@@ -124,15 +124,15 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     }
 
     private void validateOwnership(Prescription prescription, User currentUser) {
-        if (hasAnyRole(currentUser, "ROLE_ADMIN", "ROLE_STAFF", "ROLE_SUPER_ADMIN")) {
+        if (hasAnyRole(currentUser, "ADMIN", "STAFF", "SUPER_ADMIN'")) {
             return;
         }
 
-        if (hasRole(currentUser, "ROLE_PATIENT")) {
+        if (hasRole(currentUser, "PATIENT")) {
             if (!prescription.getPatient().getUser().getId().equals(currentUser.getId())) {
                 throw new AccessDeniedException("Access denied: Not your prescription");
             }
-        } else if (hasRole(currentUser, "ROLE_DOCTOR")) {
+        } else if (hasRole(currentUser, "DOCTOR")) {
             if (!prescription.getDoctor().getUser().getId().equals(currentUser.getId())) {
                 throw new AccessDeniedException("Access denied: Not your prescription");
             }

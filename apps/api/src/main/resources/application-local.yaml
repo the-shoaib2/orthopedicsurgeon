@@ -1,3 +1,9 @@
+app:
+    rate-limit:
+        default-limit: 6000
+        login-limit: 500
+        search-limit: 2000
+
 spring:
     # ── Database: H2 in-memory (no Docker / Postgres needed) ──────────────────
     datasource:
@@ -22,7 +28,7 @@ spring:
     jpa:
         hibernate:
             ddl-auto: create-drop
-        show-sql: true
+        show-sql: false
         database-platform: org.hibernate.dialect.H2Dialect
 
     # ── Flyway: disabled (H2 schema is managed by Hibernate) ──────────────────
