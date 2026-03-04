@@ -1,21 +1,11 @@
 package com.orthopedic.api.config;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.filter.CommonsRequestLoggingFilter;
 
 @Configuration
 public class WebConfig {
 
-    @Bean
-    public CommonsRequestLoggingFilter requestLoggingFilter() {
-        CommonsRequestLoggingFilter loggingFilter = new CommonsRequestLoggingFilter();
-        loggingFilter.setIncludeClientInfo(true);
-        loggingFilter.setIncludeQueryString(true);
-        loggingFilter.setIncludePayload(true);
-        loggingFilter.setMaxPayloadLength(1000);
-        loggingFilter.setIncludeHeaders(false);
-        loggingFilter.setAfterMessagePrefix("REQUEST DATA : ");
-        return loggingFilter;
-    }
+    // Removed CommonsRequestLoggingFilter to use the new custom
+    // RequestLoggingFilter
+    // which provides a cleaner Next.js-style output with latency.
 }

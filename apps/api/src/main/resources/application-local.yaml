@@ -29,7 +29,6 @@ spring:
         hibernate:
             ddl-auto: create-drop
         show-sql: false
-        database-platform: org.hibernate.dialect.H2Dialect
 
     # ── Flyway: disabled (H2 schema is managed by Hibernate) ──────────────────
     flyway:
@@ -61,7 +60,7 @@ spring:
 logging:
     level:
         root: WARN
-        com.orthopedic.api: ERROR
+        com.orthopedic.api: DEBUG
         org.hibernate.SQL: ERROR
         org.hibernate.orm.jdbc.bind: ERROR
         org.zalando.logbook: ERROR

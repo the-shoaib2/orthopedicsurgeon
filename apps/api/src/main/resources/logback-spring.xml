@@ -6,11 +6,18 @@
 
     <!-- 🎨 Premium Console Appender -->
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
-        <layout class="ch.qos.logback.classic.PatternLayout">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <Pattern>
                 %d{HH:mm:ss} %highlight(%-5level) %magenta([%15.15thread]) %cyan(%-30.30logger{29}) : %msg%n
             </Pattern>
-        </layout>
+        </encoder>
+    </appender>
+
+    <!-- 🚀 Next.js-style Clean Console Appender (No Prefix) -->
+    <appender name="CleanConsole" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%msg%n</Pattern>
+        </encoder>
     </appender>
 
     <!-- 📂 Professional File Appender -->
@@ -20,11 +27,10 @@
             <Pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</Pattern>
         </encoder>
 
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${LOGS}/archived/${LOG_FILE_NAME}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
-            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>10MB</maxFileSize>
-            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxFileSize>10MB</maxFileSize>
+            <totalSizeCap>10GB</totalSizeCap>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
     </appender>
@@ -40,7 +46,7 @@
     <logger name="org.zalando.logbook" level="ERROR" />
 
     <!-- 🌐 Profile-specific Root Levels -->
-    <springProfile name="dev">
+    <springProfile name="dev, local">
         <root level="INFO">
             <appender-ref ref="Console" />
             <appender-ref ref="RollingFile" />
@@ -48,6 +54,9 @@
         <logger name="com.orthopedic.api" level="DEBUG" additivity="false">
             <appender-ref ref="Console" />
             <appender-ref ref="RollingFile" />
+        </logger>
+        <logger name="com.orthopedic.api.auth.security.RequestLoggingFilter" level="INFO" additivity="false">
+            <appender-ref ref="CleanConsole" />
         </logger>
     </springProfile>
 
@@ -59,6 +68,9 @@
         <logger name="com.orthopedic.api" level="INFO" additivity="false">
             <appender-ref ref="Console" />
             <appender-ref ref="RollingFile" />
+        </logger>
+        <logger name="com.orthopedic.api.auth.security.RequestLoggingFilter" level="INFO" additivity="false">
+            <appender-ref ref="CleanConsole" />
         </logger>
     </springProfile>
 

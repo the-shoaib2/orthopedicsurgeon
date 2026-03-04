@@ -1,1 +1,0 @@
--- V15__seed_data.sql (Emptied by request)
