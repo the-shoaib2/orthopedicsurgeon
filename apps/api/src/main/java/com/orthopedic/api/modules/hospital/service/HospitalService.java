@@ -15,13 +15,22 @@ import java.util.UUID;
 
 public interface HospitalService {
     Page<HospitalResponse> getAllHospitals(Hospital.HospitalStatus status, String city, Pageable pageable);
+
     HospitalResponse getHospitalById(UUID id);
+
     HospitalResponse createHospital(CreateHospitalRequest request);
+
     HospitalResponse updateHospital(UUID id, UpdateHospitalRequest request);
+
     void deleteHospital(UUID id);
-    
+
+    Page<ServiceResponse> getAllServices(ServiceEntity.ServiceStatus status, Pageable pageable);
+
     List<ServiceResponse> getServicesByHospital(UUID hospitalId);
+
     ServiceResponse createService(CreateServiceRequest request);
+
     ServiceResponse updateService(UUID serviceId, UpdateServiceRequest request);
+
     void deleteService(UUID serviceId);
 }

@@ -4,6 +4,7 @@ import com.orthopedic.api.auth.entity.User;
 import com.orthopedic.api.modules.audit.annotation.LogMutation;
 import com.orthopedic.api.modules.audit.dto.request.AuditEventRequest;
 import com.orthopedic.api.modules.audit.service.AuditService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
@@ -37,24 +38,47 @@ public class AuditAspect {
                     : null;
 
             String ip = "unknown";
+            String userAgent = "unknown";
             if (RequestContextHolder.getRequestAttributes() != null) {
-                ip = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
-                        .getRequest().getRemoteAddr();
+                HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+                        .getRequest();
+                ip = request.getRemoteAddr();
+                userAgent = request.getHeader("User-Agent");
             }
 
             AuditEventRequest event = AuditEventRequest.builder()
                     .action(annotation.action())
                     .userId(userId)
                     .ipAddress(ip)
+                    .userAgent(userAgent)
                     .entityType(annotation.entityName())
-                    // In a more complex scenario, we'd extract the ID from the result or arguments
-                    .details("Action: " + annotation.action() + " performed on " + annotation.entityName())
+                    .details(generateDetails(annotation.action(), annotation.entityName(), joinPoint))
+                    .status("SUCCESS")
                     .build();
 
             auditService.logEvent(event);
         } catch (Exception e) {
             log.error("Failed to log audit event", e);
         }
+    }
+
+    private String generateDetails(String action, String entity, JoinPoint joinPoint) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Action: ").append(action);
+        if (entity != null && !entity.isEmpty()) {
+            sb.append(" on ").append(entity);
+        }
+
+        Object[] args = joinPoint.getArgs();
+        if (args != null && args.length > 0) {
+            sb.append(" | Arguments: ");
+            for (int i = 0; i < args.length; i++) {
+                if (i > 0)
+                    sb.append(", ");
+                sb.append(args[i]);
+            }
+        }
+        return sb.toString();
     }
 
     private Method getMethod(JoinPoint joinPoint) throws NoSuchMethodException {

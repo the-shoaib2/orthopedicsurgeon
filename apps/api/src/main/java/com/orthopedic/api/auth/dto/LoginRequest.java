@@ -23,4 +23,10 @@ public class LoginRequest {
     @NotBlank(message = "Password is required")
     @Schema(description = "User's password", example = "shoaib123", requiredMode = Schema.RequiredMode.REQUIRED)
     private String password;
+
+    @Schema(description = "Unique device fingerprint for session tracking", example = "df78-gh90-23kj-90lk")
+    private String deviceFingerprint;
+
+    @Schema(description = "One-time password from authenticator app (optional for patients)", example = "123456")
+    private String totpCode;
 }

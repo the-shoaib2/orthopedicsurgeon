@@ -13,12 +13,14 @@ public class AuditEventRequest {
     private String userAgent;
     private String metadata;
     private String details;
+    private String status;
 
     public AuditEventRequest() {
     }
 
     public AuditEventRequest(String entityType, UUID entityId, String action, String oldValues,
-            String newValues, UUID userId, String ipAddress, String userAgent, String metadata, String details) {
+            String newValues, UUID userId, String ipAddress, String userAgent, String metadata, String details,
+            String status) {
         this.entityType = entityType;
         this.entityId = entityId;
         this.action = action;
@@ -29,6 +31,7 @@ public class AuditEventRequest {
         this.userAgent = userAgent;
         this.metadata = metadata;
         this.details = details;
+        this.status = status;
     }
 
     public String getEntityType() {
@@ -111,6 +114,14 @@ public class AuditEventRequest {
         this.details = details;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public static AuditEventRequestBuilder builder() {
         return new AuditEventRequestBuilder();
     }
@@ -126,6 +137,7 @@ public class AuditEventRequest {
         private String userAgent;
         private String metadata;
         private String details;
+        private String status;
 
         public AuditEventRequestBuilder entityType(String entityType) {
             this.entityType = entityType;
@@ -177,9 +189,14 @@ public class AuditEventRequest {
             return this;
         }
 
+        public AuditEventRequestBuilder status(String status) {
+            this.status = status;
+            return this;
+        }
+
         public AuditEventRequest build() {
             return new AuditEventRequest(entityType, entityId, action, oldValues, newValues, userId, ipAddress,
-                    userAgent, metadata, details);
+                    userAgent, metadata, details, status);
         }
     }
 }

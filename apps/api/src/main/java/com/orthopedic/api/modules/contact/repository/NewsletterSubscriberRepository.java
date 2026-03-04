@@ -10,6 +10,8 @@ import java.util.UUID;
 
 @Repository
 public interface NewsletterSubscriberRepository extends JpaRepository<NewsletterSubscriber, UUID> {
+    boolean existsByEmail(String email);
+
     Optional<NewsletterSubscriber> findByEmail(String email);
 
     Optional<NewsletterSubscriber> findByToken(String token);

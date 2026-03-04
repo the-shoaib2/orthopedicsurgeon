@@ -35,4 +35,10 @@ public interface BlogPostRepository extends JpaRepository<BlogPost, UUID> {
     void incrementViewCount(@Param("id") UUID id);
 
     List<BlogPost> findTop5ByStatusOrderByViewCountDesc(BlogPostStatus status);
+
+    @Query("SELECT p FROM BlogPost p WHERE " +
+            "(LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+            "LOWER(p.excerpt) LIKE LOWER(CONCAT('%', :query, '%'))) AND " +
+            "p.status = 'PUBLISHED'")
+    List<BlogPost> searchPosts(@Param("query") String query);
 }

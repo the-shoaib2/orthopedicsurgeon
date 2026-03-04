@@ -4,8 +4,10 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -25,6 +27,7 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
+    @JsonIgnore
     @Column(nullable = false)
     private String password;
 
@@ -36,6 +39,11 @@ public class User {
 
     private String phone;
 
+    @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
+
+    private String gender;
+
     @Builder.Default
     private boolean enabled = true;
 
@@ -43,6 +51,7 @@ public class User {
     @Column(name = "using_2fa")
     private boolean using2fa = false;
 
+    @JsonIgnore
     @Column(name = "secret_2fa")
     private String secret2fa;
 

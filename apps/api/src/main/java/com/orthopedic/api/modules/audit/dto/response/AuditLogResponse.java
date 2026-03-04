@@ -12,6 +12,9 @@ public class AuditLogResponse {
     private String newValues;
     private UUID userId;
     private String ipAddress;
+    private String userAgent;
+    private String status;
+    private String details;
     private LocalDateTime createdAt;
 
     public UUID getId() {
@@ -76,6 +79,30 @@ public class AuditLogResponse {
 
     public void setIpAddress(String ipAddress) {
         this.ipAddress = ipAddress;
+    }
+
+    public String getUserAgent() {
+        return userAgent;
+    }
+
+    public void setUserAgent(String userAgent) {
+        this.userAgent = userAgent;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getDetails() {
+        return details;
+    }
+
+    public void setDetails(String details) {
+        this.details = details;
     }
 
     public LocalDateTime getCreatedAt() {

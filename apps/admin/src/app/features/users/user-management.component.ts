@@ -8,6 +8,8 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
   selector: 'app-user-management',
@@ -21,169 +23,239 @@ import { MatInputModule } from '@angular/material/input';
     MatChipsModule,
     MatTooltipModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    MatMenuModule,
+    MatDividerModule
   ],
   template: `
-    <div class="space-y-10 animate-fade-in pb-24 px-2">
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8 border-b pb-10">
-        <div class="flex items-center gap-6">
-          <div class="w-16 h-16 rounded-2xl flex items-center justify-center border shadow-2xl shadow-blue-500/10">
-            <mat-icon class="scale-[1.5]">admin_panel_settings</mat-icon>
-          </div>
-          <div>
-            <h1 class="text-4xl font-black tracking-tighter italic uppercase leading-tight">Authority Protocol</h1>
-            <div class="flex items-center gap-3 mt-1.5">
-              <span class="w-2 h-2 rounded-full animate-pulse"></span>
-              <p class="font-black text-[10px] uppercase tracking-[0.4em]">Advanced user administration, role assignment, and security gatekeeper</p>
-            </div>
-          </div>
+    <div class="space-y-6">
+
+      <!-- Page Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-semibold text-slate-900 m-0">User Management</h1>
+          <p class="text-sm text-slate-500 mt-1 m-0">Manage system accounts, roles, and access permissions.</p>
         </div>
-        <button mat-flat-button color="primary" class="rounded-2xl h-14 px-10 font-black uppercase tracking-tighter italic shadow-2xl shadow-primary-500/20 premium-border hover: transition-all shrink-0">
-           Authorize New Node
+        <button mat-flat-button color="primary">
+          <mat-icon class="text-[18px]">person_add</mat-icon>
+          Add User
         </button>
       </div>
 
-      <div class="flex flex-col md:flex-row gap-6 items-center animate-slide-up /[0.01] p-6 rounded-3xl border glass">
-          <mat-form-field appearance="outline" class="flex-1 w-full premium-field" subscriptSizing="dynamic">
-            <mat-label>Identity Transmission Search</mat-label>
-            <mat-icon matPrefix class="mr-3 opacity-40">search</mat-icon>
-            <input matInput placeholder="QUERY IDENTITY, ROLE, OR SECTOR...">
-          </mat-form-field>
-
-          <div class="flex gap-3 w-full md:w-auto">
-             <button mat-stroked-button class="h-14 px-8 premium-stroked-button">
-                <mat-icon class="scale-75 mr-2">security</mat-icon> Role Matrix
-             </button>
-             <button mat-stroked-button class="h-14 px-8 premium-stroked-button">
-                <mat-icon class="scale-75 mr-2">lock_reset</mat-icon> Gate Reset
-             </button>
+      <!-- Role Summary Cards -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        @for (r of roleSummary; track r.role) {
+          <div class="bg-white rounded-xl border border-slate-200 px-5 py-4">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" [class]="r.iconBg">
+                <mat-icon class="text-[20px]" [class]="r.iconColor">{{ r.icon }}</mat-icon>
+              </div>
+              <div>
+                <p class="text-xl font-bold text-slate-900 m-0">{{ r.count }}</p>
+                <p class="text-xs text-slate-500 m-0">{{ r.role }}</p>
+              </div>
+            </div>
           </div>
+        }
       </div>
 
-      <mat-card class="/[0.01] border rounded-[40px] glass overflow-hidden animate-slide-up shadow-2xl">
-        <div class="overflow-x-auto p-4">
-          <table mat-table [dataSource]="users()" class="w-full">
-             <ng-container matColumnDef="identity">
-                <th mat-header-cell *matHeaderCellDef class="text-[9px] font-black uppercase tracking-[0.3em] py-8 px-10">System Identity</th>
-                <td mat-cell *matCellDef="let row" class="py-10 px-10 border-b /[0.03]">
-                  <div class="flex items-center gap-5">
-                    <div class="w-14 h-14 rounded-2xl flex items-center justify-center border group-hover: transition-all font-black text-lg shadow-inner overflow-hidden uppercase italic">
-                      {{row.firstName.charAt(0)}}{{row.lastName.charAt(0)}}
-                    </div>
-                    <div class="flex flex-col">
-                      <span class="text-lg font-black tracking-tight uppercase italic group-hover: transition-colors">{{row.firstName}} {{row.lastName}}</span>
-                      <span class="text-[8px] font-bold uppercase tracking-[0.2em] mt-1 italic">{{row.email}}</span>
-                    </div>
+      <!-- Filters & Table -->
+      <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+        <!-- Toolbar -->
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 px-6 py-4 border-b border-slate-100">
+          <mat-form-field appearance="outline" class="flex-1 sm:max-w-sm" subscriptSizing="dynamic">
+            <mat-icon matPrefix class="text-slate-400 text-[18px] mr-2">search</mat-icon>
+            <input matInput placeholder="Search by name, email or role…"
+                   (input)="filterSearch($event)" />
+          </mat-form-field>
+
+          <div class="flex items-center gap-2 ml-auto">
+            <button mat-stroked-button class="text-slate-600 border-slate-300" [matMenuTriggerFor]="roleMenu">
+              <mat-icon class="text-[18px]">filter_list</mat-icon>
+              Filter Role
+            </button>
+            <mat-menu #roleMenu="matMenu">
+              <button mat-menu-item (click)="filterRole('')">All Roles</button>
+              <button mat-menu-item (click)="filterRole('SUPER_ADMIN')">Super Admin</button>
+              <button mat-menu-item (click)="filterRole('ADMIN')">Admin</button>
+              <button mat-menu-item (click)="filterRole('DOCTOR')">Doctor</button>
+              <button mat-menu-item (click)="filterRole('PATIENT')">Patient</button>
+            </mat-menu>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+          <table mat-table [dataSource]="filteredUsers()" class="w-full">
+
+            <!-- Name / Identity -->
+            <ng-container matColumnDef="identity">
+              <th mat-header-cell *matHeaderCellDef class="text-xs font-semibold text-slate-500 uppercase tracking-wide py-3 pl-6">User</th>
+              <td mat-cell *matCellDef="let row" class="py-3 pl-6">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold text-white bg-slate-500 shrink-0">
+                    {{ row.firstName.charAt(0) }}{{ row.lastName.charAt(0) }}
                   </div>
-                </td>
-             </ng-container>
+                  <div>
+                    <p class="font-medium text-sm text-slate-900 m-0">{{ row.firstName }} {{ row.lastName }}</p>
+                    <p class="text-xs text-slate-400 m-0">{{ row.email }}</p>
+                  </div>
+                </div>
+              </td>
+            </ng-container>
 
-             <ng-container matColumnDef="roles">
-                <th mat-header-cell *matHeaderCellDef class="text-[9px] font-black uppercase tracking-[0.3em] py-8">Privilege Nodes</th>
-                <td mat-cell *matCellDef="let row" class="py-10 border-b /[0.03]">
-                  <mat-chip-set>
-                    @for (role of row.roles; track role) {
-                      <mat-chip class="premium-chip-neutral">
-                        {{role}}
-                      </mat-chip>
-                    }
-                  </mat-chip-set>
-                </td>
-             </ng-container>
+            <!-- Roles -->
+            <ng-container matColumnDef="roles">
+              <th mat-header-cell *matHeaderCellDef class="text-xs font-semibold text-slate-500 uppercase tracking-wide py-3">Roles</th>
+              <td mat-cell *matCellDef="let row" class="py-3">
+                <div class="flex flex-wrap gap-1.5">
+                  @for (role of row.roles; track role) {
+                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full"
+                          [class]="getRoleStyle(role)">
+                      {{ getRoleLabel(role) }}
+                    </span>
+                  }
+                </div>
+              </td>
+            </ng-container>
 
-             <ng-container matColumnDef="status">
-                <th mat-header-cell *matHeaderCellDef class="text-[9px] font-black uppercase tracking-[0.3em] py-8">Gate Access</th>
-                <td mat-cell *matCellDef="let row" class="py-10 border-b /[0.03]">
-                  <mat-chip-set>
-                    <mat-chip [class]="row.status === 'ACTIVE' ? 'premium-chip-success' : 'premium-chip-danger'">
-                      {{row.status === 'ACTIVE' ? 'AUTHORIZED' : 'TERMINATED'}}
-                    </mat-chip>
-                  </mat-chip-set>
-                </td>
-             </ng-container>
+            <!-- Status -->
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef class="text-xs font-semibold text-slate-500 uppercase tracking-wide py-3">Status</th>
+              <td mat-cell *matCellDef="let row" class="py-3">
+                <span class="text-xs font-semibold px-2.5 py-1 rounded-full"
+                      [class]="row.status === 'ACTIVE'
+                        ? 'bg-green-50 text-green-700 border border-green-200'
+                        : 'bg-red-50 text-red-700 border border-red-200'">
+                  {{ row.status === 'ACTIVE' ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+            </ng-container>
 
-             <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef class="text-[9px] font-black uppercase tracking-[0.3em] py-8 px-10 text-right">Orchestration</th>
-                <td mat-cell *matCellDef="let row" class="py-10 px-10 border-b /[0.03] text-right">
-                   <div class="flex justify-end gap-3 opacity-20 group-hover:opacity-100 transition-opacity">
-                      <button mat-icon-button matTooltip="Modify Credentials" class="w-10 h-10 hover: hover: rounded-xl transition-all border">
-                        <mat-icon class="scale-75">manage_accounts</mat-icon>
-                      </button>
-                      <button mat-icon-button matTooltip="Audit Logs" class="w-10 h-10 hover: hover: rounded-xl transition-all border">
-                        <mat-icon class="scale-75">assignment_ind</mat-icon>
-                      </button>
-                   </div>
-                </td>
-             </ng-container>
+            <!-- Joined -->
+            <ng-container matColumnDef="joined">
+              <th mat-header-cell *matHeaderCellDef class="text-xs font-semibold text-slate-500 uppercase tracking-wide py-3">Joined</th>
+              <td mat-cell *matCellDef="let row">
+                <span class="text-sm text-slate-500">{{ row.joined }}</span>
+              </td>
+            </ng-container>
 
-             <tr mat-header-row *matHeaderRowDef="columns" class="/[0.02]"></tr>
-             <tr mat-row *matRowDef="let row; columns: columns;" class="group hover:/[0.02] transition-all cursor-pointer"></tr>
+            <!-- Actions -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef class="text-xs font-semibold text-slate-500 uppercase tracking-wide py-3 text-right pr-6">Actions</th>
+              <td mat-cell *matCellDef="let row" class="text-right pr-6 py-3">
+                <button mat-icon-button [matMenuTriggerFor]="actionMenu"
+                        class="text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #actionMenu="matMenu">
+                  <button mat-menu-item>
+                    <mat-icon>edit</mat-icon> Edit User
+                  </button>
+                  <button mat-menu-item>
+                    <mat-icon>manage_accounts</mat-icon> Change Role
+                  </button>
+                  <button mat-menu-item>
+                    <mat-icon>lock_reset</mat-icon> Reset Password
+                  </button>
+                  <mat-divider></mat-divider>
+                  <button mat-menu-item class="text-red-600">
+                    <mat-icon class="text-red-500">block</mat-icon>
+                    {{ row.status === 'ACTIVE' ? 'Deactivate' : 'Activate' }}
+                  </button>
+                </mat-menu>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="columns" class="bg-slate-50/50"></tr>
+            <tr mat-row *matRowDef="let row; columns: columns;"
+                class="border-t border-slate-50 hover:bg-slate-50/80 transition-colors cursor-pointer"></tr>
           </table>
         </div>
-      </mat-card>
+
+        <!-- Empty State -->
+        @if (filteredUsers().length === 0) {
+          <div class="py-16 text-center">
+            <mat-icon class="text-slate-300 text-[48px] w-12 h-12 mb-3">person_off</mat-icon>
+            <p class="font-medium text-slate-500 text-sm">No users found</p>
+            <p class="text-xs text-slate-400">Try adjusting your search or filter.</p>
+          </div>
+        }
+
+        <!-- Footer -->
+        <div class="flex items-center justify-between px-6 py-3 border-t border-slate-100 bg-slate-50/50">
+          <span class="text-xs text-slate-400">{{ filteredUsers().length }} user(s)</span>
+        </div>
+      </div>
     </div>
   `,
   styles: [`
     :host { display: block; }
-    .glass { backdrop-filter: blur(40px); }
     ::ng-deep .mat-mdc-table { background: transparent !important; }
-
-    ::ng-deep .premium-field .mat-mdc-text-field-wrapper {
-      background-color: rgba(255, 255, 255, 0.03) !important;
-      border-radius: 16px !important;
-      padding: 8px 16px !important;
-    }
-    ::ng-deep .premium-field .mat-mdc-form-field-label {
-      color: rgba(255, 255, 255, 0.2) !important;
-      font-size: 10px !important;
-      text-transform: uppercase !important;
-      letter-spacing: 0.1em !important;
-      font-weight: 900 !important;
-    }
-
-    .premium-stroked-button {
-      background: rgba(255, 255, 255, 0.05) !important;
-      border-color: rgba(255, 255, 255, 0.05) !important;
-      border-radius: 16px !important;
-      font-size: 10px !important;
-      font-weight: 900 !important;
-      text-transform: uppercase !important;
-      letter-spacing: 0.1em !important;
-      color: rgba(255, 255, 255, 0.4) !important;
-    }
-
-    ::ng-deep .premium-chip-success {
-      --mdc-chip-elevated-container-color: rgba(34, 197, 94, 0.1) !important;
-      --mdc-chip-label-text-color: #22c55e !important;
-      font-size: 9px !important;
-      font-weight: 900 !important;
-      border: 1px solid rgba(34, 197, 94, 0.2) !important;
-    }
-
-    ::ng-deep .premium-chip-danger {
-      --mdc-chip-elevated-container-color: rgba(239, 68, 68, 0.1) !important;
-      --mdc-chip-label-text-color: #ef4444 !important;
-      font-size: 9px !important;
-      font-weight: 900 !important;
-      border: 1px solid rgba(239, 68, 68, 0.2) !important;
-    }
-
-    ::ng-deep .premium-chip-neutral {
-      --mdc-chip-elevated-container-color: rgba(255, 255, 255, 0.05) !important;
-      --mdc-chip-label-text-color: rgba(255, 255, 255, 0.4) !important;
-      font-size: 9px !important;
-      font-weight: 900 !important;
-      border: 1px solid rgba(255, 255, 255, 0.05) !important;
-    }
   `]
 })
 export class UserManagementComponent {
-  users = signal([
-    { id: '1', firstName: 'Admin', lastName: 'User', email: 'admin@orthosync.com', roles: ['SUPER_ADMIN', 'ADMIN'], status: 'ACTIVE' },
-    { id: '2', firstName: 'Sarah', lastName: 'Johnson', email: 'sarah.j@orthosync.com', roles: ['DOCTOR'], status: 'ACTIVE' },
-    { id: '3', firstName: 'John', lastName: 'Doe', email: 'john.doe@gmail.com', roles: ['PATIENT'], status: 'ACTIVE' },
-    { id: '4', firstName: 'Mike', lastName: 'Reception', email: 'mike.r@hospital.com', roles: ['RECEPTIONIST'], status: 'INACTIVE' },
+  searchQuery = signal('');
+  roleFilter = signal('');
+
+  allUsers = signal([
+    { id: '1', firstName: 'Admin',   lastName: 'User',       email: 'admin@orthosync.com',      roles: ['SUPER_ADMIN', 'ADMIN'], status: 'ACTIVE',   joined: 'Jan 1, 2024' },
+    { id: '2', firstName: 'Sarah',   lastName: 'Johnson',    email: 'sarah.j@orthosync.com',    roles: ['ADMIN'],                status: 'ACTIVE',   joined: 'Feb 14, 2024' },
+    { id: '3', firstName: 'Dr. Mike', lastName: 'Ross',      email: 'mike.ross@hospital.com',   roles: ['DOCTOR'],               status: 'ACTIVE',   joined: 'Mar 3, 2024' },
+    { id: '4', firstName: 'John',    lastName: 'Doe',         email: 'john.doe@gmail.com',       roles: ['PATIENT'],              status: 'ACTIVE',   joined: 'Apr 10, 2024' },
+    { id: '5', firstName: 'Mike',    lastName: 'Reception',  email: 'mike.r@hospital.com',      roles: ['STAFF'],                status: 'INACTIVE', joined: 'May 5, 2024' },
+    { id: '6', firstName: 'Lisa',    lastName: 'Chen',       email: 'lisa.chen@orthosync.com',  roles: ['DOCTOR'],               status: 'ACTIVE',   joined: 'Jun 20, 2024' },
   ]);
 
-  columns = ['identity', 'roles', 'status', 'actions'];
+  filteredUsers = () => {
+    let users = this.allUsers();
+    const q = this.searchQuery().toLowerCase();
+    const role = this.roleFilter();
+    if (q) users = users.filter(u =>
+      (u.firstName + ' ' + u.lastName).toLowerCase().includes(q) ||
+      u.email.toLowerCase().includes(q) ||
+      u.roles.some(r => r.toLowerCase().includes(q))
+    );
+    if (role) users = users.filter(u => u.roles.includes(role));
+    return users;
+  };
+
+  roleSummary = [
+    { role: 'Super Admins', count: 1, icon: 'shield',           iconBg: 'bg-purple-50', iconColor: 'text-purple-600' },
+    { role: 'Admins',       count: 2, icon: 'admin_panel_settings', iconBg: 'bg-blue-50',   iconColor: 'text-blue-600'   },
+    { role: 'Doctors',      count: 2, icon: 'medical_services', iconBg: 'bg-teal-50',   iconColor: 'text-teal-600'   },
+    { role: 'Patients',     count: 1, icon: 'person',           iconBg: 'bg-amber-50',  iconColor: 'text-amber-600'  },
+  ];
+
+  columns = ['identity', 'roles', 'status', 'joined', 'actions'];
+
+  getRoleLabel(role: string): string {
+    const map: Record<string, string> = {
+      SUPER_ADMIN: 'Super Admin',
+      ADMIN: 'Admin',
+      DOCTOR: 'Doctor',
+      PATIENT: 'Patient',
+      STAFF: 'Staff',
+    };
+    return map[role] ?? role;
+  }
+
+  getRoleStyle(role: string): string {
+    const map: Record<string, string> = {
+      SUPER_ADMIN: 'bg-purple-50 text-purple-700 border border-purple-200',
+      ADMIN:       'bg-blue-50 text-blue-700 border border-blue-200',
+      DOCTOR:      'bg-teal-50 text-teal-700 border border-teal-200',
+      PATIENT:     'bg-amber-50 text-amber-700 border border-amber-200',
+      STAFF:       'bg-slate-100 text-slate-600 border border-slate-200',
+    };
+    return map[role] ?? 'bg-slate-100 text-slate-600';
+  }
+
+  filterSearch(event: Event) {
+    this.searchQuery.set((event.target as HTMLInputElement).value);
+  }
+
+  filterRole(role: string) {
+    this.roleFilter.set(role);
+  }
 }

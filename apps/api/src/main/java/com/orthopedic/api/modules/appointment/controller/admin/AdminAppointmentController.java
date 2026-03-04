@@ -3,6 +3,7 @@ package com.orthopedic.api.modules.appointment.controller.admin;
 import com.orthopedic.api.auth.entity.User;
 import com.orthopedic.api.modules.appointment.dto.request.AppointmentFilterRequest;
 import com.orthopedic.api.modules.appointment.dto.request.BookAppointmentRequest;
+import com.orthopedic.api.modules.appointment.dto.request.RescheduleAppointmentRequest;
 import com.orthopedic.api.modules.appointment.dto.response.AppointmentResponse;
 import com.orthopedic.api.modules.appointment.dto.response.AppointmentStatsResponse;
 import com.orthopedic.api.modules.appointment.dto.response.AppointmentSummaryResponse;
@@ -89,5 +90,25 @@ public class AdminAppointmentController extends BaseController {
             @RequestParam String reason,
             @CurrentUser User currentUser) {
         return ok("Appointment cancelled", appointmentService.cancelAppointment(id, reason, currentUser));
+    }
+
+    @PostMapping("/{id}/reschedule")
+    @Operation(summary = "Reschedule an appointment")
+    public ResponseEntity<ApiResponse<AppointmentResponse>> reschedule(
+            @PathVariable UUID id,
+            @Valid @RequestBody RescheduleAppointmentRequest request,
+            @CurrentUser User currentUser) {
+        return ok("Appointment rescheduled", appointmentService.rescheduleAppointment(id, request, currentUser));
+    }
+
+    @PostMapping("/bulk-cancel")
+    @Operation(summary = "Bulk cancel all appointments for a doctor on a specific date")
+    public ResponseEntity<ApiResponse<Void>> bulkCancel(
+            @RequestParam UUID doctorId,
+            @RequestParam java.time.LocalDate date,
+            @RequestParam String reason,
+            @CurrentUser User currentUser) {
+        appointmentService.bulkCancelAppointments(doctorId, date, reason, currentUser);
+        return ok("Bulk cancellation completed successfully", null);
     }
 }

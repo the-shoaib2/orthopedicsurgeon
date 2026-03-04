@@ -36,6 +36,9 @@ public class ServiceEntity extends BaseEntity {
     @Column(nullable = false)
     private ServiceStatus status = ServiceStatus.ACTIVE;
 
+    @Column(nullable = false)
+    private Boolean isFeatured = false;
+
     public Hospital getHospital() {
         return hospital;
     }

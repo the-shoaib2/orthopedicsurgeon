@@ -12,6 +12,7 @@ public class DoctorSummaryResponse {
     private BigDecimal consultationFee;
     private Boolean availableForOnline;
     private Doctor.DoctorStatus status;
+    private Boolean isFeatured;
 
     public UUID getId() {
         return id;
@@ -67,5 +68,13 @@ public class DoctorSummaryResponse {
 
     public void setStatus(Doctor.DoctorStatus status) {
         this.status = status;
+    }
+
+    public Boolean getIsFeatured() {
+        return isFeatured;
+    }
+
+    public void setIsFeatured(Boolean featured) {
+        isFeatured = featured;
     }
 }

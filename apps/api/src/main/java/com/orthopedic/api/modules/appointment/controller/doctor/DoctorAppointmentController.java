@@ -2,6 +2,7 @@ package com.orthopedic.api.modules.appointment.controller.doctor;
 
 import com.orthopedic.api.auth.entity.User;
 import com.orthopedic.api.modules.appointment.dto.request.AppointmentFilterRequest;
+import com.orthopedic.api.modules.appointment.dto.request.RescheduleAppointmentRequest;
 import com.orthopedic.api.modules.appointment.dto.response.AppointmentResponse;
 import com.orthopedic.api.modules.appointment.dto.response.AppointmentSummaryResponse;
 import com.orthopedic.api.modules.appointment.service.AppointmentService;
@@ -12,6 +13,8 @@ import com.orthopedic.api.shared.dto.PageResponse;
 import com.orthopedic.api.shared.util.PageableUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -81,5 +84,14 @@ public class DoctorAppointmentController extends BaseController {
             @RequestParam String reason,
             @CurrentUser User currentUser) {
         return ok("Appointment cancelled", appointmentService.cancelAppointment(id, reason, currentUser));
+    }
+
+    @PostMapping("/{id}/reschedule")
+    @Operation(summary = "Reschedule an appointment")
+    public ResponseEntity<ApiResponse<AppointmentResponse>> reschedule(
+            @PathVariable UUID id,
+            @Valid @RequestBody RescheduleAppointmentRequest request,
+            @CurrentUser User currentUser) {
+        return ok("Appointment rescheduled", appointmentService.rescheduleAppointment(id, request, currentUser));
     }
 }

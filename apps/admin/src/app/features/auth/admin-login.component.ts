@@ -40,9 +40,7 @@ declare var google: any;
     MatSnackBarModule
   ],
   template: `
-    <div class="min-h-screen flex items-center justify-center p-6 bg-slate-50 relative overflow-hidden">
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,_#e2e8f0_0%,_transparent_50%)] pointer-events-none"></div>
-      
+    <div class="min-h-screen flex items-center justify-center p-6 bg-white relative overflow-hidden">
       <mat-card class="w-full max-w-md relative z-10">
         @if (step() === 'login') {
           <mat-card-header class="flex flex-col items-center pt-8 pb-4">

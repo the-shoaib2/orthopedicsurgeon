@@ -32,6 +32,10 @@ public class CreateDoctorRequest {
 
     private Boolean availableForOnline = true;
 
+    private Boolean isFeatured = false;
+
+    private com.orthopedic.api.modules.doctor.entity.Doctor.DoctorStatus status = com.orthopedic.api.modules.doctor.entity.Doctor.DoctorStatus.ACTIVE;
+
     private List<AvailabilityRequest> availabilities;
 
     public UUID getUserId() {
@@ -96,6 +100,22 @@ public class CreateDoctorRequest {
 
     public void setAvailableForOnline(Boolean availableForOnline) {
         this.availableForOnline = availableForOnline;
+    }
+
+    public Boolean getIsFeatured() {
+        return isFeatured;
+    }
+
+    public void setIsFeatured(Boolean featured) {
+        isFeatured = featured;
+    }
+
+    public com.orthopedic.api.modules.doctor.entity.Doctor.DoctorStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(com.orthopedic.api.modules.doctor.entity.Doctor.DoctorStatus status) {
+        this.status = status;
     }
 
     public List<AvailabilityRequest> getAvailabilities() {

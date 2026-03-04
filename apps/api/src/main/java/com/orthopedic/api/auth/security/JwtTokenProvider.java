@@ -62,29 +62,44 @@ public class JwtTokenProvider {
         }
     }
 
-    public String generateAccessToken(UserDetails userDetails) {
+    public String generateAccessToken(UserDetails userDetails, String jti) {
         Map<String, Object> claims = Map.of(
                 "roles", userDetails.getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority)
                         .collect(Collectors.toList()));
 
-        return Jwts.builder()
+        JwtBuilder builder = Jwts.builder()
                 .setClaims(claims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + jwtConfig.getAccessTokenExpiry() * 1000))
-                .signWith(signingKey, useRsa ? SignatureAlgorithm.RS256 : SignatureAlgorithm.HS256)
-                .compact();
+                .setExpiration(new Date(System.currentTimeMillis() + jwtConfig.getAccessTokenExpiry() * 1000));
+
+        if (jti != null) {
+            builder.setId(jti);
+        }
+
+        return builder.signWith(signingKey, useRsa ? SignatureAlgorithm.RS256 : SignatureAlgorithm.HS256).compact();
+    }
+
+    public String generateAccessToken(UserDetails userDetails) {
+        return generateAccessToken(userDetails, null);
+    }
+
+    public String generateRefreshToken(UUID userId, String jti) {
+        JwtBuilder builder = Jwts.builder()
+                .setSubject(userId.toString())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + jwtConfig.getRefreshTokenExpiry() * 1000));
+
+        if (jti != null) {
+            builder.setId(jti);
+        }
+
+        return builder.signWith(signingKey, useRsa ? SignatureAlgorithm.RS256 : SignatureAlgorithm.HS256).compact();
     }
 
     public String generateRefreshToken(UUID userId) {
-        String refreshToken = Jwts.builder()
-                .setSubject(userId.toString())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + jwtConfig.getRefreshTokenExpiry() * 1000))
-                .signWith(signingKey, useRsa ? SignatureAlgorithm.RS256 : SignatureAlgorithm.HS256)
-                .compact();
-        return refreshToken;
+        return generateRefreshToken(userId, null);
     }
 
     public boolean validateToken(String token) {
@@ -95,8 +110,11 @@ public class JwtTokenProvider {
             } else {
                 parserBuilder.verifyWith((javax.crypto.SecretKey) signingKey);
             }
-            parserBuilder.build().parseSignedClaims(token);
-            return !isTokenBlacklisted(token);
+            String jti = parserBuilder.build().parseSignedClaims(token).getPayload().getId();
+            if (jti != null && isTokenBlacklisted(jti)) {
+                return false;
+            }
+            return true;
         } catch (JwtException | IllegalArgumentException e) {
             log.warn("Invalid JWT token: {}", e.getMessage());
         }
@@ -114,12 +132,31 @@ public class JwtTokenProvider {
                 .parseSignedClaims(token).getPayload().getSubject();
     }
 
-    public boolean isTokenBlacklisted(String token) {
-        return Boolean.TRUE.equals(redisTemplate.hasKey("blacklist:" + token));
+    public String getJtiFromToken(String token) {
+        try {
+            JwtParserBuilder parserBuilder = Jwts.parser();
+            if (useRsa) {
+                parserBuilder.verifyWith((PublicKey) publicKey);
+            } else {
+                parserBuilder.verifyWith((javax.crypto.SecretKey) signingKey);
+            }
+            return parserBuilder.build()
+                    .parseSignedClaims(token).getPayload().getId();
+        } catch (JwtException e) {
+            return null;
+        }
     }
 
-    public void blacklistToken(String token, long expirySeconds) {
-        redisTemplate.opsForValue().set("blacklist:" + token, "true", expirySeconds, TimeUnit.SECONDS);
+    public boolean isTokenBlacklisted(String jti) {
+        if (jti == null)
+            return false;
+        return Boolean.TRUE.equals(redisTemplate.hasKey("blacklist:" + jti));
+    }
+
+    public void blacklistToken(String jti, long expirySeconds) {
+        if (jti != null) {
+            redisTemplate.opsForValue().set("blacklist:" + jti, "true", expirySeconds, TimeUnit.SECONDS);
+        }
     }
 
     private PrivateKey loadPrivateKey(String path) throws Exception {

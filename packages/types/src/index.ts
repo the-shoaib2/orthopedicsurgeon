@@ -8,3 +8,4 @@ export * from './models/prescription.models';
 export * from './models/lab-report.models';
 export * from './models/payment.models';
 export * from './models/notification.models';
+export * from './models/health.models';

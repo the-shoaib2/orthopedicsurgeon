@@ -12,7 +12,6 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
-
 public interface DoctorService {
     PageResponse<DoctorSummaryResponse> getAllDoctors(DoctorFilterRequest filters, Pageable pageable);
 
@@ -27,4 +26,8 @@ public interface DoctorService {
     void deleteDoctor(UUID id);
 
     List<LocalTime> getAvailableSlots(UUID doctorId, LocalDate date);
+
+    void updateDoctorStatus(UUID id, com.orthopedic.api.modules.doctor.entity.Doctor.DoctorStatus status);
+
+    void toggleFeaturedStatus(UUID id, boolean featured);
 }

@@ -18,7 +18,7 @@ import java.util.UUID;
 public class ContactMessage {
 
     public enum ContactMessageStatus {
-        NEW, READ, REPLIED, ARCHIVED
+        NEW, READ, REPLIED, ARCHIVED, LEAD
     }
 
     @Id

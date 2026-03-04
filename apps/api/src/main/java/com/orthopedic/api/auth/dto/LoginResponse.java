@@ -27,9 +27,15 @@ public class LoginResponse {
     @Schema(description = "Token expiry time in seconds", example = "3600")
     private Long expiresIn;
 
-    @Schema(description = "Flag indicating if 2FA verification is required", example = "false")
-    private boolean requiresTwoFactor;
+    @Schema(description = "Flag indicating if MFA verification is required", example = "false")
+    private boolean requiresMfa;
 
-    @Schema(description = "Temporary token for 2FA verification challenge", example = "b55a6f1c-4272-b737-506ac5d6074a")
+    @Schema(description = "Temporary token for MFA verification challenge", example = "b55a6f1c-4272-b737-506ac5d6074a")
     private String tempToken;
+
+    @Schema(description = "User's unique identifier", example = "550e8400-e29b-41d4-a716-446655440000")
+    private java.util.UUID userId;
+
+    @Schema(description = "User's assigned roles", example = "[\"ROLE_PATIENT\"]")
+    private java.util.List<String> roles;
 }

@@ -30,6 +30,7 @@ public class ReviewServiceImpl {
     private final AppointmentRepository appointmentRepository;
 
     @Transactional
+    @com.orthopedic.api.modules.audit.annotation.LogMutation(action = "CREATE_REVIEW", entityName = "DoctorReview")
     public ReviewResponse createReview(UUID patientId, CreateReviewRequest request) {
         if (reviewRepository.findByAppointmentId(request.appointmentId()).isPresent()) {
             throw new RuntimeException("Review already exists for this appointment");
@@ -39,7 +40,11 @@ public class ReviewServiceImpl {
                 .orElseThrow(() -> new RuntimeException("Appointment not found"));
 
         if (!appointment.getPatient().getId().equals(patientId)) {
-            throw new RuntimeException("Unauthorized");
+            throw new RuntimeException("Unauthorized: This appointment does not belong to you");
+        }
+
+        if (appointment.getStatus() != Appointment.AppointmentStatus.COMPLETED) {
+            throw new RuntimeException("You can only review completed appointments");
         }
 
         DoctorReview review = DoctorReview.builder()
@@ -69,16 +74,7 @@ public class ReviewServiceImpl {
     @Transactional(readOnly = true)
     public Page<ReviewResponse> getDoctorReviews(UUID doctorId, Pageable pageable) {
         return reviewRepository.findByDoctorIdAndIsPublishedTrue(doctorId, pageable)
-                .map(r -> ReviewResponse.builder()
-                        .id(r.getId())
-                        .patientDisplayName(r.getPatient().getUser().getFirstName() + " "
-                                + r.getPatient().getUser().getLastName().substring(0, 1) + ".")
-                        .rating(r.getRating())
-                        .reviewText(r.getReviewText())
-                        .isVerified(r.getIsVerified())
-                        .isPublished(r.getIsPublished())
-                        .createdAt(r.getCreatedAt())
-                        .build());
+                .map(this::mapToResponse);
     }
 
     @Transactional(readOnly = true)
@@ -99,6 +95,58 @@ public class ReviewServiceImpl {
                 .averageRating(avgRating != null ? avgRating : 0.0)
                 .totalReviews(totalReviews)
                 .ratingBreakdown(ratingMap)
+                .build();
+    }
+
+    @Transactional
+    @com.orthopedic.api.modules.audit.annotation.LogMutation(action = "PUBLISH_REVIEW", entityName = "DoctorReview")
+    public void publishReview(UUID reviewId) {
+        DoctorReview review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new RuntimeException("Review not found"));
+        review.setIsPublished(true);
+        reviewRepository.save(review);
+    }
+
+    @Transactional
+    @com.orthopedic.api.modules.audit.annotation.LogMutation(action = "UNPUBLISH_REVIEW", entityName = "DoctorReview")
+    public void unpublishReview(UUID reviewId) {
+        DoctorReview review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new RuntimeException("Review not found"));
+        review.setIsPublished(false);
+        reviewRepository.save(review);
+    }
+
+    @Transactional
+    @com.orthopedic.api.modules.audit.annotation.LogMutation(action = "DELETE_REVIEW", entityName = "DoctorReview")
+    public void deleteReview(UUID reviewId) {
+        if (!reviewRepository.existsById(reviewId)) {
+            throw new RuntimeException("Review not found");
+        }
+        reviewRepository.deleteById(reviewId);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ReviewResponse> getPendingReviews(Pageable pageable) {
+        return reviewRepository.findByIsPublishedFalseOrderByCreatedAtDesc(pageable)
+                .map(this::mapToResponse);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ReviewResponse> getPatientReviews(UUID patientId, Pageable pageable) {
+        return reviewRepository.findByPatientId(patientId, pageable)
+                .map(this::mapToResponse);
+    }
+
+    private ReviewResponse mapToResponse(DoctorReview r) {
+        return ReviewResponse.builder()
+                .id(r.getId())
+                .patientDisplayName(r.getPatient().getUser().getFirstName() + " "
+                        + r.getPatient().getUser().getLastName().substring(0, 1) + ".")
+                .rating(r.getRating())
+                .reviewText(r.getReviewText())
+                .isVerified(r.getIsVerified())
+                .isPublished(r.getIsPublished())
+                .createdAt(r.getCreatedAt())
                 .build();
     }
 }

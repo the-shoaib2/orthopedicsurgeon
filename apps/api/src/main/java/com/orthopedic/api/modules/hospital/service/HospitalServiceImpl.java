@@ -11,6 +11,7 @@ import com.orthopedic.api.modules.hospital.entity.ServiceEntity;
 import com.orthopedic.api.modules.hospital.mapper.HospitalMapper;
 import com.orthopedic.api.modules.hospital.repository.HospitalRepository;
 import com.orthopedic.api.modules.hospital.repository.ServiceRepository;
+import com.orthopedic.api.modules.audit.annotation.LogMutation;
 import com.orthopedic.api.shared.exception.ResourceNotFoundException;
 import com.orthopedic.api.shared.exception.BusinessException;
 import org.springframework.cache.annotation.CacheEvict;
@@ -68,6 +69,7 @@ public class HospitalServiceImpl implements HospitalService {
     @Override
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @CacheEvict(value = "hospitals", allEntries = true)
+    @LogMutation(action = "CREATE_HOSPITAL", entityName = "HOSPITAL")
     public HospitalResponse createHospital(CreateHospitalRequest request) {
         if (hospitalRepository.existsByLicenseNumber(request.getLicenseNumber())) {
             throw new BusinessException("License number already exists");
@@ -79,6 +81,7 @@ public class HospitalServiceImpl implements HospitalService {
     @Override
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     @CacheEvict(value = "hospitals", allEntries = true)
+    @LogMutation(action = "UPDATE_HOSPITAL", entityName = "HOSPITAL")
     public HospitalResponse updateHospital(UUID id, UpdateHospitalRequest request) {
         Hospital hospital = hospitalRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Hospital not found"));
@@ -89,6 +92,7 @@ public class HospitalServiceImpl implements HospitalService {
     @Override
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @CacheEvict(value = "hospitals", allEntries = true)
+    @LogMutation(action = "DELETE_HOSPITAL", entityName = "HOSPITAL")
     public void deleteHospital(UUID id) {
         Hospital hospital = hospitalRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Hospital not found"));
@@ -107,6 +111,7 @@ public class HospitalServiceImpl implements HospitalService {
 
     @Override
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
+    @LogMutation(action = "CREATE_SERVICE", entityName = "SERVICE")
     public ServiceResponse createService(CreateServiceRequest request) {
         Hospital hospital = hospitalRepository.findById(request.getHospitalId())
                 .orElseThrow(() -> new ResourceNotFoundException("Hospital not found"));
@@ -117,6 +122,7 @@ public class HospitalServiceImpl implements HospitalService {
 
     @Override
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
+    @LogMutation(action = "UPDATE_SERVICE", entityName = "SERVICE")
     public ServiceResponse updateService(UUID serviceId, UpdateServiceRequest request) {
         ServiceEntity service = serviceRepository.findById(serviceId)
                 .orElseThrow(() -> new ResourceNotFoundException("Service not found"));
@@ -126,6 +132,7 @@ public class HospitalServiceImpl implements HospitalService {
 
     @Override
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
+    @LogMutation(action = "DELETE_SERVICE", entityName = "SERVICE")
     public void deleteService(UUID serviceId) {
         ServiceEntity service = serviceRepository.findById(serviceId)
                 .orElseThrow(() -> new ResourceNotFoundException("Service not found"));

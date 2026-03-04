@@ -13,10 +13,20 @@ public interface AuthService {
 
     TokenResponse verify2fa(Verify2faRequest request, String userAgent);
 
-    // New methods for Auth flows
     LoginResponse googleLogin(GoogleLoginRequest request, String ipAddress, String userAgent);
 
     void forgotPassword(ForgotPasswordRequest request);
 
     void resetPassword(ResetPasswordRequest request, String ipAddress, String userAgent);
+
+    // Group A - New methods
+    void verifyEmail(VerifyEmailRequest request);
+
+    void resendVerification(ResendVerificationRequest request);
+
+    CheckEmailResponse checkEmail(CheckEmailRequest request);
+
+    boolean verifyTokenByString(String token);
+
+    void logoutAll(String ipAddress, String userAgent, String email);
 }

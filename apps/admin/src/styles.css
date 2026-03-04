@@ -1,12 +1,157 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-
 @layer base {
   body {
-    @apply text-slate-900 antialiased font-sans bg-slate-50;
+    font-family: 'Inter', 'Roboto', sans-serif;
+    @apply text-slate-900 antialiased bg-slate-50;
   }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Inter', 'Roboto', sans-serif;
+    @apply font-semibold;
+  }
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ── Active sidebar route ── */
+.active-route {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  color: #fff !important;
+  border-right: 3px solid rgba(255, 255, 255, 0.6) !important;
+}
+
+.active-route mat-icon {
+  color: #fff !important;
+}
+
+.active-route .mdc-list-item__primary-text {
+  color: #fff !important;
+}
+
+/* ── Dense toolbar search field ── */
+.dense-toolbar-field .mat-mdc-text-field-wrapper {
+  background-color: #f1f5f9 !important;
+  border-radius: 8px !important;
+}
+
+.dense-toolbar-field .mdc-notched-outline__leading,
+.dense-toolbar-field .mdc-notched-outline__notch,
+.dense-toolbar-field .mdc-notched-outline__trailing {
+  border-color: #e2e8f0 !important;
+}
+
+.dense-toolbar-field .mat-mdc-form-field-infix {
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+  min-height: 36px !important;
+}
+
+/* ── Sidebar mat-expansion-panel ── */
+.sidebar-expansion .mat-expansion-panel {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+.sidebar-expansion .mat-expansion-panel-header {
+  padding: 0 16px !important;
+  height: 48px !important;
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+
+.sidebar-expansion .mat-expansion-panel-header:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.sidebar-expansion .mat-expansion-panel-header-title {
+  color: rgba(255, 255, 255, 0.75) !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  gap: 12px;
+  align-items: center;
+  display: flex;
+}
+
+.sidebar-expansion .mat-expansion-indicator::after {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.sidebar-expansion .mat-expansion-panel-body {
+  padding: 0 !important;
+}
+
+/* ── Material nav list in sidebar ── */
+.sidebar-nav .mdc-list-item__primary-text {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+
+.sidebar-nav .mat-mdc-list-item {
+  color: rgba(255, 255, 255, 0.75) !important;
+  border-radius: 0 !important;
+  height: 48px !important;
+}
+
+.sidebar-nav .mat-mdc-list-item:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.sidebar-nav .mat-mdc-list-item mat-icon {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+.sidebar-nav .mat-mdc-list-item.active-route mat-icon {
+  color: #fff !important;
+}
+
+/* ── Snackbar ── */
+.success-snackbar {
+  --mdc-snackbar-container-color: #059669;
+  --mdc-snackbar-supporting-text-color: #fff;
+}
+
+.error-snackbar {
+  --mdc-snackbar-container-color: #dc2626;
+  --mdc-snackbar-supporting-text-color: #fff;
+}
+
+/* ── Mat card subtle shadow ── */
+mat-card.premium-card {
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04) !important;
+}
+
+mat-card {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
 }

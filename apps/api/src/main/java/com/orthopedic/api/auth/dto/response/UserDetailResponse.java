@@ -1,0 +1,29 @@
+package com.orthopedic.api.auth.dto.response;
+
+import com.orthopedic.api.auth.entity.Role;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserDetailResponse {
+    private UUID id;
+    private String email;
+    private String firstName;
+    private String lastName;
+    private Role role;
+    private boolean enabled;
+    private boolean emailVerified;
+    private boolean using2fa;
+    private LocalDateTime createdAt;
+    private LocalDateTime lastLogin;
+    private Integer failedLoginAttempts;
+    private LocalDateTime lockoutUntil;
+}

@@ -1,0 +1,60 @@
+spring:
+    # ── Database: H2 in-memory (no Docker / Postgres needed) ──────────────────
+    datasource:
+        url: jdbc:h2:mem:orthopedic_db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL;NON_KEYWORDS=VALUE,KEY
+        username: sa
+        password: ""
+        driver-class-name: org.h2.Driver
+        hikari:
+            maximum-pool-size: 5
+            minimum-idle: 1
+            pool-name: OrthopedicH2Pool
+
+    # ── H2 Console: accessible at http://localhost:8080/h2-console ───────────
+    h2:
+        console:
+            enabled: true
+            path: /h2-console
+            settings:
+                web-allow-others: false
+
+    # ── JPA: let Hibernate auto-create the schema (no Flyway) ─────────────────
+    jpa:
+        hibernate:
+            ddl-auto: create-drop
+        show-sql: true
+        database-platform: org.hibernate.dialect.H2Dialect
+
+    # ── Flyway: disabled (H2 schema is managed by Hibernate) ──────────────────
+    flyway:
+        enabled: false
+
+    # ── Cache: simple in-memory (no Redis needed) ─────────────────────────────
+    cache:
+        type: simple
+
+    # ── Redis: disabled (autoconfiguration still loads, so point at a dummy) ──
+    data:
+        redis:
+            host: localhost
+            port: 6379
+
+    # ── OAuth2: dummy values so the app starts without real credentials ────────
+    security:
+        oauth2:
+            client:
+                registration:
+                    google:
+                        client-id: dummy-client-id
+                        client-secret: dummy-client-secret
+                        scope:
+                            - email
+                            - profile
+
+# ── Logging: more verbose for local dev ───────────────────────────────────────
+logging:
+    level:
+        root: INFO
+        "[com.orthopedic.api]": DEBUG
+        org.hibernate.SQL: DEBUG
+        "[org.hibernate.orm.jdbc.bind]": TRACE

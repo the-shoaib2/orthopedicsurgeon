@@ -44,6 +44,9 @@ public class DoctorResponse {
     @Schema(description = "Whether the doctor is available for online consultations", example = "true")
     private Boolean availableForOnline;
 
+    @Schema(description = "Whether the doctor is featured on the homeopathic site", example = "false")
+    private Boolean isFeatured;
+
     @Schema(description = "Current status of the doctor profile", example = "ACTIVE")
     private Doctor.DoctorStatus status;
 

@@ -1,106 +1,75 @@
-import { Component, signal, inject, OnInit } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { AdminApiService } from '@core/services/admin-api.service';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-partner-management',
   standalone: true,
   imports: [
-    CommonModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatChipsModule,
-    MatTooltipModule,
-    MatProgressBarModule
+    CommonModule, MatButtonModule, MatIconModule,
+    MatMenuModule, MatDividerModule, MatFormFieldModule, MatInputModule
   ],
   template: `
     <div class="space-y-6">
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4">
-        <div class="flex items-center gap-4">
-          <mat-icon color="primary" class="scale-150 ml-2">handshake</mat-icon>
-          <div>
-            <h1 class="text-2xl font-medium m-0">Partner Management</h1>
-            <p class="text-sm text-slate-500 m-0">Manage partner logos and affiliations</p>
-          </div>
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-semibold text-slate-900 m-0">Partners</h1>
+          <p class="text-sm text-slate-500 mt-1 m-0">Manage partner organizations and their logos displayed on the website.</p>
         </div>
         <button mat-flat-button color="primary">
-           Add Partner
+          <mat-icon class="text-[18px]">add</mat-icon>
+          Add Partner
         </button>
       </div>
 
-      <mat-progress-bar *ngIf="loading()" mode="query" color="primary" class="h-1 rounded-full"></mat-progress-bar>
-
-      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
-        <mat-card *ngFor="let partner of partners()" class="overflow-hidden group">
-           <div class="h-40 flex items-center justify-center p-6 bg-slate-50 relative">
-              <img [src]="partner.logoUrl" class="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300" />
-              
-              <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                 <button mat-icon-button color="warn" class="bg-white/90" (click)="deletePartner(partner.id)">
-                   <mat-icon>delete</mat-icon>
-                 </button>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        @for (partner of partners(); track partner.id) {
+          <div class="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md transition-shadow">
+            <div class="flex items-start justify-between gap-3">
+              <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center shrink-0">
+                <mat-icon class="text-slate-500 text-[24px]">handshake</mat-icon>
               </div>
-           </div>
-           
-           <mat-card-content class="pt-4 border-t border-slate-100">
-              <p class="text-sm font-medium truncate mb-2">{{ partner.name }}</p>
-              <div class="flex items-center justify-between text-xs text-slate-500">
-                 <div class="flex items-center gap-1">
-                    <span>Order:</span>
-                    <span class="font-medium">{{ partner.displayOrder }}</span>
-                 </div>
-                 <span [class]="partner.isActive ? 'text-green-600 font-medium' : 'text-slate-500'">
-                    {{ partner.isActive ? 'ACTIVE' : 'INACTIVE' }}
-                 </span>
-              </div>
-           </mat-card-content>
-        </mat-card>
-        
-        <div *ngIf="partners().length === 0 && !loading()" class="col-span-full py-12 text-center text-slate-500">
-           <mat-icon class="scale-150 mb-4 text-slate-400">handshake</mat-icon>
-           <p class="font-medium text-sm">No partners configured</p>
-        </div>
+              <button mat-icon-button [matMenuTriggerFor]="menu"
+                      class="text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg -mt-1 -mr-1">
+                <mat-icon class="text-[18px]">more_vert</mat-icon>
+              </button>
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item><mat-icon>edit</mat-icon> Edit</button>
+                <button mat-menu-item><mat-icon>upload</mat-icon> Update Logo</button>
+                <mat-divider></mat-divider>
+                <button mat-menu-item class="text-red-600"><mat-icon class="text-red-500">delete</mat-icon> Remove</button>
+              </mat-menu>
+            </div>
+            <h3 class="font-semibold text-slate-900 text-sm mt-3 mb-1">{{ partner.name }}</h3>
+            <p class="text-xs text-slate-500 m-0">{{ partner.category }}</p>
+            <div class="flex items-center gap-2 mt-3">
+              <span class="text-xs font-semibold px-2 py-0.5 rounded-full"
+                    [class]="partner.active
+                      ? 'bg-green-50 text-green-700 border border-green-200'
+                      : 'bg-slate-100 text-slate-500 border border-slate-200'">
+                {{ partner.active ? 'Active' : 'Hidden' }}
+              </span>
+              <span class="text-xs text-slate-400">Since {{ partner.since }}</span>
+            </div>
+          </div>
+        }
       </div>
     </div>
   `,
-  styles: [`
-    :host { display: block; }
-  `]
+  styles: [`:host { display: block; }`]
 })
-export class PartnerManagementComponent implements OnInit {
-  private api = inject(AdminApiService);
-  
-  partners = signal<any[]>([]);
-  loading = signal(false);
-
-  ngOnInit() {
-    this.loadPartners();
-  }
-
-  loadPartners() {
-    this.loading.set(true);
-    this.api.getPartners().subscribe({
-      next: (res) => {
-        this.partners.set(res);
-        this.loading.set(false);
-      },
-      error: (err) => {
-        console.error('Failed to load partners', err);
-        this.loading.set(false);
-      }
-    });
-  }
-
-  deletePartner(id: string) {
-    if (confirm('Are you sure you want to delete this partner?')) {
-      this.api.deletePartner(id).subscribe(() => this.loadPartners());
-    }
-  }
+export class PartnerManagementComponent {
+  partners = signal([
+    { id: 1, name: 'Metro Health Group',    category: 'Hospital Network',     active: true,  since: '2022' },
+    { id: 2, name: 'PhysioFirst',           category: 'Rehabilitation Center', active: true,  since: '2023' },
+    { id: 3, name: 'BioMed Innovations',    category: 'Medical Technology',    active: true,  since: '2021' },
+    { id: 4, name: 'Global Health Fund',    category: 'Healthcare Foundation', active: false, since: '2023' },
+    { id: 5, name: 'SurgeTech Labs',        category: 'Research & Development', active: true, since: '2024' },
+    { id: 6, name: 'CareBridge Insurance',  category: 'Insurance Provider',    active: true,  since: '2022' },
+  ]);
 }

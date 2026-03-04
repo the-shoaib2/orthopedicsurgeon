@@ -1,5 +1,6 @@
 package com.orthopedic.api.modules.patient.controller.admin;
 
+import com.orthopedic.api.modules.patient.dto.request.AdminUpdatePatientRequest;
 import com.orthopedic.api.modules.patient.dto.request.CreatePatientRequest;
 import com.orthopedic.api.modules.patient.dto.request.PatientFilterRequest;
 import com.orthopedic.api.modules.patient.dto.response.PatientMedicalHistoryResponse;
@@ -67,5 +68,19 @@ public class AdminPatientController extends BaseController {
     @Operation(summary = "Get complete medical history of a patient")
     public ResponseEntity<ApiResponse<PatientMedicalHistoryResponse>> getHistory(@PathVariable UUID id) {
         return ok(patientService.getMedicalHistory(id));
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Update patient record (Admin)")
+    public ResponseEntity<ApiResponse<PatientResponse>> update(@PathVariable UUID id,
+            @Valid @RequestBody AdminUpdatePatientRequest request) {
+        return ok(patientService.updatePatient(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Deactivate patient record (Soft Delete)")
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable UUID id) {
+        patientService.deletePatient(id);
+        return ok("Patient record deactivated successfully", null);
     }
 }

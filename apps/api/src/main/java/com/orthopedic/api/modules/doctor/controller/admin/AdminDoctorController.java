@@ -19,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -74,5 +75,31 @@ public class AdminDoctorController extends BaseController {
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable UUID id) {
         doctorService.deleteDoctor(id);
         return ok("Doctor deleted successfully", null);
+    }
+
+    @PatchMapping("/{id}/status")
+    @Operation(summary = "Update doctor status")
+    public ResponseEntity<ApiResponse<Void>> updateStatus(
+            @PathVariable UUID id,
+            @RequestBody Map<String, com.orthopedic.api.modules.doctor.entity.Doctor.DoctorStatus> body) {
+        com.orthopedic.api.modules.doctor.entity.Doctor.DoctorStatus status = body.get("status");
+        if (status == null) {
+            return ResponseEntity.badRequest().body(ApiResponse.error("Status is required", null));
+        }
+        doctorService.updateDoctorStatus(id, status);
+        return ok("Doctor status updated successfully", null);
+    }
+
+    @PostMapping("/{id}/toggle-featured")
+    @Operation(summary = "Toggle doctor featured status")
+    public ResponseEntity<ApiResponse<Void>> toggleFeatured(
+            @PathVariable UUID id,
+            @RequestBody Map<String, Boolean> body) {
+        Boolean featured = body.get("featured");
+        if (featured == null) {
+            return ResponseEntity.badRequest().body(ApiResponse.error("Featured flag is required", null));
+        }
+        doctorService.toggleFeaturedStatus(id, featured);
+        return ok("Doctor featured status updated successfully", null);
     }
 }

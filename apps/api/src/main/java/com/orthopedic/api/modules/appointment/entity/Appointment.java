@@ -7,8 +7,6 @@ import com.orthopedic.api.modules.hospital.entity.ServiceEntity;
 import com.orthopedic.api.modules.patient.entity.Patient;
 import com.orthopedic.api.shared.base.BaseEntity;
 import jakarta.persistence.*;
-import org.hibernate.annotations.JdbcType;
-import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -51,12 +49,10 @@ public class Appointment extends BaseEntity {
     private LocalTime endTime;
 
     @Enumerated(EnumType.STRING)
-    @JdbcType(PostgreSQLEnumJdbcType.class)
     @Column(nullable = false)
     private AppointmentStatus status = AppointmentStatus.PENDING;
 
     @Enumerated(EnumType.STRING)
-    @JdbcType(PostgreSQLEnumJdbcType.class)
     @Column(nullable = false)
     private AppointmentType type = AppointmentType.IN_PERSON;
 

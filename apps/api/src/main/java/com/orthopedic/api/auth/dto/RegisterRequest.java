@@ -34,8 +34,21 @@ public class RegisterRequest {
     @Schema(description = "User's password (min 8 characters)", example = "shoaib123", requiredMode = Schema.RequiredMode.REQUIRED)
     private String password;
 
+    @NotBlank(message = "Confirm password is required")
+    @Schema(description = "Confirm User's password", example = "shoaib123", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String confirmPassword;
+
     @Schema(description = "User's phone number", example = "+8801700000000")
     private String phone;
+
+    @Schema(description = "User's date of birth", example = "1990-01-01")
+    private java.time.LocalDate dateOfBirth;
+
+    @Schema(description = "User's gender", example = "MALE")
+    private String gender;
+
+    @Schema(description = "Device fingerprint for registration", example = "df78-gh90-23kj-90lk")
+    private String deviceFingerprint;
 
     @Schema(description = "User's role (defaults to ROLE_PATIENT)", example = "ROLE_PATIENT")
     private String role;

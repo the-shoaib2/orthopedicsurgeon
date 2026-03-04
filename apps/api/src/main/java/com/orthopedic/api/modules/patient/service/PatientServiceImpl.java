@@ -2,6 +2,7 @@ package com.orthopedic.api.modules.patient.service;
 
 import com.orthopedic.api.auth.entity.User;
 import com.orthopedic.api.auth.repository.UserRepository;
+import com.orthopedic.api.modules.patient.dto.request.AdminUpdatePatientRequest;
 import com.orthopedic.api.modules.patient.dto.request.CreatePatientRequest;
 import com.orthopedic.api.modules.patient.dto.request.PatientFilterRequest;
 import com.orthopedic.api.modules.patient.dto.request.UpdatePatientProfileRequest;
@@ -13,6 +14,7 @@ import com.orthopedic.api.modules.patient.entity.PatientAllergy;
 import com.orthopedic.api.modules.patient.entity.PatientMedicalCondition;
 import com.orthopedic.api.modules.patient.mapper.PatientMapper;
 import com.orthopedic.api.modules.patient.repository.PatientRepository;
+import com.orthopedic.api.modules.audit.annotation.LogMutation;
 import com.orthopedic.api.shared.dto.PageResponse;
 import com.orthopedic.api.shared.exception.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
@@ -88,6 +90,7 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    @LogMutation(action = "CREATE_PATIENT", entityName = "PATIENT")
     public PatientResponse createPatient(CreatePatientRequest request) {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -115,6 +118,7 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
+    @LogMutation(action = "UPDATE_PATIENT_PROFILE", entityName = "PATIENT")
     public PatientResponse updateMyProfile(UUID userId, UpdatePatientProfileRequest request) {
         Patient patient = getOrCreatePatient(userId);
 
@@ -132,6 +136,41 @@ public class PatientServiceImpl implements PatientService {
         patient.setCity(request.getCity());
 
         return patientMapper.toResponse(patientRepository.save(patient));
+    }
+
+    @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    @LogMutation(action = "ADMIN_UPDATE_PATIENT", entityName = "PATIENT")
+    public PatientResponse updatePatient(UUID id, AdminUpdatePatientRequest request) {
+        Patient patient = patientRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+
+        User user = patient.getUser();
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setPhone(request.getPhone());
+        userRepository.save(user);
+
+        patient.setBloodGroup(request.getBloodGroup());
+        patient.setGender(request.getGender());
+        patient.setDateOfBirth(request.getDateOfBirth());
+        patient.setAddress(request.getAddress());
+        patient.setCity(request.getCity());
+        patient.setEmergencyContactName(request.getEmergencyContactName());
+        patient.setEmergencyContactPhone(request.getEmergencyContactPhone());
+        patient.setStatus(request.getStatus());
+
+        return patientMapper.toResponse(patientRepository.save(patient));
+    }
+
+    @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    @LogMutation(action = "DELETE_PATIENT", entityName = "PATIENT")
+    public void deletePatient(UUID id) {
+        Patient patient = patientRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+        patient.setStatus(Patient.PatientStatus.INACTIVE);
+        patientRepository.save(patient);
     }
 
     @Override

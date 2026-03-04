@@ -1,0 +1,2042 @@
+You are a Senior Spring Boot Security Architect.
+Design COMPLETE API specification for a hospital platform.
+
+TWO SEPARATE API SURFACES:
+  1. PUBLIC SITE APIs  → apps/web/  (high traffic, public + patient)
+  2. ADMIN PANEL APIs  → apps/admin/ (protected, staff + management)
+
+Backend: Spring Boot 3.4.3 + Java 21
+Database: PostgreSQL (Aiven Cloud)
+Cache: Redis
+Auth: JWT RS256 + OAuth2 + TOTP 2FA + Passkey + SSO
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## 🔐 AUTHENTICATION ARCHITECTURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PUBLIC SITE (apps/web) auth rules:
+  → Patients: email+password OR Google OAuth2
+  → 2FA: OPTIONAL for patients
+  → Passkey: OPTIONAL for patients
+  → Session: JWT access (15min) + refresh (7 days)
+  → Rate limiting: strict (DDoS protection)
+
+ADMIN PANEL (apps/admin) auth rules:
+  → ALL admin users: 2FA MANDATORY (cannot disable)
+  → SSO: MANDATORY default (Google Workspace / SAML)
+  → Passkey: MANDATORY for SUPER_ADMIN
+  → Session: JWT access (15min) + refresh (8 hours)
+  → Device tracking: MANDATORY
+  → Session: max 3 concurrent per user
+  → IP allowlist: configurable per role
+  → Idle timeout: 30 minutes → force re-auth
+  → Suspicious activity → auto-lock + alert
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## 🌐 SURFACE 1 — PUBLIC SITE API
+## Base: /api/v1/
+## High traffic. Cached. Rate limited.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+══════════════════════════════════════════════════
+### GROUP A — PUBLIC AUTH (no token required)
+### Base: /api/v1/auth/
+══════════════════════════════════════════════════
+
+A-01  POST   /auth/login
+      Body: { email, password, deviceFingerprint,
+              totpCode? }
+      Returns: { accessToken, refreshToken(cookie),
+                 requiresMfa, userId, roles }
+      Rate: 5 attempts/15min per IP+email
+      Security: bcrypt verify, account lockout after 5 fails
+                log device + IP + userAgent
+                detect new device → send alert email
+
+A-02  POST   /auth/login/mfa-verify
+      Body: { userId, totpCode OR backupCode,
+              deviceFingerprint }
+      Returns: { accessToken, refreshToken(cookie),
+                 deviceTrusted }
+      Rate: 3 attempts/15min per userId
+      Security: invalidate on brute force
+
+A-03  POST   /auth/login/passkey/begin
+      Body: { email }
+      Returns: WebAuthn PublicKeyCredentialRequestOptions
+      Security: challenge expires 5 minutes
+
+A-04  POST   /auth/login/passkey/complete
+      Body: { email, credentialResponse (WebAuthn) }
+      Returns: { accessToken, refreshToken(cookie) }
+      Security: verify authenticatorData + signature
+
+A-05  GET    /auth/login/google
+      Redirect: → Google OAuth2 consent screen
+      Scopes: email profile openid
+
+A-06  GET    /auth/oauth2/callback/google
+      Handles OAuth2 callback
+      Creates account if new user
+      Returns: redirect with token params
+
+A-07  POST   /auth/register/patient
+      Body: { firstName, lastName, email, phone,
+              password, confirmPassword,
+              dateOfBirth, gender, deviceFingerprint }
+      Returns: { userId, email, message }
+      Rate: 3 registrations/hour per IP
+      Security: email uniqueness check
+                send verification email
+                log registration device
+
+A-08  GET    /auth/verify-email/{token}
+      Activates account
+      Token expires: 24 hours
+      Returns: { success, message }
+
+A-09  POST   /auth/resend-verification
+      Body: { email }
+      Rate: 3/hour per email
+      Returns: { message }
+
+A-10  POST   /auth/forgot-password
+      Body: { email }
+      Returns: { message } (always 200, prevent enumeration)
+      Rate: 3/hour per email
+      Security: token expires 1 hour, single use
+
+A-11  POST   /auth/reset-password/{token}
+      Body: { newPassword, confirmPassword }
+      Returns: { success }
+      Security: invalidate all existing sessions on success
+                send password change notification email
+
+A-12  POST   /auth/refresh
+      Cookie: refreshToken (HttpOnly)
+      Body: { deviceFingerprint }
+      Returns: { accessToken }
+      Security: refresh token rotation
+                invalidate old refresh token
+                detect refresh token reuse → revoke all
+
+A-13  POST   /auth/logout
+      Header: Authorization Bearer
+      Cookie: refreshToken
+      Returns: { success }
+      Security: blacklist access token in Redis
+                delete refresh token
+
+A-14  GET    /auth/check-email
+      Query: ?email=
+      Returns: { exists: boolean }
+      Rate: 10/min per IP
+
+A-15  POST   /auth/passkey/register/begin
+      Header: Authorization Bearer [PATIENT]
+      Returns: WebAuthn PublicKeyCredentialCreationOptions
+      Security: challenge expires 5 min
+
+A-16  POST   /auth/passkey/register/complete
+      Header: Authorization Bearer [PATIENT]
+      Body: { credentialResponse (WebAuthn) }
+      Returns: { passkeyId, name, createdAt }
+      Security: verify attestation
+
+A-17  POST   /auth/2fa/setup/begin
+      Header: Authorization Bearer [PATIENT]
+      Returns: { qrCodeUrl, secret, backupCodes[10] }
+      Security: backup codes hashed before storage
+
+A-18  POST   /auth/2fa/setup/verify
+      Header: Authorization Bearer [PATIENT]
+      Body: { totpCode }
+      Returns: { enabled: true, backupCodes[10] }
+      Security: verify TOTP before enabling
+
+A-19  DELETE /auth/2fa/disable
+      Header: Authorization Bearer [PATIENT]
+      Body: { totpCode, password }
+      Returns: { success }
+      Note: ADMIN/SUPER_ADMIN cannot disable 2FA
+
+A-20  POST   /auth/token/verify
+      Body: { token }
+      Returns: { valid, userId, roles, expiresAt }
+      Rate: 30/min per IP
+      Use: frontend token validation
+
+══════════════════════════════════════════════════
+### GROUP B — HOME PAGE APIs (all public)
+### Base: /api/v1/public/home/
+### Cache: Redis. Rate: 100 req/s per IP.
+══════════════════════════════════════════════════
+
+B-01  GET /public/home/hero-slides
+      Cache: 30 min
+      Returns: HeroSlide[] (active, ordered)
+
+B-02  GET /public/home/stats
+      Cache: 1 hour
+      Returns: { totalDoctors, totalPatients,
+                 totalAppointments, totalServices,
+                 yearsExperience, successRate }
+
+B-03  GET /public/home/featured-doctors
+      Cache: 5 min
+      Returns: DoctorPublic[6] (top rated + active)
+
+B-04  GET /public/home/featured-services
+      Cache: 15 min
+      Returns: Service[8] (featured + active)
+
+B-05  GET /public/home/testimonials
+      Cache: 1 hour
+      Returns: Testimonial[6] (featured + verified)
+
+B-06  GET /public/home/latest-blog-posts
+      Cache: 10 min
+      Returns: BlogPostSummary[3] (latest published)
+
+B-07  GET /public/home/gallery
+      Cache: 1 hour
+      Returns: GalleryItem[] grouped by category
+
+B-08  GET /public/home/awards
+      Cache: 24 hours
+      Returns: Award[] (active, ordered)
+
+B-09  GET /public/home/partners
+      Cache: 24 hours
+      Returns: Partner[] (active, ordered)
+
+B-10  GET /public/home/working-hours
+      Cache: 1 hour
+      Returns: { Mon-Sun hours, emergencyPhone }
+
+B-11  GET /public/home/meta
+      Cache: 1 hour
+      Returns: SeoMeta (title, og tags, JSON-LD)
+
+B-12  GET /public/home/announcement
+      Cache: 5 min
+      Returns: { message, type, active } or null
+      Use: emergency announcements banner
+
+══════════════════════════════════════════════════
+### GROUP C — DOCTORS APIs (all public)
+### Base: /api/v1/public/doctors/
+══════════════════════════════════════════════════
+
+C-01  GET /public/doctors
+      Query: specialization, gender, availableForOnline,
+             hospitalId, city, minFee, maxFee,
+             availableOn, search, page, size, sort
+      Cache: 5 min (keyed by all params)
+      Returns: Page<DoctorPublic>
+
+C-02  GET /public/doctors/{id}
+      Cache: 5 min
+      Returns: DoctorPublic (full profile)
+
+C-03  GET /public/doctors/{id}/availability
+      Cache: 2 min
+      Returns: DoctorAvailability[] (weekly schedule)
+
+C-04  GET /public/doctors/{id}/available-slots
+      Query: ?date=2025-03-12
+      Cache: 1 min (short — real-time slots)
+      Returns: TimeSlot[] (available only)
+
+C-05  GET /public/doctors/{id}/reviews
+      Query: rating?, page, size, sort
+      Cache: 5 min
+      Returns: Page<Review> (published only)
+
+C-06  GET /public/doctors/{id}/services
+      Cache: 10 min
+      Returns: Service[]
+
+C-07  GET /public/doctors/specializations
+      Cache: 1 hour
+      Returns: { name, count }[]
+
+C-08  GET /public/doctors/search
+      Query: ?q=search+term&page&size
+      Cache: 2 min
+      Log: to search_logs async
+      Returns: Page<DoctorPublic>
+
+C-09  GET /public/doctors/{id}/meta
+      Cache: 30 min
+      Returns: SeoMeta + Person JSON-LD
+
+C-10  GET /public/doctors/cities
+      Cache: 1 hour
+      Returns: string[] (distinct cities with doctors)
+
+C-11  GET /public/doctors/featured
+      Cache: 5 min
+      Returns: DoctorPublic[] (homepage featured)
+
+══════════════════════════════════════════════════
+### GROUP D — SERVICES APIs (all public)
+### Base: /api/v1/public/services/
+══════════════════════════════════════════════════
+
+D-01  GET /public/services
+      Query: category, hospitalId, minPrice, maxPrice,
+             page, size
+      Cache: 15 min
+      Returns: Page<ServicePublic>
+
+D-02  GET /public/services/{id}
+      Cache: 15 min
+      Returns: ServicePublic + doctors offering it
+
+D-03  GET /public/services/categories
+      Cache: 1 hour
+      Returns: { name, count }[]
+
+D-04  GET /public/services/featured
+      Cache: 15 min
+      Returns: ServicePublic[8]
+
+D-05  GET /public/services/{id}/doctors
+      Cache: 5 min
+      Returns: DoctorPublic[] offering this service
+
+D-06  GET /public/services/{id}/meta
+      Cache: 30 min
+      Returns: SeoMeta
+
+══════════════════════════════════════════════════
+### GROUP E — BLOG APIs (all public)
+### Base: /api/v1/public/blog/
+══════════════════════════════════════════════════
+
+E-01  GET /public/blog/posts
+      Query: categorySlug, tagSlug, search,
+             authorId, featured, page, size, sort
+      Cache: 10 min
+      Returns: Page<BlogPostSummary>
+
+E-02  GET /public/blog/posts/{slug}
+      Cache: 10 min
+      Side effect: increment view_count ASYNC
+      Returns: BlogPost (full + related + commentCount)
+
+E-03  GET /public/blog/posts/featured
+      Cache: 15 min
+      Returns: BlogPostSummary[5]
+
+E-04  GET /public/blog/categories
+      Cache: 1 hour
+      Returns: BlogCategory[] with post count
+
+E-05  GET /public/blog/categories/{slug}
+      Query: page, size
+      Cache: 10 min
+      Returns: { category, posts: Page<BlogPostSummary> }
+
+E-06  GET /public/blog/tags
+      Cache: 1 hour
+      Returns: BlogTag[] with usage count
+
+E-07  GET /public/blog/tags/{slug}/posts
+      Query: page, size
+      Cache: 10 min
+      Returns: Page<BlogPostSummary>
+
+E-08  GET /public/blog/posts/{slug}/comments
+      Query: page, size
+      Cache: 2 min
+      Returns: Page<BlogComment> (approved, threaded)
+
+E-09  POST /public/blog/posts/{slug}/comments
+      Body: { content, parentCommentId?,
+              guestName?, guestEmail? }
+      Auth: optional (authenticated uses user data)
+      Rate: 3/hour per IP
+      Returns: { id, message: "pending approval" }
+
+E-10  GET /public/blog/posts/{slug}/related
+      Cache: 15 min
+      Returns: BlogPostSummary[3]
+
+E-11  GET /public/blog/posts/{slug}/meta
+      Cache: 30 min
+      Returns: SeoMeta + Article JSON-LD
+
+E-12  GET /public/blog/popular
+      Cache: 30 min
+      Returns: BlogPostSummary[5] (by view_count)
+
+══════════════════════════════════════════════════
+### GROUP F — ABOUT & CONTACT (all public)
+### Base: /api/v1/public/
+══════════════════════════════════════════════════
+
+F-01  GET /public/about/hospital
+      Cache: 1 hour
+      Returns: HospitalInfo (name, mission, vision,
+               address, accreditations, established)
+
+F-02  GET /public/about/team
+      Cache: 1 hour
+      Returns: TeamMember[] (show_on_website=true)
+
+F-03  GET /public/about/awards
+      Cache: 24 hours
+      Returns: Award[] (active, ordered by year)
+
+F-04  GET /public/about/gallery
+      Query: category, page, size
+      Cache: 1 hour
+      Returns: Page<GalleryItem>
+
+F-05  GET /public/about/partners
+      Cache: 24 hours
+      Returns: Partner[] (active)
+
+F-06  GET /public/about/meta
+      Cache: 1 hour
+      Returns: SeoMeta for About page
+
+F-07  POST /public/contact/message
+      Body: { name, email, phone, subject, message }
+      Rate: 3/hour per IP
+      Security: email+message sanitize (jsoup)
+      Side effect: auto-reply email ASYNC
+                   admin notify ASYNC
+      Returns: { id, message }
+
+F-08  GET /public/contact/faqs
+      Query: ?category=
+      Cache: 1 hour
+      Returns: Faq[]
+
+F-09  GET /public/contact/faqs/categories
+      Cache: 1 hour
+      Returns: { category, count }[]
+
+F-10  GET /public/contact/info
+      Cache: 1 hour
+      Returns: ContactInfo (phone, email, address,
+               hours, map coords, social links)
+
+F-11  POST /public/contact/newsletter
+      Body: { email, name? }
+      Rate: 3/hour per IP
+      Returns: { message } (idempotent)
+
+F-12  GET /public/contact/newsletter/confirm/{token}
+      Returns: { success, message }
+
+F-13  DELETE /public/contact/newsletter/unsubscribe/{token}
+      Returns: { success }
+
+F-14  GET /public/contact/meta
+      Cache: 1 hour
+      Returns: SeoMeta
+
+══════════════════════════════════════════════════
+### GROUP G — REVIEWS (public read)
+### Base: /api/v1/public/reviews/
+══════════════════════════════════════════════════
+
+G-01  GET /public/reviews/doctor/{doctorId}
+      Query: rating?, page, size, sort
+      Cache: 5 min
+      Returns: Page<Review> (published only, names masked)
+
+G-02  GET /public/reviews/summary/{doctorId}
+      Cache: 5 min
+      Returns: { averageRating, totalReviews,
+                 ratingBreakdown: {5:n, 4:n...} }
+
+══════════════════════════════════════════════════
+### GROUP H — GLOBAL SEARCH & SEO (public)
+══════════════════════════════════════════════════
+
+H-01  GET /public/search
+      Query: q, type (all/doctors/services/blog), page
+      Cache: 2 min per query
+      Log: search_logs ASYNC
+      Returns: SearchResultResponse
+
+H-02  GET /public/settings
+      Cache: 30 min
+      Returns: Map<key, value> (is_public=true only)
+
+H-03  GET /public/sitemap
+      Cache: 1 hour
+      Returns: SitemapEntry[] (all public URLs)
+
+H-04  GET /public/health-check
+      No auth. No cache.
+      Returns: { status, version, timestamp }
+
+H-05  POST /public/analytics/page-view
+      Body: { page, sessionId, referrer }
+      Rate: 60/min per IP
+      Side effect: save ASYNC (fire-and-forget)
+      Returns: 202 Accepted
+
+H-06  GET /public/about/stats
+      Cache: 1 hour
+      Returns: HomeStats (same as B-02)
+
+══════════════════════════════════════════════════
+### GROUP I — BOOKING (patient protected)
+### Base: /api/v1/public/booking/
+### Auth: PATIENT role required
+══════════════════════════════════════════════════
+
+I-01  GET /public/booking/check-slot
+      Auth: NONE (public)
+      Query: doctorId, date, startTime
+      Cache: 30 sec
+      Returns: { isAvailable: boolean }
+
+I-02  POST /public/booking/appointments
+      Auth: PATIENT [JWT]
+      Body: { doctorId, serviceId, appointmentDate,
+              startTime, type, chiefComplaint, notes,
+              idempotencyKey }
+      Security: distributed Redis lock on slot
+                idempotency key (24h Redis)
+                validate patient owns their account
+      Returns: AppointmentResponse
+
+I-03  GET /public/booking/appointments/{id}/status
+      Auth: PATIENT [JWT] (own appointment only)
+      Returns: AppointmentResponse
+
+I-04  POST /public/booking/appointments/{id}/cancel
+      Auth: PATIENT [JWT] (own only)
+      Body: { cancellationReason }
+      Security: verify patient owns appointment
+      Returns: AppointmentResponse
+
+I-05  POST /public/booking/appointments/{id}/reschedule
+      Auth: PATIENT [JWT] (own only)
+      Body: { newDate, newStartTime }
+      Security: new slot lock
+      Returns: AppointmentResponse
+
+I-06  GET /public/booking/my-appointments
+      Auth: PATIENT [JWT]
+      Query: status, dateFrom, dateTo, page, size
+      Returns: Page<AppointmentResponse>
+
+I-07  GET /public/booking/my-appointments/{id}
+      Auth: PATIENT [JWT] (own only)
+      Returns: AppointmentResponse (full detail)
+
+══════════════════════════════════════════════════
+### GROUP J — PATIENT PORTAL (patient protected)
+### Base: /api/v1/portal/
+### Auth: PATIENT role required [JWT]
+══════════════════════════════════════════════════
+
+J-01  GET /portal/dashboard
+      Returns: PatientDashboardResponse
+               (aggregated: upcoming appts,
+                prescriptions, payments,
+                notifications, vitals)
+
+J-02  GET /portal/profile
+      Returns: PatientProfile (full)
+
+J-03  PUT /portal/profile
+      Body: PatientUpdateRequest
+      Returns: PatientProfile
+
+J-04  PUT /portal/profile/avatar
+      Body: multipart/form-data (image)
+      Returns: { photoUrl }
+
+J-05  GET /portal/prescriptions
+      Query: status, dateFrom, dateTo, page, size
+      Returns: Page<Prescription>
+
+J-06  GET /portal/prescriptions/{id}
+      Security: own prescription only
+      Returns: Prescription (with medicines)
+
+J-07  GET /portal/lab-reports
+      Query: type, status, dateFrom, dateTo, page, size
+      Returns: Page<LabReport>
+
+J-08  GET /portal/lab-reports/{id}
+      Security: own report only
+      Returns: LabReport + presigned download URL (1h)
+
+J-09  GET /portal/payments
+      Query: status, dateFrom, dateTo, page, size
+      Returns: Page<Payment>
+
+J-10  GET /portal/payments/{id}
+      Security: own payment only
+      Returns: Payment (full detail)
+
+J-11  GET /portal/payments/{id}/invoice
+      Security: own invoice only
+      Returns: PDF blob (Content-Type: application/pdf)
+
+J-12  GET /portal/notifications
+      Query: isRead, type, page, size
+      Returns: Page<Notification>
+
+J-13  PUT /portal/notifications/{id}/read
+      Returns: { success }
+
+J-14  PUT /portal/notifications/read-all
+      Returns: { count: markedCount }
+
+J-15  GET /portal/notifications/unread-count
+      Cache: per-user 30 sec
+      Returns: { count: integer }
+
+══════════════════════════════════════════════════
+### GROUP K — HEALTH RECORDS (patient protected)
+### Base: /api/v1/portal/health/
+### Auth: PATIENT role required [JWT]
+══════════════════════════════════════════════════
+
+K-01  GET /portal/health/timeline
+      Query: eventType, dateFrom, dateTo, page, size
+      Returns: Page<PatientTimelineEvent>
+
+K-02  GET /portal/health/vitals
+      Query: page, size
+      Returns: Page<VitalSigns>
+
+K-03  POST /portal/health/vitals
+      Body: RecordVitalsRequest
+      Security: validate ranges
+      Returns: VitalSigns
+
+K-04  GET /portal/health/vitals/latest
+      Returns: VitalSigns (most recent)
+
+K-05  GET /portal/health/vitals/chart
+      Query: metric (bp/weight/heartRate/bmi),
+             period (7d/30d/90d/1y)
+      Returns: VitalChartResponse
+
+K-06  GET /portal/health/documents
+      Query: type, dateFrom, dateTo, page, size
+      Returns: Page<MedicalDocument>
+
+K-07  POST /portal/health/documents
+      Body: multipart/form-data
+             (file + documentType + name + date)
+      Security: file type whitelist (PDF/JPEG/PNG)
+                max 20MB, virus scan hook
+      Returns: MedicalDocument
+
+K-08  GET /portal/health/documents/{id}
+      Security: own document only
+      Returns: MedicalDocument + presigned URL (1h)
+
+K-09  DELETE /portal/health/documents/{id}
+      Security: own document only
+      Returns: { success } (soft delete)
+
+K-10  GET /portal/health/treatment-history
+      Query: doctorId, dateFrom, dateTo, page, size
+      Returns: Page<TreatmentHistory>
+
+K-11  GET /portal/health/summary
+      Returns: HealthSummaryResponse
+               (conditions, allergies, medications,
+                latest vitals, upcoming appts,
+                blood group, age, BMI)
+
+══════════════════════════════════════════════════
+### GROUP L — PATIENT REVIEWS (patient protected)
+### Base: /api/v1/portal/reviews/
+══════════════════════════════════════════════════
+
+L-01  POST /portal/reviews
+      Auth: PATIENT [JWT]
+      Body: { doctorId, appointmentId,
+              rating (1-5), reviewText }
+      Security: appointment must be COMPLETED
+                one review per appointment
+                appointment must belong to patient
+      Returns: ReviewResponse (pending approval)
+
+L-02  GET /portal/reviews/my-reviews
+      Auth: PATIENT [JWT]
+      Returns: Page<ReviewResponse>
+
+L-03  PUT /portal/reviews/{id}
+      Auth: PATIENT [JWT] (own, unpublished only)
+      Body: { rating, reviewText }
+      Returns: ReviewResponse
+
+══════════════════════════════════════════════════
+### GROUP M — PATIENT SECURITY APIs
+### Base: /api/v1/portal/security/
+### Auth: PATIENT role required [JWT]
+══════════════════════════════════════════════════
+
+M-01  GET /portal/security/sessions
+      Returns: Session[] (all active sessions)
+               { sessionId, deviceName, deviceType,
+                 browser, os, ipAddress, location,
+                 lastActive, isCurrent, createdAt }
+
+M-02  DELETE /portal/security/sessions/{sessionId}
+      Security: own session only
+      Action: blacklist JWT, delete refresh token
+      Returns: { success }
+
+M-03  DELETE /portal/security/sessions/all-except-current
+      Action: terminate all other sessions
+      Returns: { count: terminated }
+
+M-04  GET /portal/security/devices
+      Returns: TrustedDevice[]
+               { deviceId, name, fingerprint,
+                 browser, os, firstSeen, lastSeen,
+                 isTrusted, location }
+
+M-05  DELETE /portal/security/devices/{deviceId}
+      Security: own device only
+      Returns: { success }
+
+M-06  GET /portal/security/login-history
+      Query: page, size
+      Returns: Page<LoginEvent>
+               { timestamp, ip, location,
+                 device, browser, status,
+                 failureReason? }
+
+M-07  POST /portal/security/passkeys
+      Body: WebAuthn registration complete
+      Returns: Passkey[]
+
+M-08  GET /portal/security/passkeys
+      Returns: Passkey[]
+               { id, name, createdAt, lastUsed }
+
+M-09  DELETE /portal/security/passkeys/{id}
+      Returns: { success }
+
+M-10  POST /portal/security/passkeys/{id}/rename
+      Body: { name }
+      Returns: Passkey
+
+M-11  GET /portal/security/2fa/status
+      Returns: { enabled, enrolledAt,
+                 backupCodesRemaining }
+
+M-12  POST /portal/security/2fa/backup-codes/regenerate
+      Body: { totpCode }
+      Returns: { backupCodes: string[10] }
+      Security: old backup codes invalidated
+
+M-13  POST /portal/security/change-password
+      Body: { currentPassword, newPassword,
+              confirmPassword, totpCode? }
+      Security: invalidate all sessions on success
+      Returns: { success }
+
+M-14  POST /portal/security/change-email
+      Body: { newEmail, password, totpCode? }
+      Returns: { message: "verify new email" }
+
+M-15  GET /portal/security/change-email/verify/{token}
+      Returns: { success }
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## 🔒 SURFACE 2 — ADMIN PANEL API
+## Base: /api/v1/admin/
+## ALL endpoints protected.
+## 2FA MANDATORY. SSO DEFAULT.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+══════════════════════════════════════════════════
+### GROUP AA — ADMIN AUTHENTICATION
+### Base: /api/v1/admin/auth/
+### STRICTLY SEPARATE from patient auth
+══════════════════════════════════════════════════
+
+AA-01  POST /admin/auth/login
+       Body: { email, password, deviceFingerprint,
+               deviceName }
+       Returns: { requiresMfa: true, sessionToken,
+                  userId }
+       Security:
+         ALWAYS requires MFA step (cannot skip)
+         Check IP allowlist if configured
+         Log device + IP + userAgent + timestamp
+         Alert if new device/IP/location
+         Account lock after 5 failures (30 min)
+         NEVER issue full JWT without MFA complete
+       Rate: 3 attempts/15min per IP
+             5 attempts/hour per account
+
+AA-02  POST /admin/auth/login/mfa
+       Body: { sessionToken, totpCode OR backupCode,
+               deviceFingerprint }
+       Returns: { accessToken (15min),
+                  refreshToken (8h, HttpOnly cookie),
+                  deviceTrusted, sessionId }
+       Security:
+         Validate sessionToken (5min TTL)
+         Rate: 3 attempts then lock session
+         New device → send admin security alert email
+         Log: full session record
+
+AA-03  POST /admin/auth/login/sso/google
+       Initiates Google Workspace SSO
+       Returns: redirect URL
+       Security: validate Google Workspace domain
+
+AA-04  GET /admin/auth/login/sso/google/callback
+       Handles SSO callback
+       Returns: sessionToken (still requires MFA)
+       Security: MFA still required even after SSO
+
+AA-05  POST /admin/auth/login/sso/saml/initiate
+       SAML 2.0 SP-initiated SSO
+       Returns: SAMLRequest redirect
+
+AA-06  POST /admin/auth/login/sso/saml/callback
+       Handles SAML assertion
+       Returns: sessionToken (MFA still required)
+
+AA-07  POST /admin/auth/login/passkey/begin
+       Body: { email }
+       Returns: WebAuthn options
+       Note: SUPER_ADMIN → passkey MANDATORY
+
+AA-08  POST /admin/auth/login/passkey/complete
+       Body: { email, credentialResponse }
+       Returns: { accessToken, refreshToken }
+                (passkey bypasses TOTP for SUPER_ADMIN)
+
+AA-09  POST /admin/auth/refresh
+       Cookie: refreshToken
+       Body: { deviceFingerprint }
+       Returns: { accessToken }
+       Security:
+         Validate device fingerprint matches session
+         Idle timeout: if lastActivity > 30min → reject
+         Force re-auth with MFA
+         Token rotation
+
+AA-10  POST /admin/auth/logout
+       Header: Authorization Bearer
+       Body: { sessionId }
+       Security:
+         Blacklist JWT
+         Delete refresh token
+         Log logout event
+         Notify other sessions (WebSocket)
+
+AA-11  POST /admin/auth/logout/all-sessions
+       Auth: any admin [JWT]
+       Security: terminate all sessions for this user
+       Returns: { terminated: count }
+
+AA-12  GET /admin/auth/session/verify
+       Header: Authorization Bearer
+       Returns: { valid, userId, roles,
+                  sessionId, expiresIn,
+                  idleExpiresIn }
+       Use: frontend periodic session check
+
+AA-13  POST /admin/auth/session/heartbeat
+       Header: Authorization Bearer
+       Body: { sessionId }
+       Returns: { ok }
+       Side effect: update lastActivity timestamp
+       Call: every 5 minutes from frontend
+
+AA-14  POST /admin/auth/2fa/setup/begin
+       Auth: any admin [JWT]
+       Note: 2FA already mandatory, this is for reset
+       Returns: { qrCode, secret, backupCodes }
+
+AA-15  POST /admin/auth/2fa/setup/verify
+       Auth: any admin [JWT]
+       Body: { totpCode }
+       Returns: { enabled, backupCodes }
+
+AA-16  POST /admin/auth/2fa/backup-codes/regenerate
+       Auth: any admin [JWT]
+       Body: { totpCode, password }
+       Returns: { backupCodes[10] }
+
+AA-17  POST /admin/auth/passkey/register/begin
+       Auth: any admin [JWT]
+       Returns: WebAuthn creation options
+
+AA-18  POST /admin/auth/passkey/register/complete
+       Auth: any admin [JWT]
+       Body: { credentialResponse, name }
+       Returns: PasskeyInfo
+
+AA-19  GET /admin/auth/sso/providers
+       Auth: SUPER_ADMIN [JWT]
+       Returns: SsoProvider[] configured
+
+AA-20  PUT /admin/auth/sso/providers/{id}
+       Auth: SUPER_ADMIN [JWT]
+       Body: SsoProviderConfig
+       Returns: SsoProvider
+
+══════════════════════════════════════════════════
+### GROUP AB — ADMIN SESSION & DEVICE SECURITY
+### Base: /api/v1/admin/security/
+### Auth: any admin [JWT + 2FA]
+══════════════════════════════════════════════════
+
+AB-01  GET /admin/security/my-sessions
+       Returns: Session[] (own active sessions)
+       Each: sessionId, device, browser, ip,
+             location, lastActive, isCurrent
+
+AB-02  DELETE /admin/security/sessions/{sessionId}
+       Security: own session only (except SUPER_ADMIN)
+       SUPER_ADMIN: can terminate any admin session
+       Returns: { success }
+
+AB-03  DELETE /admin/security/sessions/all-except-current
+       Returns: { terminated: count }
+
+AB-04  GET /admin/security/my-devices
+       Returns: TrustedDevice[]
+
+AB-05  DELETE /admin/security/devices/{deviceId}
+       Returns: { success }
+
+AB-06  GET /admin/security/login-history
+       Query: page, size
+       Returns: Page<LoginEvent>
+
+AB-07  GET /admin/security/active-admin-sessions
+       Auth: SUPER_ADMIN only
+       Returns: ActiveSession[] (ALL admin users)
+       Each: userId, name, role, ip, lastActive
+
+AB-08  DELETE /admin/security/force-logout/{userId}
+       Auth: SUPER_ADMIN only
+       Body: { reason }
+       Action: terminate ALL sessions of target user
+               send security alert to target
+               log to audit
+       Returns: { success }
+
+AB-09  POST /admin/security/ip-allowlist
+       Auth: SUPER_ADMIN only
+       Body: { userId, ipRanges: string[] }
+       Returns: IpAllowlist
+
+AB-10  GET /admin/security/ip-allowlist/{userId}
+       Auth: SUPER_ADMIN only
+       Returns: IpAllowlist
+
+AB-11  DELETE /admin/security/ip-allowlist/{userId}
+       Auth: SUPER_ADMIN only
+       Returns: { success }
+
+AB-12  GET /admin/security/alerts
+       Auth: SUPER_ADMIN, ADMIN
+       Query: severity, resolved, page, size
+       Returns: Page<SecurityAlert>
+       Alerts: impossible travel, new device,
+               brute force, off-hours access,
+               permission escalation attempt
+
+AB-13  PUT /admin/security/alerts/{id}/resolve
+       Auth: SUPER_ADMIN, ADMIN
+       Body: { resolution }
+       Returns: SecurityAlert
+
+AB-14  POST /admin/security/lock-account/{userId}
+       Auth: SUPER_ADMIN only
+       Body: { reason, duration? (null=permanent) }
+       Action: terminate sessions + block login
+               send alert to user
+               log to audit
+       Returns: { success }
+
+AB-15  POST /admin/security/unlock-account/{userId}
+       Auth: SUPER_ADMIN only
+       Body: { reason }
+       Returns: { success }
+
+AB-16  GET /admin/security/suspicious-activity
+       Auth: SUPER_ADMIN only
+       Returns: SuspiciousActivity[]
+       Detects: multiple failed logins,
+                login from new country,
+                unusual hour access,
+                rapid API calls (bot-like)
+
+AB-17  POST /admin/security/change-password
+       Auth: any admin [JWT]
+       Body: { currentPassword, newPassword,
+               totpCode }
+       Security: invalidate all sessions
+       Returns: { success }
+
+══════════════════════════════════════════════════
+### GROUP AC — SUPER ADMIN: API CONTROL
+### Base: /api/v1/admin/api-control/
+### Auth: SUPER_ADMIN only
+### Feature: turn any API on/off dynamically
+══════════════════════════════════════════════════
+
+AC-01  GET /admin/api-control/endpoints
+       Returns: ApiEndpoint[]
+       Each: { id, method, path, group, description,
+               isEnabled, disabledAt, disabledBy,
+               disabledReason, requestCount,
+               avgResponseMs, errorRate }
+
+AC-02  PUT /admin/api-control/endpoints/{id}/disable
+       Body: { reason, disableUntil? (null=permanent) }
+       Action:
+         Set endpoint as disabled in Redis
+         All requests to that endpoint return:
+           503 { code: "API_DISABLED",
+                 message: reason,
+                 disabledBy, disabledAt }
+         Log to audit
+       Returns: ApiEndpoint
+
+AC-03  PUT /admin/api-control/endpoints/{id}/enable
+       Body: { reason }
+       Action:
+         Remove disable flag from Redis
+         Endpoint resumes normal operation
+         Log to audit
+       Returns: ApiEndpoint
+
+AC-04  PUT /admin/api-control/endpoints/bulk-disable
+       Body: { ids: [], reason }
+       Returns: ApiEndpoint[]
+
+AC-05  PUT /admin/api-control/endpoints/bulk-enable
+       Body: { ids: [] }
+       Returns: ApiEndpoint[]
+
+AC-06  GET /admin/api-control/groups
+       Returns: ApiGroup[]
+       Each: { name, endpointCount, enabledCount,
+               disabledCount }
+
+AC-07  PUT /admin/api-control/groups/{group}/disable
+       Body: { reason }
+       Action: disable ALL endpoints in group
+       Returns: { disabled: count }
+
+AC-08  PUT /admin/api-control/groups/{group}/enable
+       Returns: { enabled: count }
+
+AC-09  POST /admin/api-control/maintenance-mode
+       Body: { enabled, message, allowedIps: [] }
+       Action:
+         If enabled: ALL public APIs return 503
+         With: { code:"MAINTENANCE",
+                 message, estimatedResume }
+         Except: /public/health-check
+                 Admin APIs continue working
+                 IPs in allowedIps get full access
+       Returns: { success, status }
+
+AC-10  GET /admin/api-control/maintenance-mode
+       Returns: MaintenanceStatus
+
+AC-11  GET /admin/api-control/rate-limits
+       Returns: RateLimitConfig[]
+       Each: { endpoint, limit, window,
+               currentCount, blockCount }
+
+AC-12  PUT /admin/api-control/rate-limits/{endpoint}
+       Body: { limit, windowSeconds }
+       Action: update Redis rate limit config
+       Returns: RateLimitConfig
+
+AC-13  POST /admin/api-control/rate-limits/reset/{ip}
+       Body: { reason }
+       Action: clear all rate limit counters for IP
+       Returns: { success }
+
+AC-14  GET /admin/api-control/blocked-ips
+       Returns: BlockedIp[]
+       { ip, reason, blockedAt, blockedBy, expiresAt }
+
+AC-15  POST /admin/api-control/blocked-ips
+       Body: { ip, reason, expiresAt? }
+       Action: add IP to Redis blocklist
+               all requests from IP → 403
+       Returns: BlockedIp
+
+AC-16  DELETE /admin/api-control/blocked-ips/{ip}
+       Returns: { success }
+
+AC-17  GET /admin/api-control/metrics
+       Returns: ApiMetrics
+       { totalRequests24h, errorRate, avgResponseMs,
+         topEndpoints, slowestEndpoints,
+         topIps, errorsByEndpoint }
+
+AC-18  POST /admin/api-control/circuit-breaker/{group}
+       Body: { action: OPEN/CLOSE/HALF_OPEN }
+       Action: control circuit breaker per service group
+       Returns: CircuitBreakerStatus
+
+AC-19  GET /admin/api-control/circuit-breakers
+       Returns: CircuitBreakerStatus[]
+
+AC-20  POST /admin/api-control/cache/flush
+       Body: { cacheNames: [] OR "all" }
+       Action: flush specific Redis caches
+       Returns: { flushed: string[] }
+
+══════════════════════════════════════════════════
+### GROUP AD — ADMIN DASHBOARD
+### Base: /api/v1/admin/dashboard/
+══════════════════════════════════════════════════
+
+AD-01  GET /admin/dashboard/stats
+       Auth: ADMIN, SUPER_ADMIN
+       Returns: {
+         todayAppointments, pendingAppointments,
+         totalPatients, newPatientsThisMonth,
+         monthRevenue, pendingPayments,
+         activeDoctors, pendingReviews,
+         unreadMessages, pendingLabReports
+       }
+
+AD-02  GET /admin/dashboard/appointments/chart
+       Query: period (7d/30d/90d/1y)
+       Returns: ChartData (confirmed, completed, cancelled)
+
+AD-03  GET /admin/dashboard/revenue/chart
+       Query: period, groupBy (day/week/month)
+       Returns: ChartData (revenue over time)
+
+AD-04  GET /admin/dashboard/revenue/summary
+       Returns: { todayRevenue, weekRevenue,
+                  monthRevenue, yearRevenue,
+                  pendingAmount, refundedAmount }
+
+AD-05  GET /admin/dashboard/recent-appointments
+       Query: limit (default 10)
+       Returns: Appointment[] (latest, any status)
+
+AD-06  GET /admin/dashboard/pending-tasks
+       Returns: PendingTask[]
+       { type, count, urgency, link }
+       Types: PENDING_APPOINTMENTS, PENDING_REVIEWS,
+              UNREAD_MESSAGES, PENDING_COMMENTS,
+              EXPIRING_PRESCRIPTIONS, LAB_RESULTS_READY
+
+AD-07  GET /admin/dashboard/doctor/{doctorId}
+       Auth: DOCTOR (own only), ADMIN, SUPER_ADMIN
+       Returns: DoctorDashboard
+       { todayAppointments, upcomingAppointments,
+         monthPatients, avgRating, pendingPrescriptions }
+
+AD-08  GET /admin/dashboard/financial
+       Auth: ACCOUNTANT, ADMIN, SUPER_ADMIN
+       Returns: FinancialDashboard
+
+AD-09  GET /admin/dashboard/lab
+       Auth: LAB_TECH, ADMIN, SUPER_ADMIN
+       Returns: { pendingReports, uploadedToday,
+                  overdueReports }
+
+AD-10  GET /admin/dashboard/pharmacy
+       Auth: PHARMACY, ADMIN, SUPER_ADMIN
+       Returns: { pendingDispense, dispensedToday,
+                  expiringPrescriptions }
+
+══════════════════════════════════════════════════
+### GROUP AE — APPOINTMENTS MANAGEMENT
+### Base: /api/v1/admin/appointments/
+══════════════════════════════════════════════════
+
+AE-01  GET /admin/appointments
+       Auth: STAFF, DOCTOR, ADMIN, SUPER_ADMIN
+       Query: status[], doctorId, patientId,
+              dateFrom, dateTo, type, page, size, sort
+       Returns: Page<Appointment>
+
+AE-02  GET /admin/appointments/{id}
+       Auth: relevant roles
+       Returns: Appointment (full detail)
+
+AE-03  POST /admin/appointments
+       Auth: STAFF, ADMIN, SUPER_ADMIN
+       Body: BookAppointmentRequest
+       Returns: Appointment
+
+AE-04  PUT /admin/appointments/{id}/confirm
+       Auth: STAFF, ADMIN, SUPER_ADMIN
+       Returns: Appointment
+
+AE-05  PUT /admin/appointments/{id}/start
+       Auth: DOCTOR (own), STAFF, ADMIN
+       Returns: Appointment
+
+AE-06  PUT /admin/appointments/{id}/complete
+       Auth: DOCTOR (own), ADMIN
+       Body: { notes? }
+       Returns: Appointment
+
+AE-07  PUT /admin/appointments/{id}/cancel
+       Auth: STAFF, ADMIN, SUPER_ADMIN
+       Body: { reason }
+       Returns: Appointment
+
+AE-08  PUT /admin/appointments/{id}/no-show
+       Auth: STAFF, ADMIN
+       Returns: Appointment
+
+AE-09  POST /admin/appointments/{id}/reschedule
+       Auth: STAFF, ADMIN
+       Body: { newDate, newStartTime, reason }
+       Returns: Appointment
+
+AE-10  GET /admin/appointments/calendar
+       Query: doctorId?, dateFrom, dateTo
+       Returns: CalendarEvent[] (for calendar view)
+
+AE-11  GET /admin/appointments/today
+       Query: doctorId?
+       Returns: Appointment[] (today's schedule)
+
+AE-12  GET /admin/appointments/upcoming
+       Query: days (default 7), doctorId?
+       Returns: Appointment[]
+
+AE-13  POST /admin/appointments/bulk-confirm
+       Auth: ADMIN, SUPER_ADMIN
+       Body: { ids: [] }
+       Returns: { confirmed: count }
+
+══════════════════════════════════════════════════
+### GROUP AF — PATIENTS MANAGEMENT
+### Base: /api/v1/admin/patients/
+══════════════════════════════════════════════════
+
+AF-01  GET /admin/patients
+       Auth: DOCTOR, STAFF, ADMIN, SUPER_ADMIN
+       Query: search, page, size, sort
+       Returns: Page<PatientSummary>
+
+AF-02  GET /admin/patients/{id}
+       Auth: DOCTOR (own patients), STAFF, ADMIN
+       Returns: PatientFull
+
+AF-03  GET /admin/patients/{id}/medical-history
+       Auth: DOCTOR (own), ADMIN, SUPER_ADMIN
+       Returns: MedicalHistory (all aggregated)
+
+AF-04  PUT /admin/patients/{id}/medical-info
+       Auth: DOCTOR, STAFF, ADMIN
+       Body: PatientMedicalUpdate
+       Returns: PatientFull
+
+AF-05  GET /admin/patients/{id}/appointments
+       Returns: Page<Appointment>
+
+AF-06  GET /admin/patients/{id}/prescriptions
+       Returns: Page<Prescription>
+
+AF-07  GET /admin/patients/{id}/lab-reports
+       Returns: Page<LabReport>
+
+AF-08  GET /admin/patients/{id}/payments
+       Returns: Page<Payment>
+
+AF-09  GET /admin/patients/{id}/vitals
+       Returns: Page<VitalSigns>
+
+AF-10  POST /admin/patients/{id}/vitals
+       Auth: DOCTOR, STAFF, ADMIN
+       Body: RecordVitalsRequest
+       Returns: VitalSigns
+
+AF-11  POST /admin/patients/{id}/allergies
+       Auth: DOCTOR, STAFF, ADMIN
+       Body: { allergen, severity, reaction }
+       Returns: PatientAllergy
+
+AF-12  DELETE /admin/patients/{id}/allergies/{allergyId}
+       Auth: DOCTOR, ADMIN
+       Returns: { success }
+
+AF-13  POST /admin/patients/{id}/conditions
+       Auth: DOCTOR, ADMIN
+       Body: { condition, diagnosedDate, status }
+       Returns: MedicalCondition
+
+AF-14  GET /admin/patients/{id}/timeline
+       Returns: Page<PatientTimelineEvent>
+
+══════════════════════════════════════════════════
+### GROUP AG — DOCTORS MANAGEMENT
+### Base: /api/v1/admin/doctors/
+══════════════════════════════════════════════════
+
+AG-01  GET /admin/doctors
+       Auth: ADMIN, SUPER_ADMIN
+       Query: status, specialization, page, size
+       Returns: Page<DoctorAdmin>
+
+AG-02  GET /admin/doctors/{id}
+       Returns: DoctorAdmin (full)
+
+AG-03  POST /admin/doctors
+       Auth: ADMIN, SUPER_ADMIN
+       Body: CreateDoctorRequest (+ links to User)
+       Returns: DoctorAdmin
+
+AG-04  PUT /admin/doctors/{id}
+       Auth: DOCTOR (own), ADMIN, SUPER_ADMIN
+       Returns: DoctorAdmin
+
+AG-05  PUT /admin/doctors/{id}/availability
+       Auth: DOCTOR (own), ADMIN
+       Body: DoctorAvailability[]
+       Returns: DoctorAvailability[]
+
+AG-06  PUT /admin/doctors/{id}/status
+       Auth: ADMIN, SUPER_ADMIN
+       Body: { status, reason }
+       Returns: DoctorAdmin
+
+AG-07  PUT /admin/doctors/{id}/website-visibility
+       Auth: ADMIN, SUPER_ADMIN
+       Body: { showOnWebsite, displayOrder,
+               featuredOnHome }
+       Returns: DoctorAdmin
+
+AG-08  GET /admin/doctors/{id}/appointments
+       Returns: Page<Appointment>
+
+AG-09  GET /admin/doctors/{id}/reviews
+       Returns: Page<Review>
+
+AG-10  GET /admin/doctors/{id}/stats
+       Returns: DoctorStats
+       { totalAppointments, completedAppointments,
+         totalPatients, avgRating, monthRevenue }
+
+══════════════════════════════════════════════════
+### GROUP AH — PRESCRIPTIONS
+### Base: /api/v1/admin/prescriptions/
+══════════════════════════════════════════════════
+
+AH-01  GET /admin/prescriptions
+       Auth: DOCTOR, PHARMACY, ADMIN, SUPER_ADMIN
+       Query: status, doctorId, patientId,
+              dateFrom, dateTo, page, size
+       Returns: Page<Prescription>
+
+AH-02  GET /admin/prescriptions/{id}
+       Returns: Prescription (with medicines)
+
+AH-03  POST /admin/prescriptions
+       Auth: DOCTOR, ADMIN
+       Body: CreatePrescriptionRequest
+             (must link to COMPLETED appointment)
+       Returns: Prescription
+
+AH-04  PUT /admin/prescriptions/{id}
+       Auth: DOCTOR (own, ACTIVE status only)
+       Returns: Prescription
+
+AH-05  PUT /admin/prescriptions/{id}/dispense
+       Auth: PHARMACY only
+       Body: { dispensedNotes }
+       Returns: Prescription (status → DISPENSED)
+
+AH-06  DELETE /admin/prescriptions/{id}
+       Auth: ADMIN, SUPER_ADMIN
+       Returns: { success }
+
+══════════════════════════════════════════════════
+### GROUP AI — LAB REPORTS
+### Base: /api/v1/admin/lab-reports/
+══════════════════════════════════════════════════
+
+AI-01  GET /admin/lab-reports
+       Auth: LAB_TECH, DOCTOR, ADMIN, SUPER_ADMIN
+       Query: patientId, doctorId, type, status,
+              dateFrom, dateTo, page, size
+       Returns: Page<LabReport>
+
+AI-02  GET /admin/lab-reports/{id}
+       Returns: LabReport + presigned URL
+
+AI-03  POST /admin/lab-reports
+       Auth: LAB_TECH, ADMIN
+       Body: multipart/form-data
+             (file + patientId + type + doctorId)
+       Security: file type whitelist, max 20MB
+       Returns: LabReport
+
+AI-04  PUT /admin/lab-reports/{id}/status
+       Auth: LAB_TECH, DOCTOR, ADMIN
+       Body: { status, notes }
+       Returns: LabReport
+
+AI-05  DELETE /admin/lab-reports/{id}
+       Auth: ADMIN, SUPER_ADMIN
+       Returns: { success }
+
+══════════════════════════════════════════════════
+### GROUP AJ — PAYMENTS
+### Base: /api/v1/admin/payments/
+══════════════════════════════════════════════════
+
+AJ-01  GET /admin/payments
+       Auth: ACCOUNTANT, ADMIN, SUPER_ADMIN
+       Query: status, patientId, doctorId,
+              dateFrom, dateTo, page, size
+       Returns: Page<Payment>
+
+AJ-02  GET /admin/payments/{id}
+       Returns: Payment (full)
+
+AJ-03  POST /admin/payments
+       Auth: ACCOUNTANT, ADMIN
+       Body: CreatePaymentRequest
+       Returns: Payment
+
+AJ-04  PUT /admin/payments/{id}/process
+       Auth: ACCOUNTANT, ADMIN
+       Body: { method, transactionId }
+       Returns: Payment (status → PAID)
+
+AJ-05  POST /admin/payments/{id}/refund
+       Auth: ACCOUNTANT, SUPER_ADMIN
+       Body: { reason, amount? (partial allowed) }
+       Returns: Payment (status → REFUNDED)
+
+AJ-06  GET /admin/payments/{id}/invoice
+       Returns: PDF blob
+
+AJ-07  GET /admin/payments/reports/revenue
+       Query: period, groupBy
+       Returns: RevenueReport
+
+AJ-08  GET /admin/payments/reports/summary
+       Returns: PaymentSummary
+
+══════════════════════════════════════════════════
+### GROUP AK — WEBSITE CONTROL
+## Admin controls EVERYTHING on apps/web/
+### Base: /api/v1/admin/website/
+══════════════════════════════════════════════════
+
+AK-01  GET  /admin/website/hero-slides
+AK-02  POST /admin/website/hero-slides
+AK-03  PUT  /admin/website/hero-slides/{id}
+AK-04  DELETE /admin/website/hero-slides/{id}
+AK-05  PUT  /admin/website/hero-slides/reorder
+       Body: { ids: [] (ordered) }
+
+AK-06  GET  /admin/website/testimonials
+AK-07  POST /admin/website/testimonials
+AK-08  PUT  /admin/website/testimonials/{id}
+AK-09  DELETE /admin/website/testimonials/{id}
+AK-10  PUT  /admin/website/testimonials/{id}/verify
+AK-11  PUT  /admin/website/testimonials/{id}/feature
+
+AK-12  GET  /admin/website/faqs
+AK-13  POST /admin/website/faqs
+AK-14  PUT  /admin/website/faqs/{id}
+AK-15  DELETE /admin/website/faqs/{id}
+AK-16  PUT  /admin/website/faqs/reorder
+       Body: { ids: [] }
+
+AK-17  GET  /admin/website/settings
+       Returns: ALL site_settings (public + private)
+AK-18  PUT  /admin/website/settings
+       Body: { key, value }[] (bulk update)
+AK-19  PUT  /admin/website/settings/{key}
+       Body: { value }
+
+AK-20  GET  /admin/website/gallery
+AK-21  POST /admin/website/gallery
+       Body: multipart/form-data
+AK-22  PUT  /admin/website/gallery/{id}
+AK-23  DELETE /admin/website/gallery/{id}
+
+AK-24  GET  /admin/website/team
+AK-25  POST /admin/website/team
+AK-26  PUT  /admin/website/team/{id}
+AK-27  DELETE /admin/website/team/{id}
+AK-28  PUT  /admin/website/team/reorder
+
+AK-29  GET  /admin/website/awards
+AK-30  POST /admin/website/awards
+AK-31  PUT  /admin/website/awards/{id}
+AK-32  DELETE /admin/website/awards/{id}
+
+AK-33  GET  /admin/website/partners
+AK-34  POST /admin/website/partners
+AK-35  PUT  /admin/website/partners/{id}
+AK-36  DELETE /admin/website/partners/{id}
+AK-37  PUT  /admin/website/partners/reorder
+
+AK-38  GET  /admin/website/announcement
+AK-39  PUT  /admin/website/announcement
+       Body: { message, type, active,
+               expiresAt? }
+       Action: sets B-12 API response + clears cache
+
+AK-40  GET /admin/website/services-display
+       Returns: Service[] with displayOrder + showOnWebsite
+
+AK-41  PUT /admin/website/services-display/{id}
+       Body: { showOnWebsite, displayOrder, isFeatured }
+
+AK-42  PUT /admin/website/doctors-display/{id}
+       Body: { showOnWebsite, displayOrder,
+               featuredOnHome }
+
+AK-43  GET /admin/website/preview
+       Returns: live snapshot of all public-facing
+                website content as web app sees it
+       Auth: ADMIN, SUPER_ADMIN
+
+══════════════════════════════════════════════════
+### GROUP AL — BLOG MANAGEMENT
+### Base: /api/v1/admin/blog/
+══════════════════════════════════════════════════
+
+AL-01  GET    /admin/blog/posts
+       Query: status, categoryId, authorId, page, size
+       Returns: Page<BlogPostAdmin>
+
+AL-02  GET    /admin/blog/posts/{id}
+       Returns: BlogPostAdmin (full)
+
+AL-03  POST   /admin/blog/posts
+       Auth: ADMIN, SUPER_ADMIN
+       Body: CreateBlogPostRequest
+       Returns: BlogPostAdmin
+
+AL-04  PUT    /admin/blog/posts/{id}
+       Returns: BlogPostAdmin
+
+AL-05  DELETE /admin/blog/posts/{id}
+       Returns: { success } (soft delete)
+
+AL-06  PUT    /admin/blog/posts/{id}/publish
+       Side effect: sets publishedAt + clears cache
+       Returns: BlogPostAdmin
+
+AL-07  PUT    /admin/blog/posts/{id}/unpublish
+       Returns: BlogPostAdmin
+
+AL-08  PUT    /admin/blog/posts/{id}/archive
+       Returns: BlogPostAdmin
+
+AL-09  POST   /admin/blog/posts/{id}/feature
+       Returns: BlogPostAdmin
+
+AL-10  GET    /admin/blog/comments
+       Query: approved, postId, page, size
+       Returns: Page<BlogComment>
+
+AL-11  PUT    /admin/blog/comments/{id}/approve
+       Side effect: notify commenter (async)
+       Returns: BlogComment
+
+AL-12  DELETE /admin/blog/comments/{id}
+       Returns: { success }
+
+AL-13  GET    /admin/blog/categories
+AL-14  POST   /admin/blog/categories
+AL-15  PUT    /admin/blog/categories/{id}
+AL-16  DELETE /admin/blog/categories/{id}
+
+AL-17  GET    /admin/blog/tags
+AL-18  POST   /admin/blog/tags
+AL-19  DELETE /admin/blog/tags/{id}
+
+══════════════════════════════════════════════════
+### GROUP AM — CONTACT & COMMUNICATION
+### Base: /api/v1/admin/contact/
+══════════════════════════════════════════════════
+
+AM-01  GET /admin/contact/messages
+       Query: status, page, size
+       Returns: Page<ContactMessage>
+
+AM-02  GET /admin/contact/messages/{id}
+       Side effect: mark as READ
+       Returns: ContactMessage
+
+AM-03  PUT /admin/contact/messages/{id}/reply
+       Body: { replyMessage }
+       Side effect: send email to sender (async)
+       Returns: ContactMessage (status → REPLIED)
+
+AM-04  PUT /admin/contact/messages/{id}/archive
+       Returns: ContactMessage
+
+AM-05  GET /admin/contact/newsletter/subscribers
+       Query: isActive, page, size
+       Returns: Page<NewsletterSubscriber>
+
+AM-06  DELETE /admin/contact/newsletter/{id}
+       Returns: { success }
+
+AM-07  POST /admin/contact/newsletter/send
+       Auth: ADMIN, SUPER_ADMIN
+       Body: { subject, htmlContent, targetAll,
+               targetIds?: [] }
+       Returns: { queued: count }
+
+══════════════════════════════════════════════════
+### GROUP AN — REVIEWS MODERATION
+### Base: /api/v1/admin/reviews/
+══════════════════════════════════════════════════
+
+AN-01  GET /admin/reviews/pending
+       Returns: Page<Review>
+
+AN-02  GET /admin/reviews
+       Query: isPublished, doctorId, page, size
+       Returns: Page<Review>
+
+AN-03  PUT /admin/reviews/{id}/approve
+       Side effect: evict doctor review cache
+       Returns: Review (isPublished → true)
+
+AN-04  DELETE /admin/reviews/{id}
+       Returns: { success }
+
+══════════════════════════════════════════════════
+### GROUP AO — USERS & ROLES
+### Base: /api/v1/admin/users/
+### Auth: SUPER_ADMIN only
+══════════════════════════════════════════════════
+
+AO-01  GET /admin/users
+       Query: role, status, search, page, size
+       Returns: Page<AdminUser>
+
+AO-02  GET /admin/users/{id}
+       Returns: AdminUser (full)
+
+AO-03  POST /admin/users/invite
+       Body: { email, firstName, lastName, roles[] }
+       Action: create user + send invitation email
+               with temp password + 2FA setup required
+       Returns: AdminUser
+
+AO-04  PUT /admin/users/{id}
+       Body: AdminUserUpdate
+       Returns: AdminUser
+
+AO-05  PUT /admin/users/{id}/roles
+       Body: { roles: string[] }
+       Security: cannot assign SUPER_ADMIN to self
+       Returns: AdminUser
+
+AO-06  PUT /admin/users/{id}/suspend
+       Body: { reason }
+       Action: terminate sessions + block login
+       Returns: AdminUser
+
+AO-07  PUT /admin/users/{id}/activate
+       Returns: AdminUser
+
+AO-08  DELETE /admin/users/{id}
+       Body: { reason }
+       Security: cannot delete SUPER_ADMIN
+       Returns: { success }
+
+AO-09  POST /admin/users/{id}/reset-2fa
+       Action: invalidate existing 2FA
+               send 2FA setup email to user
+       Returns: { success }
+
+AO-10  POST /admin/users/{id}/force-password-reset
+       Action: invalidate password
+               send password reset email
+               terminate all sessions
+       Returns: { success }
+
+AO-11  GET /admin/users/{id}/audit-log
+       Returns: Page<AuditLog> (actions by this user)
+
+AO-12  GET /admin/users/roles-summary
+       Returns: { role, count }[]
+
+══════════════════════════════════════════════════
+### GROUP AP — AUDIT LOGS
+### Base: /api/v1/admin/audit/
+══════════════════════════════════════════════════
+
+AP-01  GET /admin/audit/logs
+       Auth: SUPER_ADMIN, ADMIN
+       Query: userId, entityType, entityId,
+              action, dateFrom, dateTo,
+              ipAddress, page, size
+       Returns: Page<AuditLog>
+
+AP-02  GET /admin/audit/logs/{id}
+       Returns: AuditLog (with JSON diff old→new)
+
+AP-03  GET /admin/audit/logs/export
+       Auth: SUPER_ADMIN only
+       Query: dateFrom, dateTo, format (CSV/JSON)
+       Returns: file download
+
+AP-04  GET /admin/audit/stats
+       Returns: { totalToday, byAction, byEntity,
+                  topUsers, suspiciousCount }
+
+══════════════════════════════════════════════════
+### GROUP AQ — REPORTS
+### Base: /api/v1/admin/reports/
+══════════════════════════════════════════════════
+
+AQ-01  GET /admin/reports/appointments
+       Auth: ADMIN, SUPER_ADMIN
+       Query: period, doctorId, status, format?
+       Returns: AppointmentReport
+
+AQ-02  GET /admin/reports/financial
+       Auth: ACCOUNTANT, ADMIN, SUPER_ADMIN
+       Query: period, groupBy, format?
+       Returns: FinancialReport
+
+AQ-03  GET /admin/reports/doctors
+       Auth: ADMIN, SUPER_ADMIN
+       Query: period
+       Returns: DoctorPerformanceReport
+
+AQ-04  GET /admin/reports/patients
+       Auth: ADMIN, SUPER_ADMIN
+       Query: period
+       Returns: PatientReport
+
+AQ-05  GET /admin/reports/export/{type}
+       Auth: ADMIN, SUPER_ADMIN
+       Query: period, format (PDF/CSV/Excel)
+       Returns: file download
+
+══════════════════════════════════════════════════
+### GROUP AR — HEALTH RECORDS (admin access)
+### Base: /api/v1/admin/health-records/
+══════════════════════════════════════════════════
+
+AR-01  GET /admin/health-records/vitals/{patientId}
+       Auth: DOCTOR (own), ADMIN
+       Returns: Page<VitalSigns>
+
+AR-02  POST /admin/health-records/vitals/{patientId}
+       Auth: DOCTOR, STAFF, ADMIN
+       Returns: VitalSigns
+
+AR-03  GET /admin/health-records/documents/{patientId}
+       Auth: DOCTOR (own), ADMIN
+       Returns: Page<MedicalDocument>
+
+AR-04  POST /admin/health-records/documents/{patientId}
+       Auth: LAB_TECH, DOCTOR, ADMIN
+       Returns: MedicalDocument
+
+AR-05  POST /admin/health-records/treatment/{patientId}
+       Auth: DOCTOR, ADMIN
+       Body: TreatmentHistoryRequest
+       Returns: TreatmentHistory
+
+══════════════════════════════════════════════════
+### GROUP AS — HOSPITAL & SERVICES MANAGEMENT
+### Base: /api/v1/admin/hospital/
+══════════════════════════════════════════════════
+
+AS-01  GET  /admin/hospital
+AS-02  PUT  /admin/hospital
+       Auth: ADMIN, SUPER_ADMIN
+
+AS-03  GET  /admin/hospital/services
+AS-04  POST /admin/hospital/services
+AS-05  PUT  /admin/hospital/services/{id}
+AS-06  DELETE /admin/hospital/services/{id}
+AS-07  PUT  /admin/hospital/services/{id}/status
+       Body: { isActive }
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## 🛡️ SECURITY IMPLEMENTATION SPECS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+═══════════════════════════════════════════
+SESSION TRACKING (both surfaces):
+═══════════════════════════════════════════
+
+On every successful login, create session record:
+  sessionId: UUID
+  userId: UUID
+  accessTokenJti: UUID (JWT ID claim)
+  refreshTokenHash: SHA-256 of refresh token
+  deviceFingerprint: hash of browser/device data
+  deviceName: "Chrome on Windows 11"
+  deviceType: DESKTOP/MOBILE/TABLET
+  browser: parsed from User-Agent
+  os: parsed from User-Agent
+  ipAddress: from X-Forwarded-For or RemoteAddr
+  location: reverse geocoded from IP (async)
+  userAgent: full string
+  createdAt: timestamp
+  lastActivity: timestamp (updated on heartbeat)
+  isActive: boolean
+  terminatedAt: nullable
+  terminatedReason: nullable
+
+Store in: PostgreSQL sessions table + Redis (fast lookup)
+Redis key: session:{sessionId} TTL = refresh token lifetime
+
+On every authenticated request:
+  Validate JWT claims
+  Check JWT jti not in blacklist (Redis)
+  Update lastActivity (Redis async, not blocking)
+  Check session is still active
+
+═══════════════════════════════════════════
+DEVICE TRACKING:
+═══════════════════════════════════════════
+
+Device fingerprint components (hashed):
+  userAgent + screen resolution + timezone +
+  language + platform + installed fonts (partial)
+
+On new device detected (no matching fingerprint):
+  → Send security alert email
+  → Log as new_device event
+  → For admin: BLOCK login until user approves device
+                via email link OR approval API
+  → For patient: warn but allow
+
+TrustedDevice record:
+  deviceId, userId, fingerprint (hashed)
+  name, browser, os, firstSeen, lastSeen
+  isTrusted, approvedAt, approvedFromIp
+
+═══════════════════════════════════════════
+PASSKEY (WebAuthn) IMPLEMENTATION:
+═══════════════════════════════════════════
+
+Library: spring-security-webauthn
+         or webauthn4j-spring-security
+
+PasskeyCredential record:
+  credentialId (base64url)
+  userId, publicKey (COSE)
+  signCount (replay attack prevention)
+  aaguid (authenticator type)
+  name (user-defined, e.g. "iPhone Face ID")
+  createdAt, lastUsed, deviceType
+
+Registration flow:
+  /auth/passkey/register/begin
+    → generate challenge (random 32 bytes)
+    → store challenge in Redis (5min TTL)
+    → return PublicKeyCredentialCreationOptions
+
+  /auth/passkey/register/complete
+    → verify attestation
+    → verify challenge matches
+    → extract + store public key
+    → store credential record
+
+Authentication flow:
+  /auth/passkey/begin
+    → find user credentials by email
+    → generate new challenge
+    → return PublicKeyCredentialRequestOptions
+
+  /auth/passkey/complete
+    → verify assertion
+    → verify challenge
+    → verify signature against stored public key
+    → increment signCount (detect cloned authenticators)
+    → issue JWT
+
+═══════════════════════════════════════════
+SSO (Admin only):
+═══════════════════════════════════════════
+
+Google Workspace SSO:
+  Spring Security OAuth2 client
+  Validate hd (hosted domain) claim
+  Only allow configured workspace domain
+  Map Google user → Admin user by email
+  If no admin user exists → deny access (no auto-create)
+  After SSO: STILL require MFA
+
+SAML 2.0 (enterprise):
+  Spring Security SAML2
+  SP metadata: /admin/auth/saml/metadata
+  ACS URL: /admin/auth/sso/saml/callback
+  Sign assertions + encrypt
+  Map SAML attributes → admin user attributes
+  After SAML: STILL require MFA
+
+═══════════════════════════════════════════
+API TOGGLE SYSTEM (SUPER_ADMIN):
+═══════════════════════════════════════════
+
+ApiControlFilter (Spring Filter, early in chain):
+  On every request:
+    1. Check maintenance mode (Redis key: maintenance:mode)
+       If true + IP not in allowedIps → return 503
+    2. Check IP blocklist (Redis set: blocked:ips)
+       If IP in set → return 403
+    3. Check endpoint enabled (Redis key: api:disabled:{method}:{path})
+       If exists → return 503 with reason from value
+    4. Pass to next filter
+
+ApiEndpoint entity (persisted in DB):
+  id, method, path, group, description
+  isEnabled (default true)
+  disabledAt, disabledBy, disabledReason
+  disableUntil (nullable, for temp disable)
+
+Sync to Redis on startup:
+  Load all disabled endpoints → Redis
+  Check disableUntil on scheduler (every minute)
+    → auto re-enable if past disableUntil
+
+Metrics (separate):
+  Redis counters: api:count:{method}:{path}
+  Redis error counters: api:error:{method}:{path}
+  Expires: 24h rolling window
+
+═══════════════════════════════════════════
+RATE LIMITING IMPLEMENTATION:
+═══════════════════════════════════════════
+
+Redis sliding window algorithm:
+  Key: ratelimit:{identifier}:{endpoint}
+  Value: sorted set of timestamps
+  Window: configured per endpoint
+  Limit: configured per endpoint
+
+Rate limit identifiers:
+  Public endpoints: IP address
+  Authenticated: userId (more generous limits)
+  Admin auth: IP + userId (strictest)
+
+On limit exceeded:
+  Return 429 Too Many Requests
+  Headers:
+    X-RateLimit-Limit: configured limit
+    X-RateLimit-Remaining: 0
+    X-RateLimit-Reset: timestamp when resets
+    Retry-After: seconds to wait
+
+Configurable per endpoint (via AC-12):
+  Default public: 60 req/min
+  Search/search: 20 req/min
+  Auth login: 5/15min
+  Booking: 10/min (authenticated patient)
+  Admin auth: 3/15min
+  File upload: 5/min
+
+═══════════════════════════════════════════
+HIGH TRAFFIC OPTIMIZATION (public site):
+═══════════════════════════════════════════
+
+Cache layers:
+  L1: Caffeine in-process (very short TTL 30s)
+      for most-requested endpoints (home stats, hero)
+  L2: Redis (per-endpoint TTL, see GROUP B-H)
+
+Cache key strategy:
+  Public endpoints: "cache:{endpoint}:{hash(params)}"
+  Never cache patient-specific data
+
+CDN headers on public responses:
+  Cache-Control: public, max-age=60, s-maxage=300
+  ETag: based on content hash
+  Vary: Accept-Encoding
+
+HTTP/2 on all endpoints
+
+DB optimizations for public queries:
+  Read replicas for all SELECT queries in public APIs
+  Primary DB only for writes
+  Connection pooling: HikariCP max 20 (reads: replica)
+  All public APIs: @Transactional(readOnly=true)
+
+Async operations (never block request):
+  View count increments
+  Search log saves
+  Page view tracking
+  Email sending
+  Audit logging
+  Notification dispatching
+
+Security headers on ALL responses:
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  X-XSS-Protection: 1; mode=block
+  Strict-Transport-Security: max-age=31536000
+  Content-Security-Policy: (strict policy)
+  Referrer-Policy: strict-origin-when-cross-origin
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## 📊 COMPLETE API COUNT SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PUBLIC SITE APIs:
+  A: Auth (public+patient)     → 20 endpoints
+  B: Home                      → 12 endpoints
+  C: Doctors                   → 11 endpoints
+  D: Services                  →  6 endpoints
+  E: Blog                      → 12 endpoints
+  F: About & Contact           → 14 endpoints
+  G: Reviews                   →  2 endpoints
+  H: Search & SEO              →  6 endpoints
+  I: Booking (patient)         →  7 endpoints
+  J: Patient Portal            → 15 endpoints
+  K: Health Records            → 11 endpoints
+  L: Patient Reviews           →  3 endpoints
+  M: Patient Security          → 15 endpoints
+  TOTAL PUBLIC SITE:           134 endpoints
+
+ADMIN PANEL APIs:
+  AA: Admin Auth               → 20 endpoints
+  AB: Admin Session Security   → 17 endpoints
+  AC: API Control (SUPER_ADMIN)→ 20 endpoints
+  AD: Admin Dashboard          → 10 endpoints
+  AE: Appointments             → 13 endpoints
+  AF: Patients                 → 14 endpoints
+  AG: Doctors                  → 10 endpoints
+  AH: Prescriptions            →  6 endpoints
+  AI: Lab Reports              →  5 endpoints
+  AJ: Payments                 →  8 endpoints
+  AK: Website Control          → 43 endpoints
+  AL: Blog Management          → 19 endpoints
+  AM: Contact & Comms          →  7 endpoints
+  AN: Reviews Moderation       →  4 endpoints
+  AO: Users & Roles            → 12 endpoints
+  AP: Audit Logs               →  4 endpoints
+  AQ: Reports                  →  5 endpoints
+  AR: Health Records (admin)   →  5 endpoints
+  AS: Hospital & Services      →  7 endpoints
+  TOTAL ADMIN:                 229 endpoints
+
+GRAND TOTAL: 363 endpoints

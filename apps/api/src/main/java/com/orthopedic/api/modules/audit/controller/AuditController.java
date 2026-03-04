@@ -36,7 +36,7 @@ public class AuditController extends BaseController {
             @RequestParam(defaultValue = "DESC") String direction) {
 
         Pageable pageable = PageableUtils.createPageable(page, size, sort, direction,
-                Arrays.asList("createdAt", "performedBy", "entityName"));
+                Arrays.asList("createdAt", "userId", "entityType", "action"));
 
         return ok(auditService.getAllLogs(pageable));
     }

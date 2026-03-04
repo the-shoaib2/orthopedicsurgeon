@@ -47,6 +47,9 @@ public class Doctor extends BaseEntity {
     @Column(nullable = false)
     private DoctorStatus status = DoctorStatus.ACTIVE;
 
+    @Column(nullable = false)
+    private Boolean isFeatured = false;
+
     @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DoctorAvailability> availabilities = new ArrayList<>();
 
@@ -128,6 +131,14 @@ public class Doctor extends BaseEntity {
 
     public void setAvailabilities(List<DoctorAvailability> availabilities) {
         this.availabilities = availabilities;
+    }
+
+    public Boolean getIsFeatured() {
+        return isFeatured;
+    }
+
+    public void setIsFeatured(Boolean featured) {
+        isFeatured = featured;
     }
 
     public enum DoctorStatus {

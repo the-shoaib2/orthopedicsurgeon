@@ -1,8 +1,5 @@
 package com.orthopedic.api.auth.security;
 
-import io.github.bucket4j.Bandwidth;
-import io.github.bucket4j.Bucket;
-import io.github.bucket4j.Refill;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,21 +9,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class RateLimitingFilter extends OncePerRequestFilter {
 
-    private final Map<String, Bucket> buckets = new ConcurrentHashMap<>();
+    private final RedisRateLimiter redisRateLimiter;
 
-    private Bucket createNewBucket() {
-        // 200 requests per minute per IP — generous for development/testing
-        Bandwidth limit = Bandwidth.classic(200, Refill.greedy(200, Duration.ofMinutes(1)));
-        return Bucket.builder()
-                .addLimit(limit)
-                .build();
+    public RateLimitingFilter(RedisRateLimiter redisRateLimiter) {
+        this.redisRateLimiter = redisRateLimiter;
     }
 
     @Override
@@ -34,20 +24,28 @@ public class RateLimitingFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String path = request.getRequestURI();
+        String clientIp = getClientIP(request);
 
-        // Only apply to auth endpoints
-        if (path.startsWith("/api/v1/auth")) {
-            String clientIp = getClientIP(request);
-            Bucket bucket = buckets.computeIfAbsent(clientIp, k -> createNewBucket());
+        // Define limits based on route
+        int limit = 60; // default
+        long window = 60; // 1 min
 
-            if (bucket.tryConsume(1)) {
-                filterChain.doFilter(request, response);
-            } else {
-                response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-                response.getWriter().write("Too many requests. Please try again later.");
-            }
-        } else {
+        if (path.startsWith("/api/v1/auth/login")) {
+            limit = 5;
+            window = 15 * 60; // 15 mins
+        } else if (path.startsWith("/api/v1/public/search")) {
+            limit = 20;
+            window = 60;
+        }
+
+        String key = "ratelimit:" + clientIp + ":" + path;
+
+        if (redisRateLimiter.isAllowed(key, limit, window)) {
             filterChain.doFilter(request, response);
+        } else {
+            response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+            response.addHeader("Retry-After", String.valueOf(window));
+            response.getWriter().write("Too many requests. Please try again later.");
         }
     }
 

@@ -3,6 +3,7 @@ package com.orthopedic.api.modules.appointment.controller.patient;
 import com.orthopedic.api.auth.entity.User;
 import com.orthopedic.api.modules.appointment.dto.request.AppointmentFilterRequest;
 import com.orthopedic.api.modules.appointment.dto.request.BookAppointmentRequest;
+import com.orthopedic.api.modules.appointment.dto.request.RescheduleAppointmentRequest;
 import com.orthopedic.api.modules.appointment.dto.response.AppointmentResponse;
 import com.orthopedic.api.modules.appointment.dto.response.AppointmentSummaryResponse;
 import com.orthopedic.api.modules.appointment.service.AppointmentService;
@@ -76,5 +77,14 @@ public class PatientAppointmentController extends BaseController {
             @RequestParam String reason,
             @CurrentUser User currentUser) {
         return ok("Appointment cancelled", appointmentService.cancelAppointment(id, reason, currentUser));
+    }
+
+    @PostMapping("/{id}/reschedule")
+    @Operation(summary = "Reschedule my appointment")
+    public ResponseEntity<ApiResponse<AppointmentResponse>> reschedule(
+            @PathVariable UUID id,
+            @Valid @RequestBody RescheduleAppointmentRequest request,
+            @CurrentUser User currentUser) {
+        return ok("Appointment rescheduled", appointmentService.rescheduleAppointment(id, request, currentUser));
     }
 }

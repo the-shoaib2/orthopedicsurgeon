@@ -9,6 +9,7 @@ import com.orthopedic.api.modules.doctor.entity.Doctor;
 import com.orthopedic.api.modules.doctor.entity.DoctorAvailability;
 import com.orthopedic.api.modules.doctor.mapper.DoctorMapper;
 import com.orthopedic.api.modules.doctor.repository.DoctorRepository;
+import com.orthopedic.api.modules.audit.annotation.LogMutation;
 import com.orthopedic.api.modules.hospital.repository.HospitalRepository;
 import com.orthopedic.api.shared.dto.PageResponse;
 import com.orthopedic.api.shared.exception.ResourceNotFoundException;
@@ -80,6 +81,7 @@ public class DoctorServiceImpl implements DoctorService {
     @Override
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     @CacheEvict(value = "doctors", allEntries = true)
+    @LogMutation(action = "CREATE_DOCTOR", entityName = "DOCTOR")
     public DoctorResponse createDoctor(CreateDoctorRequest request) {
         if (doctorRepository.existsByLicenseNumber(request.getLicenseNumber())) {
             throw new BusinessException("License number already exists");
@@ -90,6 +92,8 @@ public class DoctorServiceImpl implements DoctorService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found")));
         doctor.setHospital(hospitalRepository.findById(request.getHospitalId())
                 .orElseThrow(() -> new ResourceNotFoundException("Hospital not found")));
+        doctor.setIsFeatured(request.getIsFeatured());
+        doctor.setStatus(request.getStatus());
 
         if (request.getAvailabilities() != null) {
             List<DoctorAvailability> availabilities = request.getAvailabilities().stream()
@@ -135,6 +139,7 @@ public class DoctorServiceImpl implements DoctorService {
     @Override
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     @CacheEvict(value = "doctors", allEntries = true)
+    @LogMutation(action = "UPDATE_DOCTOR", entityName = "DOCTOR")
     public DoctorResponse updateDoctor(UUID id, CreateDoctorRequest request) {
         Doctor doctor = doctorRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Doctor not found"));
@@ -144,6 +149,8 @@ public class DoctorServiceImpl implements DoctorService {
         doctor.setLicenseNumber(request.getLicenseNumber());
         doctor.setBio(request.getBio());
         doctor.setAvailableForOnline(request.getAvailableForOnline());
+        doctor.setIsFeatured(request.getIsFeatured());
+        doctor.setStatus(request.getStatus());
 
         doctor.setHospital(hospitalRepository.findById(request.getHospitalId())
                 .orElseThrow(() -> new ResourceNotFoundException("Hospital not found")));
@@ -164,11 +171,32 @@ public class DoctorServiceImpl implements DoctorService {
     @Override
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     @CacheEvict(value = "doctors", allEntries = true)
+    @LogMutation(action = "DELETE_DOCTOR", entityName = "DOCTOR")
     public void deleteDoctor(UUID id) {
         if (!doctorRepository.existsById(id)) {
             throw new ResourceNotFoundException("Doctor not found");
         }
         doctorRepository.deleteById(id);
+    }
+
+    @Override
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
+    @CacheEvict(value = "doctors", allEntries = true)
+    public void updateDoctorStatus(UUID id, Doctor.DoctorStatus status) {
+        Doctor doctor = doctorRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Doctor not found"));
+        doctor.setStatus(status);
+        doctorRepository.save(doctor);
+    }
+
+    @Override
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
+    @CacheEvict(value = "doctors", allEntries = true)
+    public void toggleFeaturedStatus(UUID id, boolean featured) {
+        Doctor doctor = doctorRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Doctor not found"));
+        doctor.setIsFeatured(featured);
+        doctorRepository.save(doctor);
     }
 
     private DoctorResponse mapToResponse(Doctor doctor) {

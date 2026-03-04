@@ -1,5 +1,6 @@
 package com.orthopedic.api.modules.patient.service;
 
+import com.orthopedic.api.modules.patient.dto.request.AdminUpdatePatientRequest;
 import com.orthopedic.api.modules.patient.dto.request.CreatePatientRequest;
 import com.orthopedic.api.modules.patient.dto.request.PatientFilterRequest;
 import com.orthopedic.api.modules.patient.dto.request.UpdatePatientProfileRequest;
@@ -21,6 +22,10 @@ public interface PatientService {
     PatientResponse createPatient(CreatePatientRequest request);
 
     PatientResponse updateMyProfile(UUID userId, UpdatePatientProfileRequest request);
+
+    PatientResponse updatePatient(UUID id, AdminUpdatePatientRequest request);
+
+    void deletePatient(UUID id);
 
     PatientMedicalHistoryResponse getMedicalHistory(UUID id);
 }

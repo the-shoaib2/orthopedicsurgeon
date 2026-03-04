@@ -3,6 +3,7 @@ package com.orthopedic.api.modules.appointment.service;
 import com.orthopedic.api.auth.entity.User;
 import com.orthopedic.api.modules.appointment.dto.request.AppointmentFilterRequest;
 import com.orthopedic.api.modules.appointment.dto.request.BookAppointmentRequest;
+import com.orthopedic.api.modules.appointment.dto.request.RescheduleAppointmentRequest;
 import com.orthopedic.api.modules.appointment.dto.response.AppointmentResponse;
 import com.orthopedic.api.modules.appointment.dto.response.AppointmentSummaryResponse;
 import com.orthopedic.api.modules.appointment.entity.Appointment;
@@ -12,7 +13,6 @@ import com.orthopedic.api.modules.doctor.entity.Doctor;
 import com.orthopedic.api.modules.doctor.repository.DoctorRepository;
 import com.orthopedic.api.modules.hospital.entity.Hospital;
 import com.orthopedic.api.modules.hospital.entity.ServiceEntity;
-import com.orthopedic.api.modules.hospital.repository.HospitalRepository;
 import com.orthopedic.api.modules.hospital.repository.ServiceRepository;
 import com.orthopedic.api.modules.patient.entity.Patient;
 import com.orthopedic.api.modules.patient.repository.PatientRepository;
@@ -36,17 +36,11 @@ import java.util.List;
 import java.util.UUID;
 import com.orthopedic.api.modules.appointment.dto.response.AppointmentStatsResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 @Service
 public class AppointmentServiceImpl implements AppointmentService {
-    private static final Logger log = LoggerFactory.getLogger(AppointmentServiceImpl.class);
-
     private final AppointmentRepository appointmentRepository;
     private final DoctorRepository doctorRepository;
     private final PatientRepository patientRepository;
-    private final HospitalRepository hospitalRepository;
     private final ServiceRepository serviceRepository;
     private final AppointmentMapper appointmentMapper;
     private final RedisTemplate<String, Object> redisTemplate;
@@ -55,7 +49,6 @@ public class AppointmentServiceImpl implements AppointmentService {
     public AppointmentServiceImpl(AppointmentRepository appointmentRepository,
             DoctorRepository doctorRepository,
             PatientRepository patientRepository,
-            HospitalRepository hospitalRepository,
             ServiceRepository serviceRepository,
             AppointmentMapper appointmentMapper,
             RedisTemplate<String, Object> redisTemplate,
@@ -63,7 +56,6 @@ public class AppointmentServiceImpl implements AppointmentService {
         this.appointmentRepository = appointmentRepository;
         this.doctorRepository = doctorRepository;
         this.patientRepository = patientRepository;
-        this.hospitalRepository = hospitalRepository;
         this.serviceRepository = serviceRepository;
         this.appointmentMapper = appointmentMapper;
         this.redisTemplate = redisTemplate;
@@ -207,6 +199,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     @Transactional
+    @com.orthopedic.api.modules.audit.annotation.LogMutation(action = "START_APPOINTMENT", entityName = "Appointment")
     public AppointmentResponse startAppointment(UUID id) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
@@ -221,6 +214,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     @Transactional
+    @com.orthopedic.api.modules.audit.annotation.LogMutation(action = "COMPLETE_APPOINTMENT", entityName = "Appointment")
     public AppointmentResponse completeAppointment(UUID id) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
@@ -251,6 +245,50 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setCancelledBy(currentUser);
 
         return appointmentMapper.toResponse(appointmentRepository.save(appointment));
+    }
+
+    @Override
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    @com.orthopedic.api.modules.audit.annotation.LogMutation(action = "RESCHEDULE_APPOINTMENT", entityName = "Appointment")
+    public AppointmentResponse rescheduleAppointment(UUID id, RescheduleAppointmentRequest request, User currentUser) {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
+
+        validateOwnership(appointment, currentUser);
+
+        if (Arrays.asList(Appointment.AppointmentStatus.COMPLETED, Appointment.AppointmentStatus.CANCELLED)
+                .contains(appointment.getStatus())) {
+            throw new BusinessException("Completed or cancelled appointments cannot be rescheduled.");
+        }
+
+        String lockKey = LOCK_PREFIX + appointment.getDoctor().getId() + ":" + request.getNewDate() + ":"
+                + request.getNewStartTime();
+        Boolean locked = redisTemplate.opsForValue().setIfAbsent(lockKey, "LOCKED", Duration.ofSeconds(30));
+
+        if (Boolean.FALSE.equals(locked)) {
+            throw new SlotUnavailableException("The new time slot is currently being locked by another user.");
+        }
+
+        try {
+            boolean exists = appointmentRepository.existsByDoctorIdAndAppointmentDateAndStartTimeAndStatusNotIn(
+                    appointment.getDoctor().getId(), request.getNewDate(), request.getNewStartTime(),
+                    List.of(Appointment.AppointmentStatus.CANCELLED, Appointment.AppointmentStatus.NO_SHOW));
+
+            if (exists) {
+                throw new SlotUnavailableException("The new time slot is already booked.");
+            }
+
+            appointment.setAppointmentDate(request.getNewDate());
+            appointment.setStartTime(request.getNewStartTime());
+            appointment
+                    .setEndTime(request.getNewStartTime().plusMinutes(appointment.getService().getDurationMinutes()));
+            appointment.setStatus(Appointment.AppointmentStatus.RESCHEDULED);
+            appointment.setCancellationReason(request.getReason()); // Using this for reschedule reason too
+
+            return appointmentMapper.toResponse(appointmentRepository.save(appointment));
+        } finally {
+            redisTemplate.delete(lockKey);
+        }
     }
 
     @Override
@@ -292,6 +330,21 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
 
         return new AppointmentStatsResponse(total, pending, confirmed, completed, cancelled, new HashMap<>());
+    }
+
+    @Override
+    @Transactional
+    @com.orthopedic.api.modules.audit.annotation.LogMutation(action = "BULK_CANCEL_APPOINTMENTS", entityName = "Appointment")
+    public void bulkCancelAppointments(UUID doctorId, java.time.LocalDate date, String reason, User currentUser) {
+        List<Appointment> appointments = appointmentRepository.findOccupiedSlots(doctorId, date);
+
+        for (Appointment appointment : appointments) {
+            appointment.setStatus(Appointment.AppointmentStatus.CANCELLED);
+            appointment.setCancellationReason(reason);
+            appointment.setCancelledBy(currentUser);
+        }
+
+        appointmentRepository.saveAll(appointments);
     }
 
     private void validateOwnership(Appointment appointment, User currentUser) {

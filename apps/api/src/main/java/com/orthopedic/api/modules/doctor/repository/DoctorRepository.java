@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -38,6 +39,13 @@ public interface DoctorRepository extends JpaRepository<Doctor, UUID> {
         @Query("SELECT COUNT(a) FROM Appointment a WHERE a.doctor.id = :doctorId AND a.status = 'COMPLETED'")
         int countTotalAppointments(UUID doctorId);
 
-        // Note: Average rating would come from a Review module which is not yet
-        // implemented
+        @Query("SELECT d FROM Doctor d JOIN d.user u WHERE " +
+                        "(LOWER(u.firstName) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+                        "LOWER(u.lastName) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+                        "LOWER(d.specialization) LIKE LOWER(CONCAT('%', :query, '%'))) AND " +
+                        "d.status = 'ACTIVE'")
+        List<Doctor> searchDoctors(@Param("query") String query);
+
+        @EntityGraph(attributePaths = { "user", "hospital" })
+        List<Doctor> findByIsFeaturedTrueAndStatus(Doctor.DoctorStatus status);
 }
