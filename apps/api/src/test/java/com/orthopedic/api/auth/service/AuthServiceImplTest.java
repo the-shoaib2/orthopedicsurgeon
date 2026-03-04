@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -55,7 +56,7 @@ class AuthServiceImplTest {
         patientRole.setName("ROLE_PATIENT");
 
         testUser = new User();
-        testUser.setId(1L);
+        testUser.setId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
         testUser.setEmail("test@example.com");
         testUser.setPassword("hashedPassword");
         testUser.setRoles(Set.of(patientRole));

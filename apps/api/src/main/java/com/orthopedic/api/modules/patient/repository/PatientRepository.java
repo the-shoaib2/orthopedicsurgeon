@@ -17,7 +17,7 @@ import java.util.UUID;
 public interface PatientRepository extends JpaRepository<Patient, UUID> {
 
        @EntityGraph(attributePaths = { "user" })
-       Optional<Patient> findByUserId(Long userId);
+       Optional<Patient> findByUserId(UUID userId);
 
        @EntityGraph(attributePaths = { "user" })
        @Query("SELECT p FROM Patient p JOIN p.user u WHERE " +

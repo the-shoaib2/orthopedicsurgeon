@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS faqs (
 
 CREATE TABLE IF NOT EXISTS team_members (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
     title VARCHAR(200),
     bio TEXT,
     image_url VARCHAR(500),

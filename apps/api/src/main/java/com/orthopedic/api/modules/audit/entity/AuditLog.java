@@ -26,7 +26,7 @@ public class AuditLog {
     private UUID id;
 
     @Column(name = "user_id")
-    private Long userId;
+    private UUID userId;
 
     @Column(name = "action", nullable = false, length = 100)
     private String action;

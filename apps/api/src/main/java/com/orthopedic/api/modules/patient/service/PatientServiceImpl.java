@@ -34,8 +34,8 @@ public class PatientServiceImpl implements PatientService {
     private final PatientMapper patientMapper;
 
     public PatientServiceImpl(PatientRepository patientRepository,
-                              UserRepository userRepository,
-                              PatientMapper patientMapper) {
+            UserRepository userRepository,
+            PatientMapper patientMapper) {
         this.patientRepository = patientRepository;
         this.userRepository = userRepository;
         this.patientMapper = patientMapper;
@@ -51,8 +51,7 @@ public class PatientServiceImpl implements PatientService {
                 filters.getCity(),
                 filters.getStatus(),
                 filters.getSearch(),
-                pageable
-        );
+                pageable);
         return PageResponse.fromPage(patients.map(patientMapper::toSummaryResponse));
     }
 
@@ -67,7 +66,7 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     @Transactional(readOnly = true)
-    public PatientResponse getPatientByUserId(Long userId) {
+    public PatientResponse getPatientByUserId(UUID userId) {
         Patient patient = patientRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Patient profile not found for user"));
         return patientMapper.toResponse(patient);
@@ -78,7 +77,7 @@ public class PatientServiceImpl implements PatientService {
     public PatientResponse createPatient(CreatePatientRequest request) {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        
+
         Patient patient = patientMapper.toEntity(request);
         patient.setUser(user);
 
@@ -106,15 +105,16 @@ public class PatientServiceImpl implements PatientService {
     @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR') or @permissionEvaluator.isPatientOwner(authentication, #id)")
     public PatientMedicalHistoryResponse getMedicalHistory(UUID id) {
         PatientResponse patient = getPatientById(id);
-        
+
         PatientMedicalHistoryResponse history = new PatientMedicalHistoryResponse();
         history.setPatient(patient);
-        
-        // Placeholders for aggregated data - will be populated when modules are integrated
+
+        // Placeholders for aggregated data - will be populated when modules are
+        // integrated
         history.setAppointments(new ArrayList<>());
         history.setPrescriptions(new ArrayList<>());
         history.setLabReports(new ArrayList<>());
-        
+
         return history;
     }
 }

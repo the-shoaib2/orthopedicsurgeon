@@ -1,5 +1,6 @@
 package com.orthopedic.api.auth.dto;
 
+import java.util.UUID;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class RegisterResponse {
 
     @Schema(description = "Newly created user ID", example = "101")
-    private Long userId;
+    private UUID userId;
 
     @Schema(description = "Registered email address", example = "shoaib@orthosync.com")
     private String email;

@@ -1,7 +1,8 @@
 package com.orthopedic.api.shared.exception;
 
+import com.orthopedic.api.auth.exception.AuthException;
+import com.orthopedic.api.auth.exception.InvalidCredentialsException;
 import com.orthopedic.api.shared.dto.ErrorResponse;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +25,20 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request);
     }
 
+    @ExceptionHandler(AuthException.class)
+    public ResponseEntity<ErrorResponse> handleAuth(AuthException ex, HttpServletRequest request) {
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCredentials(InvalidCredentialsException ex,
+            HttpServletRequest request) {
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage(), request);
+    }
+
     @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAccessDenied(org.springframework.security.access.AccessDeniedException ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleAccessDenied(
+            org.springframework.security.access.AccessDeniedException ex, HttpServletRequest request) {
         return buildErrorResponse(HttpStatus.FORBIDDEN, "Access denied: you don't have enough permissions", request);
     }
 
@@ -40,7 +53,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex,
+            HttpServletRequest request) {
         List<ErrorResponse.FieldError> fieldErrors = ex.getBindingResult().getFieldErrors().stream()
                 .map(error -> new ErrorResponse.FieldError(error.getField(), error.getDefaultMessage()))
                 .collect(Collectors.toList());
@@ -52,8 +66,7 @@ public class GlobalExceptionHandler {
                         .message("Invalid input parameters")
                         .path(request.getRequestURI())
                         .fieldErrors(fieldErrors)
-                        .build()
-        );
+                        .build());
     }
 
     @ExceptionHandler(Exception.class)
@@ -62,14 +75,14 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred", request);
     }
 
-    private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, String message, HttpServletRequest request) {
+    private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, String message,
+            HttpServletRequest request) {
         return ResponseEntity.status(status).body(
                 ErrorResponse.builder()
                         .status(status.value())
                         .error(status.getReasonPhrase())
                         .message(message)
                         .path(request.getRequestURI())
-                        .build()
-        );
+                        .build());
     }
 }

@@ -17,7 +17,7 @@ CREATE TABLE payments (
     gateway_response JSONB,
     invoice_number VARCHAR(50) UNIQUE NOT NULL,
     paid_at TIMESTAMP,
-    created_by BIGINT REFERENCES users(id),
+    created_by UUID REFERENCES users(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

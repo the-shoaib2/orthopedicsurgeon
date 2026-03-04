@@ -6,7 +6,7 @@ DROP TABLE IF EXISTS patients CASCADE;
 
 CREATE TABLE patients (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id BIGINT UNIQUE NOT NULL REFERENCES users(id),
+    user_id UUID UNIQUE NOT NULL REFERENCES users(id),
     blood_group VARCHAR(5),
     date_of_birth DATE NOT NULL,
     gender VARCHAR(20) NOT NULL,

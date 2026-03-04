@@ -21,65 +21,57 @@ import { AdminApiService } from '@core/services/admin-api.service';
     MatProgressBarModule
   ],
   template: `
-    <div class="space-y-10 animate-fade-in pb-24 px-2">
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8 border-b border-white/5 pb-10">
-        <div class="flex items-center gap-6">
-          <div class="w-16 h-16 bg-cyan-600/20 rounded-2xl flex items-center justify-center border border-cyan-500/30 shadow-2xl shadow-cyan-500/10">
-            <mat-icon class="text-cyan-400 scale-[1.5]">handshake</mat-icon>
-          </div>
+    <div class="space-y-6">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4">
+        <div class="flex items-center gap-4">
+          <mat-icon color="primary" class="scale-150 ml-2">handshake</mat-icon>
           <div>
-            <h1 class="text-4xl font-black text-white tracking-tighter italic uppercase leading-tight">Affiliation Matrix</h1>
-            <div class="flex items-center gap-3 mt-1.5">
-              <span class="w-2 h-2 rounded-full bg-cyan-500 animate-pulse"></span>
-              <p class="text-primary-500 font-black text-[10px] uppercase tracking-[0.4em]">Manage partner logos, corporate affiliations, and brand clusters</p>
-            </div>
+            <h1 class="text-2xl font-medium m-0">Partner Management</h1>
+            <p class="text-sm text-slate-500 m-0">Manage partner logos and affiliations</p>
           </div>
         </div>
-        <button mat-flat-button color="primary" class="rounded-2xl h-14 px-10 font-black uppercase tracking-tighter italic shadow-2xl shadow-primary-500/20 premium-border bg-primary-600 hover:bg-primary-500 transition-all shrink-0">
-           Onboard Partner
+        <button mat-flat-button color="primary">
+           Add Partner
         </button>
       </div>
 
       <mat-progress-bar *ngIf="loading()" mode="query" color="primary" class="h-1 rounded-full"></mat-progress-bar>
 
-      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-8 animate-slide-up">
-        <mat-card *ngFor="let partner of partners()" class="bg-white/[0.01] border border-white/5 rounded-[32px] glass overflow-hidden group hover:border-primary-500/30 transition-all duration-500 shadow-xl">
-           <div class="h-40 flex items-center justify-center p-8 bg-white/[0.02] relative overflow-hidden">
-              <div class="absolute inset-0 bg-primary-500/0 group-hover:bg-primary-500/5 transition-colors duration-500"></div>
-              <img [src]="partner.logoUrl" class="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700 relative z-10" />
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
+        <mat-card *ngFor="let partner of partners()" class="overflow-hidden group">
+           <div class="h-40 flex items-center justify-center p-6 bg-slate-50 relative">
+              <img [src]="partner.logoUrl" class="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300" />
               
-              <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-2 group-hover:translate-x-0 z-20">
-                 <button mat-icon-button (click)="deletePartner(partner.id)" class="w-10 h-10 bg-white/10 backdrop-blur-xl border border-white/10 text-white hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 transition-all rounded-xl">
-                   <mat-icon class="scale-75">delete</mat-icon>
+              <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                 <button mat-icon-button color="warn" class="bg-white/90" (click)="deletePartner(partner.id)">
+                   <mat-icon>delete</mat-icon>
                  </button>
               </div>
            </div>
            
-           <div class="p-6 border-t border-white/[0.03]">
-              <p class="text-[10px] font-black text-white hover:text-primary-400 transition-colors uppercase tracking-widest mb-3 truncate italic">{{ partner.name }}</p>
-              <div class="flex items-center justify-between">
-                 <div class="flex items-center gap-2">
-                    <span class="text-[8px] font-black text-white/20 uppercase tracking-[0.2em]">Index Vector:</span>
-                    <span class="text-[9px] font-black text-white italic">{{ partner.displayOrder }}</span>
+           <mat-card-content class="pt-4 border-t border-slate-100">
+              <p class="text-sm font-medium truncate mb-2">{{ partner.name }}</p>
+              <div class="flex items-center justify-between text-xs text-slate-500">
+                 <div class="flex items-center gap-1">
+                    <span>Order:</span>
+                    <span class="font-medium">{{ partner.displayOrder }}</span>
                  </div>
-                 <div class="flex items-center gap-2">
-                    <span class="text-[7px] font-black text-white/20 uppercase tracking-[0.1em]">{{ partner.isActive ? 'ACTIVE' : 'OFFLINE' }}</span>
-                    <div [class]="partner.isActive ? 'bg-green-500 shadow-green-500/50' : 'bg-white/10'" class="w-2 h-2 rounded-full shadow-lg"></div>
-                 </div>
+                 <span [class]="partner.isActive ? 'text-green-600 font-medium' : 'text-slate-500'">
+                    {{ partner.isActive ? 'ACTIVE' : 'INACTIVE' }}
+                 </span>
               </div>
-           </div>
+           </mat-card-content>
         </mat-card>
         
-        <div *ngIf="partners().length === 0 && !loading()" class="col-span-full py-48 text-center bg-white/[0.01] border border-dashed border-white/10 rounded-[40px] animate-pulse">
-           <mat-icon class="text-white/5 scale-[5] mb-14">handshake</mat-icon>
-           <p class="text-white/20 font-black uppercase tracking-[0.6em] text-[10px]">No affiliations detected in matrix</p>
+        <div *ngIf="partners().length === 0 && !loading()" class="col-span-full py-12 text-center text-slate-500">
+           <mat-icon class="scale-150 mb-4 text-slate-400">handshake</mat-icon>
+           <p class="font-medium text-sm">No partners configured</p>
         </div>
       </div>
     </div>
   `,
   styles: [`
     :host { display: block; }
-    .glass { backdrop-filter: blur(40px); }
   `]
 })
 export class PartnerManagementComponent implements OnInit {
@@ -107,7 +99,7 @@ export class PartnerManagementComponent implements OnInit {
   }
 
   deletePartner(id: string) {
-    if (confirm('Disconnect partner affiliation?')) {
+    if (confirm('Are you sure you want to delete this partner?')) {
       this.api.deletePartner(id).subscribe(() => this.loadPartners());
     }
   }

@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS blog_posts (
     excerpt TEXT,
     content TEXT,
     featured_image_url VARCHAR(500),
-    author_id BIGINT NOT NULL REFERENCES users(id),
+    author_id UUID NOT NULL REFERENCES users(id),
     category_id UUID REFERENCES blog_categories(id)
         ON DELETE SET NULL,
     status blog_post_status NOT NULL DEFAULT 'DRAFT',
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS blog_comments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     post_id UUID NOT NULL REFERENCES blog_posts(id)
         ON DELETE CASCADE,
-    user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
     guest_name VARCHAR(150),
     guest_email VARCHAR(254),
     content TEXT NOT NULL,

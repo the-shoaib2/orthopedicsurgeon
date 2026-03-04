@@ -106,7 +106,7 @@ public class BlogServiceImpl {
         }
 
         @Transactional
-        public BlogPostResponse createPost(CreateBlogPostRequest req, Long authorId) {
+        public BlogPostResponse createPost(CreateBlogPostRequest req, UUID authorId) {
                 String slug = (req.slug() != null && !req.slug().trim().isEmpty())
                                 ? req.slug()
                                 : generateUniqueSlug(req.title());

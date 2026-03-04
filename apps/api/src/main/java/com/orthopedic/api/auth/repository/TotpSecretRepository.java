@@ -8,7 +8,8 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface TotpSecretRepository extends JpaRepository<TotpSecret, Long> {
+public interface TotpSecretRepository extends JpaRepository<TotpSecret, java.util.UUID> {
     Optional<TotpSecret> findByUser(User user);
+
     void deleteByUser(User user);
 }

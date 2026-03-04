@@ -4,9 +4,11 @@ import com.orthopedic.api.modules.notification.entity.Notification;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.UUID;
+
 public class SendNotificationRequest {
     @NotNull(message = "Recipient ID is required")
-    private Long recipientId;
+    private UUID recipientId;
 
     @NotBlank(message = "Title is required")
     private String title;
@@ -22,7 +24,7 @@ public class SendNotificationRequest {
     public SendNotificationRequest() {
     }
 
-    public SendNotificationRequest(Long recipientId, String title, String message, Notification.NotificationType type,
+    public SendNotificationRequest(UUID recipientId, String title, String message, Notification.NotificationType type,
             Notification.NotificationChannel channel) {
         this.recipientId = recipientId;
         this.title = title;
@@ -31,11 +33,11 @@ public class SendNotificationRequest {
         this.channel = channel;
     }
 
-    public Long getRecipientId() {
+    public UUID getRecipientId() {
         return recipientId;
     }
 
-    public void setRecipientId(Long recipientId) {
+    public void setRecipientId(UUID recipientId) {
         this.recipientId = recipientId;
     }
 
@@ -76,13 +78,13 @@ public class SendNotificationRequest {
     }
 
     public static class SendNotificationRequestBuilder {
-        private Long recipientId;
+        private UUID recipientId;
         private String title;
         private String message;
         private Notification.NotificationType type;
         private Notification.NotificationChannel channel;
 
-        public SendNotificationRequestBuilder recipientId(Long recipientId) {
+        public SendNotificationRequestBuilder recipientId(UUID recipientId) {
             this.recipientId = recipientId;
             return this;
         }

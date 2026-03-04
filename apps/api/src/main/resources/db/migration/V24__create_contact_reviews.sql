@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS contact_messages (
     subject VARCHAR(300) NOT NULL,
     message TEXT NOT NULL,
     status contact_message_status NOT NULL DEFAULT 'NEW',
-    replied_by BIGINT REFERENCES users(id) ON DELETE SET NULL,
+    replied_by UUID REFERENCES users(id) ON DELETE SET NULL,
     replied_at TIMESTAMP,
     reply_message TEXT,
     ip_address VARCHAR(45),

@@ -73,6 +73,6 @@ public class AdminDoctorController extends BaseController {
     @Operation(summary = "Delete doctor profile")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable UUID id) {
         doctorService.deleteDoctor(id);
-        return ok(null);
+        return ok("Doctor deleted successfully", null);
     }
 }

@@ -2,17 +2,23 @@
     "COMMON": {
         "SEARCH": "Search...",
         "LOGOUT": "Logout",
+        "LOGOUT_CONFIRM_TITLE": "Confirm Logout",
+        "LOGOUT_CONFIRM_MESSAGE": "Are you sure you want to end your current session? You will need to log in again to access the console.",
+        "CANCEL": "Cancel",
         "SETTINGS": "Settings",
         "DASHBOARD": "Dashboard",
         "NAV": {
             "OVERVIEW": "Overview",
             "ORGANIZATION": "Organization",
+            "DEPARTMENTS": "Departments",
+            "HOSPITALS": "Hospitals",
             "MEDICAL_STAFF": "Medical Staff",
             "PATIENTS": "Patients",
             "APPOINTMENTS": "Appointments",
             "RECORDS": "Records",
             "FINANCE": "Finance",
             "CONTENT": {
+                "GROUP": "Web Content",
                 "HERO": "Hero Banner",
                 "FAQ": "FAQ",
                 "PARTNERS": "Partners",

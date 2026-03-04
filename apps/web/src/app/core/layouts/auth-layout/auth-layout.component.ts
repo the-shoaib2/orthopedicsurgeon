@@ -1,80 +1,61 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { MatChipsModule } from '@angular/material/chips';
-import { LogoComponent } from '@core/components/logo/logo.component';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-auth-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatChipsModule, LogoComponent],
+  imports: [CommonModule, RouterModule, MatIconModule],
   template: `
-    <div class="min-h-screen flex flex-col lg:flex-row bg-white overflow-hidden">
-      <!-- Left: Content/Image (50%) -->
-      <div class="hidden lg:block w-1/2 relative bg-secondary-900 overflow-hidden">
-        <img class="absolute inset-0 h-full w-full object-cover grayscale opacity-40 mix-blend-luminosity scale-110 hover:scale-100 transition-transform duration-[30s] ease-linear" 
-             src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=1600" alt="Clinical Engineering">
-        
-        <div class="absolute inset-0 bg-gradient-to-br from-secondary-900/80 via-transparent to-primary/20"></div>
-        
-        <div class="absolute inset-0 flex items-center justify-center p-24 z-10 text-center lg:text-left">
-           <div class="max-w-xl">
-              <mat-chip class="premium-badge mb-10">Node ID: OS-GLOBAL-01</mat-chip>
-              <h2 class="text-6xl font-black text-white mb-10 leading-[0.9] tracking-tighter uppercase">
-                Better <span class="text-primary italic">Infrastructure</span> <br/>for Clinical Precision.
-              </h2>
-              <div class="h-1 w-20 bg-primary mb-10"></div>
-              <p class="text-xl text-white/50 leading-relaxed font-medium mb-12">
-                Log in to synchronize with our global network of orthopedic specialists and real-time biometric analysis hubs.
-              </p>
-              
-              <div class="flex items-center gap-12 border-t border-white/10 pt-12">
-                 <div>
-                    <h4 class="text-3xl font-black text-white mb-2 tracking-tighter">99.9%</h4>
-                    <p class="text-[10px] font-black text-primary uppercase tracking-widest">Uptime Precision</p>
-                 </div>
-                 <div>
-                    <h4 class="text-3xl font-black text-white mb-2 tracking-tighter">SECURE</h4>
-                    <p class="text-[10px] font-black text-primary uppercase tracking-widest">Encrypted Protocols</p>
-                 </div>
-              </div>
-           </div>
-        </div>
-        
-        <!-- Decorative Grid -->
-        <div class="absolute inset-0 opacity-10 pointer-events-none" 
-             style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 40px 40px;"></div>
+    <div class="h-screen w-full flex overflow-hidden bg-white font-sans">
+      <!-- Left Side: Visual Content (Desktop only) -->
+      <div class="hidden lg:block relative flex-1 h-full overflow-hidden bg-slate-900">
+         <img src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=1000" class="absolute inset-0 w-full h-full object-cover opacity-60 scale-105" alt="Background" />
+         <div class="absolute inset-0 bg-gradient-to-l from-white via-transparent to-transparent"></div>
+         
+         <!-- Decorative Overlay -->
+         <div class="absolute bottom-20 left-20 right-20 text-white z-20">
+            <div class="backdrop-blur-xl bg-white/10 p-10 rounded-[40px] border border-white/20 shadow-2xl">
+               <div class="flex items-center gap-4 mb-4">
+                  <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center backdrop-blur-md">
+                     <mat-icon class="text-white">medical_services</mat-icon>
+                  </div>
+                  <h2 class="text-3xl font-bold tracking-tight text-white">Clinical Precision</h2>
+               </div>
+               <p class="text-lg text-white/80 leading-relaxed max-w-lg mb-0 font-medium italic">
+                 "Orchestrating surgical excellence with synchronized digital patient care."
+               </p>
+            </div>
+         </div>
       </div>
 
-      <!-- Right: Form Container (50%) -->
-      <div class="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 lg:p-16 bg-white relative z-10">
-        <div class="w-full max-w-md">
-           <!-- Logo -->
-           <div class="mb-12">
-             <app-logo [height]="48" routerLink="/"></app-logo>
-           </div>
-           
-           <div class="animate-in fade-in slide-in-from-bottom-8 duration-700">
-             <router-outlet></router-outlet>
-           </div>
-
-           <!-- Footer -->
-           <div class="mt-12 pt-8 border-t border-gray-100 flex items-center justify-between">
-              <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none">
-                © 2026 OrthoSync Precision
-              </p>
-              <div class="flex gap-4">
-                 <a href="#" class="text-[9px] font-black text-gray-400 hover:text-primary uppercase tracking-widest transition-colors">Privacy</a>
-                 <a href="#" class="text-[9px] font-black text-gray-400 hover:text-primary uppercase tracking-widest transition-colors">Terms</a>
-              </div>
-           </div>
+      <!-- Right Side: Form Container -->
+      <div class="w-full lg:w-[450px] xl:w-[550px] h-full flex flex-col justify-center z-10 bg-white shadow-2xl lg:shadow-none">
+        <div class="px-8 sm:px-16 lg:px-20 overflow-y-auto py-12">
+            <router-outlet></router-outlet>
+            
+            <div class="mt-16 text-slate-400 text-[10px] flex items-center justify-between border-t border-slate-50 pt-8 tracking-widest font-bold">
+               <span>OrthoSync &copy; 2026</span>
+               <div class="flex gap-4">
+                  <a href="#" class="hover:text-primary-600 transition-colors text-slate-400">Help</a>
+                  <a href="#" class="hover:text-primary-600 transition-colors text-slate-400">Privacy</a>
+               </div>
+            </div>
         </div>
       </div>
     </div>
   `,
   styles: [`
     :host { display: block; }
-    .premium-badge { background: rgba(59, 130, 246, 0.2) !important; color: #60a5fa !important; border: 1px solid rgba(59, 130, 246, 0.3) !important; font-size: 10px !important; font-weight: 900 !important; text-transform: uppercase !important; letter-spacing: 0.2em !important; height: 32px !important; padding: 0 16px !important; border-radius: 8px !important; display: inline-flex !important; align-items: center !important; }
+    /* Ensure responsiveness for smaller screens */
+    @media (max-width: 1023px) {
+      .h-screen {
+        height: auto;
+        min-height: 100vh;
+        overflow-y: auto;
+      }
+    }
   `]
 })
 export class AuthLayoutComponent {}

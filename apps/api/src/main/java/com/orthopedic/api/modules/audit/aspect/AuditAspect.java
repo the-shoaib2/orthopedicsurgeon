@@ -32,7 +32,7 @@ public class AuditAspect {
             LogMutation annotation = method.getAnnotation(LogMutation.class);
 
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            Long userId = (auth != null && auth.getPrincipal() instanceof User)
+            java.util.UUID userId = (auth != null && auth.getPrincipal() instanceof User)
                     ? ((User) auth.getPrincipal()).getId()
                     : null;
 

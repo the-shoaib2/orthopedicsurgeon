@@ -1,6 +1,7 @@
-import { Component, signal, ViewChild, TemplateRef } from '@angular/core';
+import { Component, signal, ViewChild, TemplateRef, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ZrdTableComponent, ZrdBadgeComponent, ZrdButtonComponent, ZrdPageHeaderComponent } from '@repo/ui';
+import { PublicApiService } from '../../../core/services/public-api.service';
 
 @Component({
   selector: 'app-prescription-list',
@@ -20,24 +21,37 @@ import { ZrdTableComponent, ZrdBadgeComponent, ZrdButtonComponent, ZrdPageHeader
     </div>
   `
 })
-export class PrescriptionListComponent {
+export class PrescriptionListComponent implements OnInit {
+  private apiService = inject(PublicApiService);
   loading = signal(false);
-  
-  prescriptions = signal([
-    { id: '1', doctor: 'Dr. Sarah Johnson', date: '2024-10-10', diagnosis: 'Knee Osteoarthritis', medicines: 'Ibuprofen, Glucosamine', status: 'ACTIVE' },
-    { id: '2', doctor: 'Dr. Mike Ross', date: '2024-09-25', diagnosis: 'Ligament Strain', medicines: 'RICE Therapy, Pain Relief', status: 'COMPLETED' },
-    { id: '3', doctor: 'Dr. David King', date: '2024-08-15', diagnosis: 'Post-Surgery recovery', medicines: 'Antibiotics, Pain killers', status: 'COMPLETED' },
-  ]);
+  prescriptions = signal<any[]>([]);
 
   columns: any[] = [
-    { key: 'date', header: 'Date', width: '120px' },
-    { key: 'doctor', header: 'Doctor' },
+    { key: 'createdAt', header: 'Date', width: '120px' },
+    { key: 'doctorName', header: 'Doctor' },
     { key: 'diagnosis', header: 'Diagnosis' },
-    { key: 'medicines', header: 'Medicines' },
+    { key: 'status', header: 'Status' },
     { key: 'actions', header: 'Download', cellTemplate: null, width: '120px' }
   ];
 
   @ViewChild('actionTemplate') set actionTemplate(v: TemplateRef<any>) {
     this.columns[4].cellTemplate = v;
+  }
+
+  ngOnInit() {
+    this.loadPrescriptions();
+  }
+
+  loadPrescriptions() {
+    this.loading.set(true);
+    this.apiService.getMyPrescriptions().subscribe({
+      next: (res) => {
+        this.prescriptions.set(res.data.content);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loading.set(false);
+      }
+    });
   }
 }

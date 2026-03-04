@@ -30,11 +30,16 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class PaymentServiceTest {
 
-    @Mock private PaymentRepository paymentRepository;
-    @Mock private AppointmentRepository appointmentRepository;
-    @Mock private PatientRepository patientRepository;
-    @Mock private PaymentMapper paymentMapper;
-    @Mock private Counter paymentSuccessCounter;
+    @Mock
+    private PaymentRepository paymentRepository;
+    @Mock
+    private AppointmentRepository appointmentRepository;
+    @Mock
+    private PatientRepository patientRepository;
+    @Mock
+    private PaymentMapper paymentMapper;
+    @Mock
+    private Counter paymentSuccessCounter;
 
     @InjectMocks
     private PaymentServiceImpl paymentService;
@@ -46,7 +51,7 @@ class PaymentServiceTest {
     @BeforeEach
     void setUp() {
         currentUser = new User();
-        currentUser.setId(1L);
+        currentUser.setId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
         currentUser.setEmail("patient@test.com");
         currentUser.setRoles(Collections.emptySet());
 
@@ -94,7 +99,7 @@ class PaymentServiceTest {
     @Test
     void getPaymentById_AccessDenied() {
         User otherUser = new User();
-        otherUser.setId(2L);
+        otherUser.setId(UUID.fromString("123e4567-e89b-12d3-a456-426614174001"));
         otherUser.setEmail("other@test.com");
         otherUser.setRoles(Collections.emptySet());
 

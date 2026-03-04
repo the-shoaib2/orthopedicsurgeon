@@ -28,12 +28,13 @@ public class EmailServiceImpl implements EmailService {
         this.templateEngine = templateEngine;
     }
 
-    @Value("${SMTP_FROM}")
+    @Value("${spring.mail.username}")
     private String fromEmail;
 
     @Override
     @Async
     public void sendHtmlEmail(String to, String subject, String templateName, Map<String, Object> variables) {
+        log.info("Attempting to send HTML email to: {} using template: {}", to, templateName);
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message,

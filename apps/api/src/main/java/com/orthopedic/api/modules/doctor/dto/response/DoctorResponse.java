@@ -63,7 +63,7 @@ public class DoctorResponse {
     @Schema(description = "Basic user summary for doctor profile")
     public static class UserSummary {
         @Schema(description = "User ID", example = "1")
-        private Long id;
+        private UUID id;
 
         @Schema(description = "First name", example = "John")
         private String firstName;

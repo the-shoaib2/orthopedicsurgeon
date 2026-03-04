@@ -23,10 +23,36 @@ export class PublicApiService {
   }
 
   getHospitals(): Observable<ApiResponse<HospitalSummary[]>> {
-    return this.http.get<ApiResponse<HospitalSummary[]>>(`${this.apiUrl}/hospitals/summary`);
+    return this.http.get<ApiResponse<HospitalSummary[]>>(`${(`${this.apiUrl}/hospitals/summary`)}`);
   }
 
   bookAppointment(data: any): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(`${this.apiUrl}/appointments/book`, data);
   }
+
+  getMyAppointments(): Observable<ApiResponse<PageResponse<any>>> {
+    return this.http.get<ApiResponse<PageResponse<any>>>(`${this.apiUrl}/patient/appointments`);
+  }
+
+  getMyPrescriptions(): Observable<ApiResponse<PageResponse<any>>> {
+    return this.http.get<ApiResponse<PageResponse<any>>>(`${this.apiUrl}/patient/prescriptions`);
+  }
+
+  getMyReports(): Observable<ApiResponse<PageResponse<any>>> {
+    return this.http.get<ApiResponse<PageResponse<any>>>(`${this.apiUrl}/patient/lab-reports`);
+  }
+
+  getMyProfile(): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/patient/profile`);
+  }
+
+  getPatientPayments(patientId: string): Observable<ApiResponse<PageResponse<any>>> {
+    return this.http.get<ApiResponse<PageResponse<any>>>(`${this.apiUrl}/payments/patient/${patientId}`);
+  }
+
+  getPatientDashboard(): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/patient/health/dashboard`);
+  }
 }
+
+

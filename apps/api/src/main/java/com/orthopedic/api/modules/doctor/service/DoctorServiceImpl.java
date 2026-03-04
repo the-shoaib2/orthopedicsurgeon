@@ -71,7 +71,7 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     @Transactional(readOnly = true)
-    public DoctorResponse getDoctorByUserId(Long userId) {
+    public DoctorResponse getDoctorByUserId(UUID userId) {
         Doctor doctor = doctorRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Doctor profile not found for user"));
         return mapToResponse(doctor);

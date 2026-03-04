@@ -23,8 +23,8 @@ CREATE TABLE appointments (
     chief_complaint TEXT NOT NULL,
     notes TEXT,
     cancellation_reason TEXT,
-    cancelled_by BIGINT REFERENCES users(id),
-    booked_by BIGINT REFERENCES users(id),
+    cancelled_by UUID REFERENCES users(id),
+    booked_by UUID REFERENCES users(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT unique_doctor_slot UNIQUE (doctor_id, appointment_date, start_time)

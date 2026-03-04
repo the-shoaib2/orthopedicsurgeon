@@ -1,12 +1,14 @@
 package com.orthopedic.api.modules.audit.dto.request;
 
+import java.util.UUID;
+
 public class AuditEventRequest {
     private String entityType;
-    private java.util.UUID entityId;
+    private UUID entityId;
     private String action;
     private String oldValues;
     private String newValues;
-    private Long userId;
+    private UUID userId;
     private String ipAddress;
     private String userAgent;
     private String metadata;
@@ -15,8 +17,8 @@ public class AuditEventRequest {
     public AuditEventRequest() {
     }
 
-    public AuditEventRequest(String entityType, java.util.UUID entityId, String action, String oldValues,
-            String newValues, Long userId, String ipAddress, String userAgent, String metadata, String details) {
+    public AuditEventRequest(String entityType, UUID entityId, String action, String oldValues,
+            String newValues, UUID userId, String ipAddress, String userAgent, String metadata, String details) {
         this.entityType = entityType;
         this.entityId = entityId;
         this.action = action;
@@ -37,11 +39,11 @@ public class AuditEventRequest {
         this.entityType = entityType;
     }
 
-    public java.util.UUID getEntityId() {
+    public UUID getEntityId() {
         return entityId;
     }
 
-    public void setEntityId(java.util.UUID entityId) {
+    public void setEntityId(UUID entityId) {
         this.entityId = entityId;
     }
 
@@ -69,11 +71,11 @@ public class AuditEventRequest {
         this.newValues = newValues;
     }
 
-    public Long getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(UUID userId) {
         this.userId = userId;
     }
 
@@ -115,11 +117,11 @@ public class AuditEventRequest {
 
     public static class AuditEventRequestBuilder {
         private String entityType;
-        private java.util.UUID entityId;
+        private UUID entityId;
         private String action;
         private String oldValues;
         private String newValues;
-        private Long userId;
+        private UUID userId;
         private String ipAddress;
         private String userAgent;
         private String metadata;
@@ -130,7 +132,7 @@ public class AuditEventRequest {
             return this;
         }
 
-        public AuditEventRequestBuilder entityId(java.util.UUID entityId) {
+        public AuditEventRequestBuilder entityId(UUID entityId) {
             this.entityId = entityId;
             return this;
         }
@@ -150,7 +152,7 @@ public class AuditEventRequest {
             return this;
         }
 
-        public AuditEventRequestBuilder userId(Long userId) {
+        public AuditEventRequestBuilder userId(java.util.UUID userId) {
             this.userId = userId;
             return this;
         }

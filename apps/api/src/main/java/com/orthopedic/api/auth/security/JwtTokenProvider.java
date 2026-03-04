@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +72,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String generateRefreshToken(Long userId) {
+    public String generateRefreshToken(UUID userId) {
         String refreshToken = Jwts.builder()
                 .setSubject(userId.toString())
                 .setIssuedAt(new Date())

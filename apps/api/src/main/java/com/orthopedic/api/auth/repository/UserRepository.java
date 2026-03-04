@@ -6,11 +6,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, UUID> {
 
-    @org.springframework.cache.annotation.Cacheable(value = "user_entities", key = "#email")
+    // NOTE: Do NOT cache User entities in Redis — the roles collection is a
+    // Hibernate PersistentSet which cannot be deserialized outside an active
+    // session.
+    // Authentication queries are fast enough via DB with the @EntityGraph
+    // eager-loading roles.
     @EntityGraph(attributePaths = { "roles" })
     Optional<User> findByEmail(String email);
 

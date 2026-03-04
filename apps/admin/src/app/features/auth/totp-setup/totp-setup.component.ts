@@ -2,40 +2,104 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-totp-setup',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    MatCardModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    MatSnackBarModule
+  ],
   template: `
-    <div class="setup-container">
-      <h2>Two-Factor Authentication Setup</h2>
-      <div *ngIf="setupData">
-        <p>1. Scan this QR code with your authenticator app (e.g., Google Authenticator, Authy):</p>
-        <img [src]="setupData.qrCodeUrl" alt="QR Code" />
-        <p>2. Or enter this secret key manually: <code>{{ setupData.secretKey }}</code></p>
-        <p>3. Enter the 6-digit code to verify and enable 2FA:</p>
-        <input type="text" [(ngModel)]="verificationCode" maxlength="6" />
-        <button (click)="verify()">Verify & Enable</button>
-        
-        <div *ngIf="setupData.backupCodes" class="backup-codes">
-          <p><strong>IMPORTANT:</strong> Save these backup codes in a safe place. They will not be shown again:</p>
-          <ul>
-            <li *ngFor="let code of setupData.backupCodes">{{ code }}</li>
-          </ul>
-        </div>
-      </div>
-      <div *ngIf="error" class="error">{{ error }}</div>
-      <div *ngIf="success" class="success">2FA has been successfully enabled!</div>
+    <div class="min-h-screen flex items-center justify-center p-6 bg-slate-50 relative overflow-hidden">
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,_#e2e8f0_0%,_transparent_50%)] pointer-events-none"></div>
+      
+      <mat-card class="w-full max-w-md relative z-10">
+        <mat-card-header class="flex flex-col items-center pt-8 pb-4">
+          <div class="mb-4 text-primary-600">
+            <mat-icon class="scale-[2]">security</mat-icon>
+          </div>
+          <mat-card-title class="text-2xl font-medium m-0 text-center">2FA Setup</mat-card-title>
+          <mat-card-subtitle class="mt-2 text-sm text-slate-500 text-center px-4">
+            Enable two-factor authentication for your account
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content class="px-6 pb-6">
+          @if (setupData) {
+            <div class="flex flex-col gap-4">
+              <p class="text-sm text-slate-600 text-center">1. Scan this QR code with your authenticator app:</p>
+              <div class="flex justify-center">
+                <img [src]="setupData.qrCodeUrl" alt="QR Code" class="rounded-lg border border-slate-200 p-2 bg-slate-50">
+              </div>
+              <p class="text-sm text-slate-600 text-center">2. Or enter this secret key manually:</p>
+              <code class="block bg-slate-100 rounded px-3 py-2 text-sm text-slate-800 text-center tracking-widest font-mono">
+                {{ setupData.secretKey }}
+              </code>
+              <p class="text-sm text-slate-600 text-center">3. Enter the 6-digit verification code:</p>
+
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Verification Code</mat-label>
+                <input matInput type="text" [(ngModel)]="verificationCode" maxlength="6"
+                       class="text-center tracking-[0.5em] text-lg font-bold">
+              </mat-form-field>
+
+              @if (setupData.backupCodes) {
+                <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                  <p class="text-sm font-semibold text-amber-800 mb-2">⚠ Save these backup codes:</p>
+                  <ul class="grid grid-cols-2 gap-1">
+                    @for (code of setupData.backupCodes; track code) {
+                      <li class="font-mono text-xs text-slate-700">{{ code }}</li>
+                    }
+                  </ul>
+                </div>
+              }
+
+              <button mat-flat-button color="primary" (click)="verify()" class="w-full py-2 mt-2">
+                Verify &amp; Enable 2FA
+              </button>
+            </div>
+          }
+
+          @if (error) {
+            <p class="text-red-600 text-sm mt-4 text-center">{{ error }}</p>
+          }
+          @if (success) {
+            <div class="text-center py-6">
+              <mat-icon class="text-5xl text-green-600 mb-4">check_circle</mat-icon>
+              <p class="text-green-700 font-semibold">2FA has been successfully enabled!</p>
+              <button mat-flat-button color="primary" routerLink="/dashboard" class="mt-4">
+                Go to Dashboard
+              </button>
+            </div>
+          }
+          
+          <button mat-button routerLink="/auth/login" class="w-full mt-4">
+            Back to Login
+          </button>
+        </mat-card-content>
+
+        <mat-card-footer class="py-4 text-center">
+          <span class="text-xs text-slate-500">Admin Console &copy; 2026</span>
+        </mat-card-footer>
+      </mat-card>
     </div>
   `,
-  styles: [`
-    .setup-container { max-width: 500px; margin: 2rem auto; padding: 2rem; border: 1px solid #ddd; }
-    img { display: block; margin: 1rem auto; }
-    .backup-codes { background: #f9f9f9; padding: 1rem; margin-top: 1rem; border-left: 4px solid #ffcc00; }
-    .error { color: red; }
-    .success { color: green; }
-  `]
+  styles: [`:host { display: block; }`]
 })
 export class TotpSetupComponent implements OnInit {
   setupData: any = null;
@@ -48,7 +112,7 @@ export class TotpSetupComponent implements OnInit {
   ngOnInit() {
     this.http.post('/api/v1/auth/2fa/setup', {}).subscribe({
       next: (res) => this.setupData = res,
-      error: (err) => this.error = 'Failed to load 2FA setup data.'
+      error: () => this.error = 'Failed to load 2FA setup data.'
     });
   }
 

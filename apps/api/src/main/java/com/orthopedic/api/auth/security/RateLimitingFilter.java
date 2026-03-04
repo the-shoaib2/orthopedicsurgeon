@@ -22,18 +22,19 @@ public class RateLimitingFilter extends OncePerRequestFilter {
     private final Map<String, Bucket> buckets = new ConcurrentHashMap<>();
 
     private Bucket createNewBucket() {
-        Bandwidth limit = Bandwidth.classic(10, Refill.greedy(10, Duration.ofMinutes(1)));
+        // 200 requests per minute per IP — generous for development/testing
+        Bandwidth limit = Bandwidth.classic(200, Refill.greedy(200, Duration.ofMinutes(1)));
         return Bucket.builder()
-            .addLimit(limit)
-            .build();
+                .addLimit(limit)
+                .build();
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        
+
         String path = request.getRequestURI();
-        
+
         // Only apply to auth endpoints
         if (path.startsWith("/api/v1/auth")) {
             String clientIp = getClientIP(request);

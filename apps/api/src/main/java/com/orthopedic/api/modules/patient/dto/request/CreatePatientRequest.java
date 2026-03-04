@@ -8,10 +8,11 @@ import jakarta.validation.constraints.Past;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 public class CreatePatientRequest {
     @NotNull(message = "User ID is required")
-    private Long userId;
+    private UUID userId;
 
     private Patient.BloodGroup bloodGroup;
 
@@ -33,11 +34,11 @@ public class CreatePatientRequest {
     private List<AllergyRequest> allergies;
     private List<ConditionRequest> conditions;
 
-    public Long getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(UUID userId) {
         this.userId = userId;
     }
 

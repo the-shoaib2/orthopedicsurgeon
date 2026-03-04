@@ -66,5 +66,13 @@ export const routes: Routes = [
   {
     path: 'auth/login',
     loadComponent: () => import('@features/auth/admin-login.component').then(m => m.AdminLoginComponent)
+  },
+  {
+    path: 'auth/forgot-password',
+    loadComponent: () => import('@features/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
+  },
+  {
+    path: 'auth/reset-password',
+    loadComponent: () => import('@features/auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent)
   }
 ];

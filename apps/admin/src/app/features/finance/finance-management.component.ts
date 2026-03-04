@@ -7,139 +7,142 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { CurrencyPipe } from '@angular/common';
+
 @Component({
   selector: 'app-finance-management',
   standalone: true,
   imports: [
-    CommonModule, 
-    MatTableModule, 
-    MatCardModule, 
-    MatButtonModule, 
-    MatIconModule, 
+    CommonModule,
+    MatTableModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
     MatChipsModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatFormFieldModule,
+    MatInputModule,
+    CurrencyPipe
   ],
   template: `
-    <div class="space-y-10 animate-fade-in pb-24 px-2">
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8 border-b border-white/5 pb-10">
-        <div class="flex items-center gap-6">
-          <div class="w-16 h-16 bg-amber-600/20 rounded-2xl flex items-center justify-center border border-amber-500/30 shadow-2xl shadow-amber-500/10">
-            <mat-icon class="text-amber-400 scale-[1.5]">account_balance_wallet</mat-icon>
-          </div>
+    <div class="space-y-6">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4">
+        <div class="flex items-center gap-4">
+          <mat-icon color="primary" class="scale-150 ml-2">account_balance_wallet</mat-icon>
           <div>
-            <h1 class="text-4xl font-black text-white tracking-tighter italic uppercase leading-tight">Fiscal Flux</h1>
-            <div class="flex items-center gap-3 mt-1.5">
-              <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-              <p class="text-primary-500 font-black text-[10px] uppercase tracking-[0.4em]">Oversee system revenue, hospital billings, and insurance claims</p>
-            </div>
+            <h1 class="text-2xl font-medium m-0">Fiscal Flux</h1>
+            <p class="text-sm text-slate-500 m-0">Oversee system revenue, hospital billings, and insurance claims</p>
           </div>
         </div>
         <div class="flex gap-4">
-          <button mat-flat-button color="primary" class="rounded-2xl h-14 px-10 font-black uppercase tracking-tighter italic shadow-2xl shadow-primary-500/20 premium-border bg-primary-600 hover:bg-primary-500 transition-all shrink-0">
+          <button mat-flat-button color="primary">
              Generate Fiscal Audit
           </button>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 animate-slide-up">
-        <mat-card class="bg-white/[0.01] border border-white/5 rounded-[32px] glass p-8 group hover:border-emerald-500/30 transition-all shadow-xl">
-          <div class="flex items-center justify-between mb-6">
-            <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-              <mat-icon class="text-emerald-400">payments</mat-icon>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <mat-card>
+          <mat-card-content class="pt-4">
+            <div class="flex items-center justify-between mb-4">
+              <mat-icon color="primary">payments</mat-icon>
+              <span class="text-xs font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-600">+12.5%</span>
             </div>
-            <span class="text-[8px] font-black text-emerald-500 bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20 uppercase tracking-widest">+12.5%</span>
-          </div>
-          <h3 class="text-4xl font-black text-white tracking-tighter italic mb-1">$1.24M</h3>
-          <p class="text-white/20 font-black text-[9px] uppercase tracking-[0.3em]">Net Operational Revenue</p>
+            <p class="text-sm text-slate-500 mb-1">Net Operational Revenue</p>
+            <h3 class="text-3xl font-regular mb-1">$1.24M</h3>
+          </mat-card-content>
         </mat-card>
 
-        <mat-card class="bg-white/[0.01] border border-white/5 rounded-[32px] glass p-8 group hover:border-amber-500/30 transition-all shadow-xl">
-          <div class="flex items-center justify-between mb-6">
-            <div class="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
-              <mat-icon class="text-amber-400">pending_actions</mat-icon>
+        <mat-card>
+          <mat-card-content class="pt-4">
+            <div class="flex items-center justify-between mb-4">
+              <mat-icon color="warn">pending_actions</mat-icon>
+              <span class="text-xs font-medium px-2 py-0.5 rounded bg-red-50 text-red-600">CRITICAL</span>
             </div>
-            <span class="text-[8px] font-black text-amber-500 bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/20 uppercase tracking-widest">CRITICAL</span>
-          </div>
-          <h3 class="text-4xl font-black text-white tracking-tighter italic mb-1">452</h3>
-          <p class="text-white/20 font-black text-[9px] uppercase tracking-[0.3em]">Pending Insurance Claims</p>
+            <p class="text-sm text-slate-500 mb-1">Pending Insurance Claims</p>
+            <h3 class="text-3xl font-regular mb-1">452</h3>
+          </mat-card-content>
         </mat-card>
 
-        <mat-card class="bg-white/[0.01] border border-white/5 rounded-[32px] glass p-8 group hover:border-primary-500/30 transition-all shadow-xl">
-          <div class="flex items-center justify-between mb-6">
-            <div class="w-12 h-12 rounded-2xl bg-primary-500/10 flex items-center justify-center border border-primary-500/20">
-              <mat-icon class="text-primary-400">output</mat-icon>
+        <mat-card>
+          <mat-card-content class="pt-4">
+            <div class="flex items-center justify-between mb-4">
+              <mat-icon color="accent">output</mat-icon>
+              <span class="text-xs font-medium px-2 py-0.5 rounded bg-blue-50 text-blue-600">STABLE</span>
             </div>
-            <span class="text-[8px] font-black text-primary-400 bg-primary-500/10 px-3 py-1 rounded-lg border border-primary-500/20 uppercase tracking-widest">STABLE</span>
-          </div>
-          <h3 class="text-4xl font-black text-white tracking-tighter italic mb-1">$842k</h3>
-          <p class="text-white/20 font-black text-[9px] uppercase tracking-[0.3em]">Provider Payout Aggregate</p>
+            <p class="text-sm text-slate-500 mb-1">Provider Payout Aggregate</p>
+            <h3 class="text-3xl font-regular mb-1">$842k</h3>
+          </mat-card-content>
         </mat-card>
       </div>
 
-      <mat-card class="bg-white/[0.01] border border-white/5 rounded-[40px] glass overflow-hidden animate-slide-up shadow-2xl">
-        <div class="overflow-x-auto p-4">
-          <table mat-table [dataSource]="transactions()" class="w-full bg-transparent">
+      <mat-card>
+        <div class="overflow-x-auto">
+          <table mat-table [dataSource]="transactions()" class="w-full">
              <ng-container matColumnDef="id">
-                <th mat-header-cell *matHeaderCellDef class="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] py-8 px-10">Transaction ID</th>
-                <td mat-cell *matCellDef="let row" class="py-10 px-10 border-b border-white/[0.03]">
-                  <span class="text-sm font-black text-primary-400 bg-primary-500/10 px-4 py-2 rounded-xl border border-primary-500/20 uppercase tracking-[0.1em] italic">
+                <th mat-header-cell *matHeaderCellDef>Transaction ID</th>
+                <td mat-cell *matCellDef="let row">
+                  <span class="font-medium">
                     {{row.id}}
                   </span>
                 </td>
              </ng-container>
 
              <ng-container matColumnDef="patient">
-                <th mat-header-cell *matHeaderCellDef class="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] py-8">Associated Subject</th>
-                <td mat-cell *matCellDef="let row" class="py-10 border-b border-white/[0.03]">
-                  <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/5 font-black text-white/20 text-[10px]">
+                <th mat-header-cell *matHeaderCellDef>Associated Subject</th>
+                <td mat-cell *matCellDef="let row">
+                  <div class="flex items-center gap-4 py-2">
+                    <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-sm font-medium">
                       {{row.patient.charAt(0)}}
                     </div>
-                    <span class="text-sm font-black text-white uppercase italic tracking-tighter">{{row.patient}}</span>
+                    <span>{{row.patient}}</span>
                   </div>
                 </td>
              </ng-container>
 
              <ng-container matColumnDef="amount">
-                <th mat-header-cell *matHeaderCellDef class="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] py-8">Quantum</th>
-                <td mat-cell *matCellDef="let row" class="py-10 border-b border-white/[0.03]">
-                  <span class="text-base font-black text-white tracking-tight uppercase italic">{{row.amount | currency}}</span>
+                <th mat-header-cell *matHeaderCellDef>Quantum</th>
+                <td mat-cell *matCellDef="let row">
+                  <span class="font-medium">{{row.amount | currency}}</span>
                 </td>
              </ng-container>
 
              <ng-container matColumnDef="status">
-                <th mat-header-cell *matHeaderCellDef class="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] py-8">Verification</th>
-                <td mat-cell *matCellDef="let row" class="py-10 border-b border-white/[0.03]">
-                   <span [class]="row.status === 'SUCCESS' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-amber-500/10 text-amber-500 border-amber-500/20'" 
-                         class="px-4 py-2 rounded-xl text-[8px] font-black uppercase tracking-[0.2em] border backdrop-blur-sm">
-                    {{row.status === 'SUCCESS' ? 'SETTLED' : 'VERIFYING'}}
-                  </span>
+                <th mat-header-cell *matHeaderCellDef>Verification</th>
+                <td mat-cell *matCellDef="let row">
+                   <mat-chip-set>
+                     <mat-chip [color]="row.status === 'SUCCESS' ? 'primary' : 'accent'">
+                       {{row.status === 'SUCCESS' ? 'SETTLED' : 'VERIFYING'}}
+                     </mat-chip>
+                   </mat-chip-set>
                 </td>
              </ng-container>
 
              <ng-container matColumnDef="date">
-                <th mat-header-cell *matHeaderCellDef class="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] py-8 px-10 text-right">Timestamp</th>
-                <td mat-cell *matCellDef="let row" class="py-10 px-10 border-b border-white/[0.03] text-right">
-                   <span class="text-[10px] font-black text-white/40 uppercase tracking-widest italic">{{row.date}}</span>
+                <th mat-header-cell *matHeaderCellDef class="text-right">Timestamp</th>
+                <td mat-cell *matCellDef="let row" class="text-right">
+                   <span class="text-sm text-slate-600">{{row.date}}</span>
                 </td>
              </ng-container>
 
-             <tr mat-header-row *matHeaderRowDef="columns" class="bg-white/[0.02]"></tr>
-             <tr mat-row *matRowDef="let row; columns: columns;" class="group hover:bg-white/[0.02] transition-all cursor-pointer border-white/5"></tr>
+             <tr mat-header-row *matHeaderRowDef="columns"></tr>
+             <tr mat-row *matRowDef="let row; columns: columns;" class="hover:bg-slate-50 cursor-pointer"></tr>
           </table>
           
-          <div *ngIf="transactions().length === 0" class="py-48 text-center bg-white/[0.01]">
-             <mat-icon class="text-white/5 scale-[5] mb-14 animate-pulse">no_sim</mat-icon>
-             <p class="text-white/20 font-black uppercase tracking-[0.6em] text-[10px]">No ledger data in current cycle</p>
-          </div>
+          @if (transactions().length === 0) {
+            <div class="py-12 text-center text-slate-500">
+               <mat-icon class="scale-150 mb-4 text-slate-400">no_sim</mat-icon>
+               <p class="font-medium text-sm">No ledger data in current cycle</p>
+            </div>
+          }
         </div>
       </mat-card>
     </div>
   `,
   styles: [`
     :host { display: block; }
-    .glass { backdrop-filter: blur(40px); }
-    ::ng-deep .mat-mdc-table { background: transparent !important; }
   `]
 })
 export class FinanceManagementComponent {

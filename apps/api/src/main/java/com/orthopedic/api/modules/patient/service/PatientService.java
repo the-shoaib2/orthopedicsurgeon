@@ -10,10 +10,16 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.UUID;
 
+import java.util.UUID;
+
 public interface PatientService {
     PageResponse<PatientSummaryResponse> getAllPatients(PatientFilterRequest filters, Pageable pageable);
+
     PatientResponse getPatientById(UUID id);
-    PatientResponse getPatientByUserId(Long userId);
+
+    PatientResponse getPatientByUserId(UUID userId);
+
     PatientResponse createPatient(CreatePatientRequest request);
+
     PatientMedicalHistoryResponse getMedicalHistory(UUID id);
 }

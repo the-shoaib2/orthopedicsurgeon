@@ -1,6 +1,7 @@
-import { Component, signal, ViewChild, TemplateRef } from '@angular/core';
+import { Component, signal, ViewChild, TemplateRef, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ZrdTableComponent, ZrdBadgeComponent, ZrdButtonComponent, ZrdPageHeaderComponent } from '@repo/ui';
+import { PublicApiService } from '../../../core/services/public-api.service';
 
 @Component({
   selector: 'app-report-list',
@@ -12,11 +13,11 @@ import { ZrdTableComponent, ZrdBadgeComponent, ZrdButtonComponent, ZrdPageHeader
     <div class="space-y-6">
        <zrd-table [columns]="columns" [data]="reports()" [loading]="loading()">
           <ng-template #statusTemplate let-row>
-             <zrd-badge [variant]="row.status === 'FINAL' ? 'success' : 'warning'">{{ row.status }}</zrd-badge>
+             <zrd-badge [variant]="row.status === 'COMPLETED' ? 'success' : 'warning'">{{ row.status }}</zrd-badge>
           </ng-template>
 
           <ng-template #actionTemplate let-row>
-             <button zrdButton variant="outline" size="sm" [disabled]="row.status !== 'FINAL'">
+             <button zrdButton variant="outline" size="sm" [disabled]="row.status !== 'COMPLETED'">
                 <i class="pi pi-file-pdf mr-1"></i> View Report
              </button>
           </ng-template>
@@ -24,19 +25,15 @@ import { ZrdTableComponent, ZrdBadgeComponent, ZrdButtonComponent, ZrdPageHeader
     </div>
   `
 })
-export class ReportListComponent {
+export class ReportListComponent implements OnInit {
+  private apiService = inject(PublicApiService);
   loading = signal(false);
-  
-  reports = signal([
-    { id: '1', testName: 'Complete Blood Count (CBC)', category: 'Hematology', date: '2024-10-15', status: 'FINAL', doctor: 'Dr. Sarah Johnson' },
-    { id: '2', testName: 'MRI Knee - Left', category: 'Radiology', date: '2024-10-12', status: 'FINAL', doctor: 'Dr. Sarah Johnson' },
-    { id: '3', testName: 'Bone Density Test', category: 'Imaging', date: '2024-10-22', status: 'PENDING', doctor: 'Dr. Mike Ross' },
-  ]);
+  reports = signal<any[]>([]);
 
   columns: any[] = [
-    { key: 'date', header: 'Date', width: '120px' },
-    { key: 'testName', header: 'Test Name' },
-    { key: 'category', header: 'Category' },
+    { key: 'createdAt', header: 'Date', width: '120px' },
+    { key: 'reportName', header: 'Test Name' },
+    { key: 'doctorName', header: 'Doctor' },
     { key: 'status', header: 'Status', cellTemplate: null, width: '120px' },
     { key: 'actions', header: '', cellTemplate: null, width: '150px' }
   ];
@@ -47,5 +44,22 @@ export class ReportListComponent {
 
   @ViewChild('actionTemplate') set actionTemplate(v: TemplateRef<any>) {
     this.columns[4].cellTemplate = v;
+  }
+
+  ngOnInit() {
+    this.loadReports();
+  }
+
+  loadReports() {
+    this.loading.set(true);
+    this.apiService.getMyReports().subscribe({
+      next: (res) => {
+        this.reports.set(res.data.content);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loading.set(false);
+      }
+    });
   }
 }

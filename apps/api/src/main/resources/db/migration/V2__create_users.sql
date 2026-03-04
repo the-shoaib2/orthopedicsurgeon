@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS users (
-    id BIGSERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255),
     first_name VARCHAR(50) NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TABLE IF NOT EXISTS user_roles (
-    user_id BIGINT REFERENCES users(id),
-    role_id BIGINT REFERENCES roles(id),
+    user_id UUID REFERENCES users(id),
+    role_id UUID REFERENCES roles(id),
     PRIMARY KEY (user_id, role_id)
 );

@@ -1,13 +1,33 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { 
+  FormControl, 
+  FormGroupDirective, 
+  NgForm, 
+  Validators, 
+  FormsModule, 
+  ReactiveFormsModule, 
+  FormBuilder,
+  FormGroup 
+} from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ErrorStateMatcher } from '@angular/material/core';
 import { AuthService } from '@repo/auth';
+import { ToastService } from '../../../core/services/toast.service';
+
+/** Error when invalid control is dirty, touched, or submitted. */
+export class MyErrorStateMatcher implements ErrorStateMatcher {
+  isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
+    const isSubmitted = form && form.submitted;
+    return !!(control && control.invalid && (control.dirty || control.touched || isSubmitted));
+  }
+}
 
 @Component({
   selector: 'app-login',
@@ -16,100 +36,103 @@ import { AuthService } from '@repo/auth';
     CommonModule, 
     RouterModule, 
     ReactiveFormsModule, 
+    FormsModule,
     MatInputModule, 
     MatFormFieldModule, 
     MatButtonModule, 
-    MatCheckboxModule,
-    MatIconModule
+    MatIconModule,
+    MatCardModule,
+    MatProgressSpinnerModule
   ],
   template: `
-    <div class="animate-in fade-in slide-in-from-right duration-700">
-      <h2 class="text-2xl font-black text-secondary-900 mb-2 tracking-tighter">Login</h2>
-      <p class="text-sm text-secondary-500 mb-8 font-medium">Please enter your credentials to login.</p>
+    <div>
+      <div class="mb-10">
+         <h1 class="text-3xl font-bold tracking-tight text-slate-900 mb-2">Welcome Back</h1>
+         <p class="text-slate-500 font-medium">Sign in to your patient account</p>
+      </div>
 
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Email Address</mat-label>
-          <input matInput type="email" formControlName="email" placeholder="name@orthosync.med">
-        </mat-form-field>
+      <mat-card class="!shadow-none !border-none !bg-transparent !p-0">
+          <mat-card-content class="!p-0">
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-6">
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Email Address</mat-label>
+                <input matInput type="email" formControlName="email" [errorStateMatcher]="matcher" autocomplete="username">
+                <mat-error>
+                  @if (loginForm.get('email')?.hasError('required')) { Email is required }
+                  @else if (loginForm.get('email')?.hasError('email')) { Invalid email format }
+                </mat-error>
+              </mat-form-field>
 
-        <div class="space-y-2">
-          <mat-form-field appearance="outline" class="w-full">
-            <mat-label>Password</mat-label>
-            <input matInput type="password" formControlName="password" placeholder="••••••••">
-          </mat-form-field>
-          <div class="flex justify-end">
-            <a routerLink="/auth/forgot-password" class="text-[10px] font-bold text-primary hover:underline underline-offset-4 tracking-tight">Forgot your password?</a>
-          </div>
-        </div>
+              <div class="space-y-1">
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Password</mat-label>
+                  <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password" [errorStateMatcher]="matcher" autocomplete="current-password">
+                  <button mat-icon-button matSuffix (click)="hidePassword.set(!hidePassword())" type="button">
+                    <mat-icon>{{hidePassword() ? 'visibility_off' : 'visibility'}}</mat-icon>
+                  </button>
+                  @if (loginForm.get('password')?.hasError('required')) {
+                    <mat-error>Password is required</mat-error>
+                  }
+                </mat-form-field>
+                <div class="flex justify-end pr-1">
+                  <a routerLink="/auth/forgot-password" class="text-xs font-semibold text-primary-600 hover:text-primary-700 transition-colors">Forgot password?</a>
+                </div>
+              </div>
 
-        <mat-checkbox formControlName="rememberMe">
-          <span class="text-[10px] font-bold text-secondary-400 tracking-tight">Remember me for 30 days</span>
-        </mat-checkbox>
+              <button mat-flat-button color="primary" 
+                      [disabled]="loading() || loginForm.invalid"
+                      class="w-full h-12 rounded-xl text-base font-semibold transition-all mt-2">
+                @if (!loading()) {
+                  <span>Sign In</span>
+                } @else {
+                  <mat-spinner diameter="24" class="inline-block"></mat-spinner>
+                }
+              </button>
+            </form>
+          </mat-card-content>
+      </mat-card>
 
-        @if (error()) {
-          <div class="p-4 bg-red-50 border border-red-100 rounded-2xl text-[10px] font-bold text-red-600 tracking-tight animate-shake">
-             <mat-icon class="scale-75 align-middle mr-1">report_problem</mat-icon> {{ error() }}
-          </div>
-        }
-
-        <button mat-flat-button color="primary" class="h-12 rounded-xl text-base font-bold shadow-lg shadow-primary/20" 
-                type="submit" [disabled]="loading()">
-          @if (!loading()) {
-            <span>Sign In</span>
-          } @else {
-            <span>Validating...</span>
-          }
-        </button>
-      </form>
-
-      <div class="mt-8 text-center">
-        <p class="text-[10px] font-bold text-secondary-400 tracking-tight mb-4">Don't have an account?</p>
-        <button mat-stroked-button color="primary" routerLink="/auth/register" class="h-10 px-8 rounded-lg font-bold border-2 w-full">
-          Create Account
+      <div class="mt-12 text-center bg-slate-50 p-8 rounded-3xl border border-slate-100">
+        <p class="text-sm font-medium text-slate-500 mb-4 tracking-tight">Don't have an account yet?</p>
+        <button mat-stroked-button color="primary" routerLink="/auth/register" class="w-full h-12 rounded-xl font-bold border-2 hover:bg-white transition-colors">
+          Create Patient Profile
         </button>
       </div>
     </div>
   `,
   styles: [`
     :host { display: block; }
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-5px); }
-      75% { transform: translateX(5px); }
-    }
-    .animate-shake { animation: shake 0.2s ease-in-out 0s 2; }
-    mat-form-field { width: 100%; }
   `]
 })
 export class LoginComponent {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
+  private toast = inject(ToastService);
 
   loginForm: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', Validators.required],
-    rememberMe: [false]
+    password: ['', Validators.required]
   });
 
   loading = signal(false);
-  error = signal<string | null>(null);
+  hidePassword = signal(true);
+  matcher = new MyErrorStateMatcher();
 
   onSubmit() {
     if (this.loginForm.invalid) return;
 
     this.loading.set(true);
-    this.error.set(null);
 
     this.auth.login(this.loginForm.value).subscribe({
       next: () => {
         this.loading.set(false);
+        this.toast.success('Welcome back! Syncing your data...');
         this.router.navigate(['/portal/dashboard']);
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(err.error?.message || 'Access Denied: Invalid Credentials');
+        this.toast.error(err.error?.message || 'Invalid email or password.');
       }
     });
   }

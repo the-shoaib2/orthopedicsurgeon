@@ -7,8 +7,9 @@ import lombok.Builder;
 
 @Builder
 public record CreateFaqRequest(
-        @NotBlank @Size(max = 500) String question,
-        @NotBlank @Size(max = 2000) String answer,
-        @NotBlank String category,
-        @Min(0) int displayOrder) {
+                @NotBlank @Size(max = 500) String question,
+                @NotBlank @Size(max = 2000) String answer,
+                @NotBlank String category,
+                @Min(0) int displayOrder,
+                boolean isActive) {
 }

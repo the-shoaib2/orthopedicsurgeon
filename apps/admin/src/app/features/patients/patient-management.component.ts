@@ -22,36 +22,34 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatTooltipModule
   ],
   template: `
-    <div class="space-y-6 animate-fade-in pb-12">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6">
+    <div class="space-y-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4">
         <div class="flex items-center gap-4">
-          <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center border border-blue-200 dark:border-blue-800">
-            <mat-icon class="text-blue-600 dark:text-blue-400">personal_injury</mat-icon>
-          </div>
+          <mat-icon color="primary" class="scale-150 ml-2">personal_injury</mat-icon>
           <div>
-            <h1 class="text-2xl font-bold text-white">{{ 'PATIENTS.TITLE' | translate }}</h1>
-            <p class="text-white/40 text-xs">{{ 'PATIENTS.SUBTITLE' | translate }}</p>
+            <h1 class="text-2xl font-medium m-0">{{ 'PATIENTS.TITLE' | translate }}</h1>
+            <p class="text-sm text-slate-500 m-0">{{ 'PATIENTS.SUBTITLE' | translate }}</p>
           </div>
         </div>
-        <button mat-flat-button color="primary" class="h-12 px-6 font-bold uppercase tracking-tight">
+        <button mat-flat-button color="primary">
            {{ 'PATIENTS.REGISTER_BUTTON' | translate }}
         </button>
       </div>
 
-      <mat-card class="border rounded-xl overflow-hidden animate-slide-up shadow-lg">
+      <mat-card>
         <div class="overflow-x-auto">
           <table mat-table [dataSource]="patients()" class="w-full">
              <!-- Name Column -->
              <ng-container matColumnDef="name">
-                <th mat-header-cell *matHeaderCellDef class="px-6">{{ 'PATIENTS.COLUMNS.NAME' | translate }}</th>
-                <td mat-cell *matCellDef="let row" class="px-6 py-4">
-                  <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 rounded-full bg-primary-900 flex items-center justify-center border border-white/5 font-bold text-primary-400">
+                <th mat-header-cell *matHeaderCellDef>{{ 'PATIENTS.COLUMNS.NAME' | translate }}</th>
+                <td mat-cell *matCellDef="let row">
+                  <div class="flex items-center gap-4 py-2">
+                    <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-sm font-medium">
                       {{row.name.charAt(0)}}
                     </div>
                     <div class="flex flex-col">
-                      <span class="text-sm font-bold text-white">{{row.name}}</span>
-                      <span class="text-[10px] text-white/20 uppercase tracking-wider">UID: PT-{{row.age}}{{row.name.length}}X</span>
+                      <span class="font-medium">{{row.name}}</span>
+                      <span class="text-xs text-slate-500">UID: PT-{{row.age}}{{row.name.length}}X</span>
                     </div>
                   </div>
                 </td>
@@ -60,10 +58,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
              <!-- Biometrics Column -->
              <ng-container matColumnDef="biometrics">
                 <th mat-header-cell *matHeaderCellDef>{{ 'PATIENTS.COLUMNS.BIOMETRICS' | translate }}</th>
-                <td mat-cell *matCellDef="let row" class="py-4">
+                <td mat-cell *matCellDef="let row">
                   <div class="flex items-center gap-2">
-                    <span class="text-[10px] font-bold text-white/40 bg-white/5 px-3 py-1 rounded-md border border-white/10 uppercase tracking-widest">{{row.gender}}</span>
-                    <span class="text-[10px] font-bold text-primary-400 bg-primary-500/10 px-3 py-1 rounded-md border border-primary-500/20 uppercase tracking-widest">{{row.age}}Y</span>
+                    <mat-chip-set>
+                      <mat-chip>{{row.gender}}</mat-chip>
+                      <mat-chip color="primary">{{row.age}}Y</mat-chip>
+                    </mat-chip-set>
                   </div>
                 </td>
              </ng-container>
@@ -71,45 +71,46 @@ import { MatTooltipModule } from '@angular/material/tooltip';
              <!-- Last Visit Column -->
              <ng-container matColumnDef="lastVisit">
                 <th mat-header-cell *matHeaderCellDef>{{ 'PATIENTS.COLUMNS.LAST_VISIT' | translate }}</th>
-                <td mat-cell *matCellDef="let row" class="py-4 text-xs text-white/60">
-                  {{row.lastVisit}}
+                <td mat-cell *matCellDef="let row">
+                  <span class="text-sm">{{row.lastVisit}}</span>
                 </td>
              </ng-container>
 
              <!-- Status Column -->
              <ng-container matColumnDef="status">
                 <th mat-header-cell *matHeaderCellDef>{{ 'PATIENTS.COLUMNS.STATUS' | translate }}</th>
-                <td mat-cell *matCellDef="let row" class="py-4">
-                   <span [class]="row.status === 'ACTIVE' ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-white/5 text-white/30 border-white/10'" 
-                         class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border">
-                    {{row.status}}
-                  </span>
+                <td mat-cell *matCellDef="let row">
+                   <mat-chip-set>
+                     <mat-chip [color]="row.status === 'ACTIVE' ? 'primary' : 'accent'">
+                      {{row.status}}
+                     </mat-chip>
+                   </mat-chip-set>
                 </td>
              </ng-container>
 
              <!-- Actions Column -->
              <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef class="px-6 text-right">{{ 'PATIENTS.COLUMNS.ACTIONS' | translate }}</th>
-                <td mat-cell *matCellDef="let row" class="px-6 py-4 text-right">
+                <th mat-header-cell *matHeaderCellDef class="text-right">{{ 'PATIENTS.COLUMNS.ACTIONS' | translate }}</th>
+                <td mat-cell *matCellDef="let row" class="text-right">
                    <div class="flex justify-end gap-1">
-                      <button mat-icon-button [matTooltip]="'Records'" class="text-white/40 hover:text-primary-400 transition-all">
-                        <mat-icon class="scale-90">history_edu</mat-icon>
+                      <button mat-icon-button [matTooltip]="'Records'" color="primary">
+                        <mat-icon>history_edu</mat-icon>
                       </button>
-                      <button mat-icon-button [matTooltip]="'Edit'" class="text-white/40 hover:text-primary-400 transition-all">
-                        <mat-icon class="scale-90">edit</mat-icon>
+                      <button mat-icon-button [matTooltip]="'Edit'" color="accent">
+                        <mat-icon>edit</mat-icon>
                       </button>
                    </div>
                 </td>
              </ng-container>
 
-             <tr mat-header-row *matHeaderRowDef="columns" class="bg-white/5"></tr>
-             <tr mat-row *matRowDef="let row; columns: columns;" class="hover:bg-white/[0.02] transition-colors cursor-pointer"></tr>
+             <tr mat-header-row *matHeaderRowDef="columns" ></tr>
+             <tr mat-row *matRowDef="let row; columns: columns;" class="hover:bg-slate-50 cursor-pointer"></tr>
           </table>
           
           @if (patients().length === 0) {
-            <div class="py-24 text-center">
-               <mat-icon class="text-white/5 scale-[3] mb-8">person_off</mat-icon>
-               <p class="text-white/20 font-bold uppercase tracking-widest text-xs">No patients found</p>
+            <div class="py-12 text-center text-slate-500">
+               <mat-icon class="scale-150 mb-4 text-slate-400">person_off</mat-icon>
+               <p class="font-medium text-sm">No patients found</p>
             </div>
           }
         </div>
@@ -118,7 +119,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   `,
   styles: [`
     :host { display: block; }
-    ::ng-deep .mat-mdc-table { background: transparent !important; }
   `]
 })
 export class PatientManagementComponent {

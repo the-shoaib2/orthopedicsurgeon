@@ -17,8 +17,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class PasswordResetToken {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private java.util.UUID id;
 
     @Column(nullable = false, unique = true)
     private String token;

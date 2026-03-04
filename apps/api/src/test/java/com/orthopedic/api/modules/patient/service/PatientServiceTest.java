@@ -24,9 +24,12 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class PatientServiceTest {
 
-    @Mock private PatientRepository patientRepository;
-    @Mock private UserRepository userRepository;
-    @Mock private PatientMapper patientMapper;
+    @Mock
+    private PatientRepository patientRepository;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private PatientMapper patientMapper;
 
     @InjectMocks
     private PatientServiceImpl patientService;
@@ -39,7 +42,7 @@ class PatientServiceTest {
     void setUp() {
         patientId = UUID.randomUUID();
         user = new User();
-        user.setId(1L);
+        user.setId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
 
         patient = new Patient();
         patient.setId(patientId);
@@ -59,10 +62,10 @@ class PatientServiceTest {
 
     @Test
     void getPatientByUserId_Success() {
-        when(patientRepository.findByUserId(1L)).thenReturn(Optional.of(patient));
+        when(patientRepository.findByUserId(user.getId())).thenReturn(Optional.of(patient));
         when(patientMapper.toResponse(patient)).thenReturn(new PatientResponse());
 
-        PatientResponse response = patientService.getPatientByUserId(1L);
+        PatientResponse response = patientService.getPatientByUserId(user.getId());
 
         assertNotNull(response);
     }
@@ -70,9 +73,9 @@ class PatientServiceTest {
     @Test
     void createPatient_Success() {
         CreatePatientRequest request = new CreatePatientRequest();
-        request.setUserId(1L);
+        request.setUserId(user.getId());
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(patientMapper.toEntity(any())).thenReturn(patient);
         when(patientRepository.save(any())).thenReturn(patient);
         when(patientMapper.toResponse(any())).thenReturn(new PatientResponse());

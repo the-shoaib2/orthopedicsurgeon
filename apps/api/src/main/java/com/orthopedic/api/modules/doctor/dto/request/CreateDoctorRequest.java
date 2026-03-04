@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public class CreateDoctorRequest {
     @NotNull(message = "User ID is required")
-    private Long userId;
+    private UUID userId;
 
     @NotNull(message = "Hospital ID is required")
     private UUID hospitalId;
@@ -34,11 +34,11 @@ public class CreateDoctorRequest {
 
     private List<AvailabilityRequest> availabilities;
 
-    public Long getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(UUID userId) {
         this.userId = userId;
     }
 

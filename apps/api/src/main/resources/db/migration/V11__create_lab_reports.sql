@@ -12,7 +12,7 @@ CREATE TABLE lab_reports (
     patient_id UUID NOT NULL REFERENCES patients(id),
     doctor_id UUID REFERENCES doctors(id),
     appointment_id UUID REFERENCES appointments(id),
-    lab_tech_id BIGINT REFERENCES users(id),
+    lab_tech_id UUID REFERENCES users(id),
     report_type report_type NOT NULL,
     report_name VARCHAR(100) NOT NULL,
     file_url TEXT,

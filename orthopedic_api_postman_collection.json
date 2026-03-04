@@ -1,573 +1,2430 @@
 {
     "info": {
-        "_postman_id": "8c59f77f-5d66-4e5a-a3a1-1c2c3d4e5f6g",
         "name": "Orthopedic Surgeon API",
-        "description": "Comprehensive API collection for the Orthopedic Surgeon Platform.",
-        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+        "description": "Complete API collection for the Orthopedic Surgeon Platform. Base URL: http://localhost:8080",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_postman_id": "orthopedic-api-v2"
     },
-    "item": [
-        {
-            "name": "Admin",
-            "item": [
-                {
-                    "name": "Patients",
-                    "item": [
-                        {
-                            "name": "List Patients",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Authorization",
-                                        "value": "Bearer {{accessToken}}"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{baseUrl}}/api/v1/admin/patients?page=0&size=10&direction=DESC",
-                                    "host": [
-                                        "{{baseUrl}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "v1",
-                                        "admin",
-                                        "patients"
-                                    ],
-                                    "query": [
-                                        {
-                                            "key": "page",
-                                            "value": "0"
-                                        },
-                                        {
-                                            "key": "size",
-                                            "value": "10"
-                                        },
-                                        {
-                                            "key": "direction",
-                                            "value": "DESC"
-                                        }
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            "name": "Get Patient by ID",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Authorization",
-                                        "value": "Bearer {{accessToken}}"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{baseUrl}}/api/v1/admin/patients/:id",
-                                    "host": [
-                                        "{{baseUrl}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "v1",
-                                        "admin",
-                                        "patients",
-                                        ":id"
-                                    ],
-                                    "variable": [
-                                        {
-                                            "key": "id",
-                                            "value": ""
-                                        }
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            "name": "Create Patient",
-                            "request": {
-                                "method": "POST",
-                                "header": [
-                                    {
-                                        "key": "Authorization",
-                                        "value": "Bearer {{accessToken}}"
-                                    }
-                                ],
-                                "body": {
-                                    "mode": "raw",
-                                    "raw": "{\n  \"firstName\": \"Jane\",\n  \"lastName\": \"Smith\",\n  \"email\": \"jane.smith@example.com\",\n  \"phone\": \"+1987654321\",\n  \"dateOfBirth\": \"1990-01-01\",\n  \"gender\": \"FEMALE\"\n}",
-                                    "options": {
-                                        "raw": {
-                                            "language": "json"
-                                        }
-                                    }
-                                },
-                                "url": {
-                                    "raw": "{{baseUrl}}/api/v1/admin/patients",
-                                    "host": [
-                                        "{{baseUrl}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "v1",
-                                        "admin",
-                                        "patients"
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            "name": "Get Medical History",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Authorization",
-                                        "value": "Bearer {{accessToken}}"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{baseUrl}}/api/v1/admin/patients/:id/history",
-                                    "host": [
-                                        "{{baseUrl}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "v1",
-                                        "admin",
-                                        "patients",
-                                        ":id",
-                                        "history"
-                                    ],
-                                    "variable": [
-                                        {
-                                            "key": "id",
-                                            "value": ""
-                                        }
-                                    ]
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "name": "Doctors",
-                    "item": [
-                        {
-                            "name": "List Doctors",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Authorization",
-                                        "value": "Bearer {{accessToken}}"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{baseUrl}}/api/v1/admin/doctors?page=0&size=10",
-                                    "host": [
-                                        "{{baseUrl}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "v1",
-                                        "admin",
-                                        "doctors"
-                                    ],
-                                    "query": [
-                                        {
-                                            "key": "page",
-                                            "value": "0"
-                                        },
-                                        {
-                                            "key": "size",
-                                            "value": "10"
-                                        }
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            "name": "Get Doctor by ID",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Authorization",
-                                        "value": "Bearer {{accessToken}}"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{baseUrl}}/api/v1/admin/doctors/:id",
-                                    "host": [
-                                        "{{baseUrl}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "v1",
-                                        "admin",
-                                        "doctors",
-                                        ":id"
-                                    ],
-                                    "variable": [
-                                        {
-                                            "key": "id",
-                                            "value": ""
-                                        }
-                                    ]
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "name": "Appointments",
-                    "item": [
-                        {
-                            "name": "List Appointments",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Authorization",
-                                        "value": "Bearer {{accessToken}}"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{baseUrl}}/api/v1/admin/appointments?page=0&size=10",
-                                    "host": [
-                                        "{{baseUrl}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "v1",
-                                        "admin",
-                                        "appointments"
-                                    ],
-                                    "query": [
-                                        {
-                                            "key": "page",
-                                            "value": "0"
-                                        },
-                                        {
-                                            "key": "size",
-                                            "value": "10"
-                                        }
-                                    ]
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "name": "Audit Logs",
-                    "item": [
-                        {
-                            "name": "All Logs",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Authorization",
-                                        "value": "Bearer {{accessToken}}"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{baseUrl}}/api/v1/audit?page=0&size=10",
-                                    "host": [
-                                        "{{baseUrl}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "v1",
-                                        "audit"
-                                    ],
-                                    "query": [
-                                        {
-                                            "key": "page",
-                                            "value": "0"
-                                        },
-                                        {
-                                            "key": "size",
-                                            "value": "10"
-                                        }
-                                    ]
-                                }
-                            }
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "name": "Public",
-            "item": [
-                {
-                    "name": "Authentication",
-                    "item": [
-                        {
-                            "name": "Login",
-                            "request": {
-                                "method": "POST",
-                                "header": [],
-                                "body": {
-                                    "mode": "raw",
-                                    "raw": "{\n  \"email\": \"admin@orthosync.com\",\n  \"password\": \"password\"\n}",
-                                    "options": {
-                                        "raw": {
-                                            "language": "json"
-                                        }
-                                    }
-                                },
-                                "url": {
-                                    "raw": "{{baseUrl}}/api/v1/auth/login",
-                                    "host": [
-                                        "{{baseUrl}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "v1",
-                                        "auth",
-                                        "login"
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            "name": "Register",
-                            "request": {
-                                "method": "POST",
-                                "header": [],
-                                "body": {
-                                    "mode": "raw",
-                                    "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\",\n  \"phone\": \"+1234567890\"\n}",
-                                    "options": {
-                                        "raw": {
-                                            "language": "json"
-                                        }
-                                    }
-                                },
-                                "url": {
-                                    "raw": "{{baseUrl}}/api/v1/auth/register",
-                                    "host": [
-                                        "{{baseUrl}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "v1",
-                                        "auth",
-                                        "register"
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            "name": "Verify 2FA",
-                            "request": {
-                                "method": "POST",
-                                "header": [],
-                                "body": {
-                                    "mode": "raw",
-                                    "raw": "{\n  \"email\": \"admin@orthosync.com\",\n  \"code\": \"123456\"\n}",
-                                    "options": {
-                                        "raw": {
-                                            "language": "json"
-                                        }
-                                    }
-                                },
-                                "url": {
-                                    "raw": "{{baseUrl}}/api/v1/auth/verify-2fa",
-                                    "host": [
-                                        "{{baseUrl}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "v1",
-                                        "auth",
-                                        "verify-2fa"
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            "name": "Refresh Token",
-                            "request": {
-                                "method": "POST",
-                                "header": [],
-                                "url": {
-                                    "raw": "{{baseUrl}}/api/v1/auth/refresh",
-                                    "host": [
-                                        "{{baseUrl}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "v1",
-                                        "auth",
-                                        "refresh"
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            "name": "Logout",
-                            "request": {
-                                "method": "POST",
-                                "header": [
-                                    {
-                                        "key": "Authorization",
-                                        "value": "Bearer {{accessToken}}"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{baseUrl}}/api/v1/auth/logout",
-                                    "host": [
-                                        "{{baseUrl}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "v1",
-                                        "auth",
-                                        "logout"
-                                    ]
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "name": "Hospitals",
-                    "item": [
-                        {
-                            "name": "List Hospitals",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Authorization",
-                                        "value": "Bearer {{accessToken}}"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{baseUrl}}/api/v1/hospitals?page=0&size=10",
-                                    "host": [
-                                        "{{baseUrl}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "v1",
-                                        "hospitals"
-                                    ],
-                                    "query": [
-                                        {
-                                            "key": "page",
-                                            "value": "0"
-                                        },
-                                        {
-                                            "key": "size",
-                                            "value": "10"
-                                        }
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            "name": "Get Hospital Services",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Authorization",
-                                        "value": "Bearer {{accessToken}}"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{baseUrl}}/api/v1/hospitals/:id/services",
-                                    "host": [
-                                        "{{baseUrl}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "v1",
-                                        "hospitals",
-                                        ":id",
-                                        "services"
-                                    ],
-                                    "variable": [
-                                        {
-                                            "key": "id",
-                                            "value": ""
-                                        }
-                                    ]
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "name": "Patient Site",
-                    "item": [
-                        {
-                            "name": "Get Profile",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Authorization",
-                                        "value": "Bearer {{accessToken}}"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{baseUrl}}/api/v1/patient/profile",
-                                    "host": [
-                                        "{{baseUrl}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "v1",
-                                        "patient",
-                                        "profile"
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            "name": "Get Medical History",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Authorization",
-                                        "value": "Bearer {{accessToken}}"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{baseUrl}}/api/v1/patient/profile/history",
-                                    "host": [
-                                        "{{baseUrl}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "v1",
-                                        "patient",
-                                        "profile",
-                                        "history"
-                                    ]
-                                }
-                            }
-                        }
-                    ]
-                }
-            ]
-        }
-    ],
     "variable": [
         {
-            "key": "baseUrl",
-            "value": "http://localhost:8080",
-            "type": "string"
+            "key": "base_url",
+            "value": "http://localhost:8080/api/v1"
         },
         {
-            "key": "accessToken",
-            "value": "YOUR_JWT_HERE",
-            "type": "string"
+            "key": "access_token",
+            "value": ""
+        },
+        {
+            "key": "refresh_token",
+            "value": ""
+        }
+    ],
+    "item": [
+        {
+            "name": "🔐 Auth",
+            "item": [
+                {
+                    "name": "Register",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{base_url}}/auth/register",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\",\n  \"phone\": \"+1234567890\",\n  \"role\": \"ROLE_PATIENT\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Login",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var json = pm.response.json();",
+                                    "if (json.accessToken) {",
+                                    "  pm.collectionVariables.set('access_token', json.accessToken);",
+                                    "  pm.collectionVariables.set('refresh_token', json.refreshToken);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{base_url}}/auth/login",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Google Login",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{base_url}}/auth/login/google",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"idToken\": \"your-google-id-token\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Refresh Token",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var json = pm.response.json();",
+                                    "if (json.accessToken) {",
+                                    "  pm.collectionVariables.set('access_token', json.accessToken);",
+                                    "  pm.collectionVariables.set('refresh_token', json.refreshToken);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{base_url}}/auth/refresh",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Logout",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/auth/logout",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Forgot Password",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{base_url}}/auth/forgot-password",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"john.doe@example.com\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Reset Password",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{base_url}}/auth/reset-password",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"token\": \"reset-token-here\",\n  \"newPassword\": \"newpassword123\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Verify 2FA",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{base_url}}/auth/verify-2fa",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"tempToken\": \"your-temp-token\",\n  \"totpCode\": \"123456\"\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🔐 Two-Factor Authentication",
+            "item": [
+                {
+                    "name": "Setup 2FA",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/auth/2fa/setup"
+                    }
+                },
+                {
+                    "name": "Confirm 2FA Setup",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/auth/2fa/confirm-setup",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"totpCode\": \"123456\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Verify 2FA TOTP",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/auth/2fa/verify",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"totpCode\": \"123456\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Disable 2FA",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/auth/2fa/disable",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"totpCode\": \"123456\"\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🏥 Admin - Doctors",
+            "item": [
+                {
+                    "name": "List All Doctors",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/admin/doctors?page=0&size=20",
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "20"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Doctor by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/doctors/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "doctor-uuid"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Create Doctor",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/doctors",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"firstName\": \"Dr. Sarah\",\n  \"lastName\": \"Smith\",\n  \"email\": \"dr.sarah@hospital.com\",\n  \"password\": \"password123\",\n  \"phone\": \"+1234567890\",\n  \"specialization\": \"Orthopedic Surgery\",\n  \"licenseNumber\": \"LIC-12345\",\n  \"bio\": \"Experienced orthopedic surgeon\",\n  \"experienceYears\": 10,\n  \"consultationFee\": 2000.00,\n  \"hospitalId\": \"hospital-uuid\",\n  \"availableForOnline\": true\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Update Doctor",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/doctors/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "doctor-uuid"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"specialization\": \"Orthopedic Surgery\",\n  \"consultationFee\": 2500.00,\n  \"experienceYears\": 11\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Doctor",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/doctors/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "doctor-uuid"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🏥 Admin - Hospitals",
+            "item": [
+                {
+                    "name": "List All Hospitals",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/admin/hospitals?page=0&size=20",
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "20"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Hospital by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/hospitals/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "hospital-uuid"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Create Hospital",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/hospitals",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"City General Hospital\",\n  \"address\": \"123 Medical Street\",\n  \"city\": \"Dhaka\",\n  \"phone\": \"+88001234567\",\n  \"email\": \"info@citygeneral.com\",\n  \"website\": \"https://citygeneral.com\",\n  \"description\": \"Leading orthopedic hospital\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Update Hospital",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/hospitals/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "hospital-uuid"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Updated Hospital Name\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Hospital",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/hospitals/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "hospital-uuid"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "List Hospital Services",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/hospitals/:id/services",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "hospital-uuid"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Add Hospital Service",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/hospitals/:id/services",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "hospital-uuid"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Knee Replacement\",\n  \"description\": \"Total knee replacement surgery\",\n  \"durationMinutes\": 120,\n  \"price\": 50000.00\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Update Hospital Service",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/hospitals/:id/services/:serviceId",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "hospital-uuid"
+                            },
+                            {
+                                "key": "serviceId",
+                                "value": "service-uuid"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"price\": 55000.00\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Hospital Service",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/hospitals/:id/services/:serviceId",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "hospital-uuid"
+                            },
+                            {
+                                "key": "serviceId",
+                                "value": "service-uuid"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "📅 Admin - Appointments",
+            "item": [
+                {
+                    "name": "List All Appointments",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/admin/appointments?page=0&size=20",
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "20"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Appointment by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/appointments/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "appointment-uuid"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Cancel Appointment (Admin)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/appointments/:id/cancel",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "appointment-uuid"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"reason\": \"Doctor unavailable\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Appointment Stats",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/appointments/stats"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "👥 Admin - Patients",
+            "item": [
+                {
+                    "name": "List All Patients",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/admin/patients?page=0&size=20",
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "20"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Patient by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/patients/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "patient-uuid"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Update Patient Status",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/patients/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "patient-uuid"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"status\": \"ACTIVE\"\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🧪 Admin - Lab Reports",
+            "item": [
+                {
+                    "name": "List All Lab Reports",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/admin/lab-reports?page=0&size=20",
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "20"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Lab Report by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/lab-reports/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "lab-report-uuid"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "📝 Admin - Blog",
+            "item": [
+                {
+                    "name": "List Blog Posts (Admin)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/admin/blog/posts?page=0&size=20",
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "20"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Blog Post by ID (Admin)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/blog/posts/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "post-uuid"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Create Blog Post",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/blog/posts",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"Understanding Knee Pain\",\n  \"slug\": \"understanding-knee-pain\",\n  \"content\": \"<p>Article content here...</p>\",\n  \"excerpt\": \"A brief overview of knee pain causes\",\n  \"categoryId\": \"category-uuid\",\n  \"tags\": [\"knee\", \"pain\", \"orthopedic\"],\n  \"status\": \"PUBLISHED\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Update Blog Post",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/blog/posts/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "post-uuid"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"Updated Title\",\n  \"status\": \"DRAFT\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Blog Post",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/blog/posts/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "post-uuid"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🌐 Admin - Website Content",
+            "item": [
+                {
+                    "name": "List FAQs (Admin)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/website/faq"
+                    }
+                },
+                {
+                    "name": "Create FAQ",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/website/faq",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"question\": \"What is the recovery time after knee surgery?\",\n  \"answer\": \"Recovery typically takes 3-6 months.\",\n  \"isActive\": true,\n  \"displayOrder\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Update FAQ",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/website/faq/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "faq-uuid"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"answer\": \"Updated answer.\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete FAQ",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/website/faq/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "faq-uuid"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "List Hero Slides (Admin)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/website/hero"
+                    }
+                },
+                {
+                    "name": "Create Hero Slide",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/website/hero",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"Expert Orthopedic Care\",\n  \"subtitle\": \"World-class treatment for joints and bones\",\n  \"imageUrl\": \"https://example.com/hero.jpg\",\n  \"ctaText\": \"Book Appointment\",\n  \"ctaUrl\": \"/appointments/book\",\n  \"displayOrder\": 1,\n  \"active\": true\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Update Hero Slide",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/website/hero/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "hero-uuid"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"Updated Title\",\n  \"active\": false\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Hero Slide",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/website/hero/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "hero-uuid"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "List Partners (Admin)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/website/partner"
+                    }
+                },
+                {
+                    "name": "Create Partner",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/website/partner",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Health Insurance Co.\",\n  \"logoUrl\": \"https://example.com/logo.png\",\n  \"website\": \"https://insurance.com\",\n  \"active\": true\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Update Partner",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/website/partner/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "partner-uuid"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"active\": false\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Partner",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/admin/website/partner/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "partner-uuid"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "👨‍⚕️ Doctor - Profile",
+            "item": [
+                {
+                    "name": "Get My Profile",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/doctor/profile"
+                    }
+                },
+                {
+                    "name": "Update My Profile",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/doctor/profile",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"bio\": \"Updated bio text\",\n  \"consultationFee\": 2500.00,\n  \"availableForOnline\": true\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Get Working Hours",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/doctor/profile/working-hours"
+                    }
+                },
+                {
+                    "name": "Update Working Hours",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/doctor/profile/working-hours",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "[\n  { \"dayOfWeek\": \"MONDAY\", \"startTime\": \"09:00\", \"endTime\": \"17:00\", \"available\": true },\n  { \"dayOfWeek\": \"TUESDAY\", \"startTime\": \"09:00\", \"endTime\": \"17:00\", \"available\": true },\n  { \"dayOfWeek\": \"WEDNESDAY\", \"startTime\": \"09:00\", \"endTime\": \"17:00\", \"available\": true },\n  { \"dayOfWeek\": \"THURSDAY\", \"startTime\": \"09:00\", \"endTime\": \"17:00\", \"available\": true },\n  { \"dayOfWeek\": \"FRIDAY\", \"startTime\": \"09:00\", \"endTime\": \"13:00\", \"available\": true },\n  { \"dayOfWeek\": \"SATURDAY\", \"available\": false },\n  { \"dayOfWeek\": \"SUNDAY\", \"available\": false }\n]"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "📅 Doctor - Appointments",
+            "item": [
+                {
+                    "name": "My Appointments",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/doctor/appointments?page=0&size=20",
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "20"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Appointment Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/doctor/appointments/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "appointment-uuid"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Confirm Appointment",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/doctor/appointments/:id/confirm",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "appointment-uuid"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Start Appointment",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/doctor/appointments/:id/start",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "appointment-uuid"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Complete Appointment",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/doctor/appointments/:id/complete",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "appointment-uuid"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"notes\": \"Patient responded well to treatment\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Cancel Appointment (Doctor)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/doctor/appointments/:id/cancel",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "appointment-uuid"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"reason\": \"Doctor unavailable due to emergency\"\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "💊 Doctor - Prescriptions",
+            "item": [
+                {
+                    "name": "List My Prescriptions",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/doctor/prescriptions?page=0&size=20",
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "20"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Prescription",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/doctor/prescriptions/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "prescription-uuid"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Create Prescription",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/doctor/prescriptions",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"appointmentId\": \"appointment-uuid\",\n  \"patientId\": \"patient-uuid\",\n  \"diagnosis\": \"Knee Osteoarthritis\",\n  \"notes\": \"Patient to rest and apply ice\",\n  \"medications\": [\n    {\n      \"name\": \"Ibuprofen\",\n      \"dosage\": \"400mg\",\n      \"frequency\": \"Twice daily\",\n      \"duration\": \"7 days\",\n      \"instructions\": \"Take after meals\"\n    }\n  ]\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Update Prescription",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/doctor/prescriptions/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "prescription-uuid"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"notes\": \"Updated notes\"\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🧪 Doctor - Lab Reports",
+            "item": [
+                {
+                    "name": "List Patient Lab Reports (Doctor View)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/doctor/lab-reports?page=0&size=20",
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "20"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Lab Report (Doctor)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/doctor/lab-reports/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "lab-report-uuid"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Add Lab Report Result (Doctor)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/doctor/lab-reports/:id/result",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "lab-report-uuid"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"resultText\": \"Normal range\",\n  \"reportUrl\": \"https://storage.example.com/reports/lab123.pdf\"\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "👤 Patient - Profile",
+            "item": [
+                {
+                    "name": "Get My Profile",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/patient/profile"
+                    }
+                },
+                {
+                    "name": "Create Patient Profile",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/patient/profile",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"bloodGroup\": \"B_POSITIVE\",\n  \"dateOfBirth\": \"1990-01-15\",\n  \"gender\": \"MALE\",\n  \"address\": \"456 Patient Lane\",\n  \"city\": \"Dhaka\",\n  \"emergencyContactName\": \"Jane Doe\",\n  \"emergencyContactPhone\": \"+8801234567890\",\n  \"insuranceProvider\": \"Health Shield\",\n  \"insuranceNumber\": \"INS-9876543\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Update My Profile",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/patient/profile",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"city\": \"Chittagong\",\n  \"address\": \"New Address\"\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "📅 Patient - Appointments",
+            "item": [
+                {
+                    "name": "My Appointments",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/patient/appointments?page=0&size=20",
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "20"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Book Appointment",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/patient/appointments",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"doctorId\": \"doctor-uuid\",\n  \"serviceId\": \"service-uuid\",\n  \"hospitalId\": \"hospital-uuid\",\n  \"appointmentDate\": \"2026-03-10\",\n  \"startTime\": \"10:00\",\n  \"type\": \"IN_PERSON\",\n  \"chiefComplaint\": \"Knee pain for 3 weeks\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Get Appointment Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/patient/appointments/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "appointment-uuid"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Cancel Appointment (Patient)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/patient/appointments/:id/cancel",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "appointment-uuid"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"reason\": \"Personal reasons\"\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "💊 Patient - Prescriptions",
+            "item": [
+                {
+                    "name": "My Prescriptions",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/patient/prescriptions?page=0&size=20",
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "20"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Prescription",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/patient/prescriptions/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "prescription-uuid"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🧪 Patient - Lab Reports",
+            "item": [
+                {
+                    "name": "My Lab Reports",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/patient/lab-reports?page=0&size=20",
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "20"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Lab Report",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/patient/lab-reports/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "lab-report-uuid"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "❤️ Patient - Health Records",
+            "item": [
+                {
+                    "name": "Get Vitals",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/patient/health/vitals"
+                    }
+                },
+                {
+                    "name": "Get Medical History",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/patient/health/history"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🔍 Patient - Find Doctors",
+            "item": [
+                {
+                    "name": "Search Doctors",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/patient/doctors?page=0&size=20",
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "20"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Doctor Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/patient/doctors/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "doctor-uuid"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Get Doctor Available Slots",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/patient/doctors/:id/slots?date=2026-03-10",
+                            "query": [
+                                {
+                                    "key": "date",
+                                    "value": "2026-03-10"
+                                }
+                            ]
+                        },
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "doctor-uuid"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Get Doctor Reviews",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/patient/doctors/:id/reviews",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "doctor-uuid"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Submit Doctor Review (Patient)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/patient/reviews",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"doctorId\": \"doctor-uuid\",\n  \"appointmentId\": \"appointment-uuid\",\n  \"rating\": 5,\n  \"comment\": \"Excellent doctor, very knowledgeable!\"\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "💳 Payments",
+            "item": [
+                {
+                    "name": "My Payment History",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/payments?page=0&size=20",
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "20"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Payment Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/payments/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "payment-uuid"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Process Payment",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/payments/:id/process",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "payment-uuid"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"paymentMethod\": \"CARD\",\n  \"transactionId\": \"txn-123456\"\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🔔 Notifications",
+            "item": [
+                {
+                    "name": "My Notifications",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/notifications?page=0&size=20",
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "20"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Unread Count",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/notifications/unread-count"
+                    }
+                },
+                {
+                    "name": "Mark as Read",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/notifications/:id/read",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "notification-uuid"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Mark All as Read",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/notifications/read-all"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🌐 Public - Home",
+            "item": [
+                {
+                    "name": "Get Home Page Data",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/public/home/dashboard"
+                    }
+                },
+                {
+                    "name": "Get Featured Doctors",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/public/home/featured-doctors"
+                    }
+                },
+                {
+                    "name": "Get Testimonials",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/public/home/testimonials"
+                    }
+                },
+                {
+                    "name": "Get Hero Slides (Public)",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/public/home/hero-slides"
+                    }
+                },
+                {
+                    "name": "Get Contact Info",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/public/home/contact-info"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🌐 Public - Doctors",
+            "item": [
+                {
+                    "name": "List Public Doctors",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/public/doctors?page=0&size=20",
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "20"
+                                },
+                                {
+                                    "key": "specialization",
+                                    "value": "",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "search",
+                                    "value": "",
+                                    "disabled": true
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Public Doctor Details",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/public/doctors/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "doctor-uuid"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Get Doctor Reviews (Public)",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/public/doctors/:id/reviews",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "doctor-uuid"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Get Doctor Review Summary",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/public/doctors/:id/reviews/summary",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "doctor-uuid"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🌐 Public - Blog",
+            "item": [
+                {
+                    "name": "List Blog Posts (Public)",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/public/blog/posts?page=0&size=10",
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "10"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Blog Post by Slug",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/public/blog/posts/:slug",
+                        "variable": [
+                            {
+                                "key": "slug",
+                                "value": "understanding-knee-pain"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Get Blog Post Comments",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/public/blog/posts/:postId/comments",
+                        "variable": [
+                            {
+                                "key": "postId",
+                                "value": "post-uuid"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🌐 Public - Contact",
+            "item": [
+                {
+                    "name": "Send Contact Message",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{base_url}}/public/contact/message",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"John Smith\",\n  \"email\": \"john@example.com\",\n  \"phone\": \"+8801234567890\",\n  \"subject\": \"Inquiry about orthopedic services\",\n  \"message\": \"I would like to know more about your knee replacement services.\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Subscribe to Newsletter",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{base_url}}/public/contact/newsletter/subscribe",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"subscriber@example.com\"\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🏥 Hospitals (Public)",
+            "item": [
+                {
+                    "name": "List Hospitals",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/hospitals?page=0&size=20",
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "20"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Hospital Details",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/hospitals/:id",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "hospital-uuid"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Get Hospital Services (Public)",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/hospitals/:id/services",
+                        "variable": [
+                            {
+                                "key": "id",
+                                "value": "hospital-uuid"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "📋 Audit Logs (Admin)",
+            "item": [
+                {
+                    "name": "Get Login Audit Logs",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/audit?page=0&size=20",
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "size",
+                                    "value": "20"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Entity Audit History",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/audit/entity/:name/:id",
+                        "variable": [
+                            {
+                                "key": "name",
+                                "value": "Doctor"
+                            },
+                            {
+                                "key": "id",
+                                "value": "entity-uuid"
+                            }
+                        ]
+                    }
+                }
+            ]
         }
     ]
 }

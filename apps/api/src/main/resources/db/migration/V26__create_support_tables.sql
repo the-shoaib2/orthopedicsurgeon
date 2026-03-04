@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS notification_templates (
 
 CREATE TABLE IF NOT EXISTS notification_queue (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     template_id UUID REFERENCES notification_templates(id),
     channel VARCHAR(20) NOT NULL,
     status notification_queue_status NOT NULL DEFAULT 'PENDING',
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS search_logs (
     query TEXT NOT NULL,
     filters JSONB DEFAULT '{}',
     result_count INT NOT NULL DEFAULT 0,
-    user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
     ip_address VARCHAR(45),
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS search_logs (
 CREATE TABLE IF NOT EXISTS page_views (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     page VARCHAR(500) NOT NULL,
-    user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
     session_id VARCHAR(100),
     ip_address VARCHAR(45),
     user_agent TEXT,

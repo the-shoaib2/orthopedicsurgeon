@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS vital_signs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     patient_id UUID NOT NULL REFERENCES patients(id)
         ON DELETE CASCADE,
-    recorded_by BIGINT REFERENCES users(id) ON DELETE SET NULL,
+    recorded_by UUID REFERENCES users(id) ON DELETE SET NULL,
     appointment_id UUID REFERENCES appointments(id)
         ON DELETE SET NULL,
     blood_pressure_systolic INT
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS medical_documents (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     patient_id UUID NOT NULL REFERENCES patients(id)
         ON DELETE CASCADE,
-    uploaded_by BIGINT REFERENCES users(id) ON DELETE SET NULL,
+    uploaded_by UUID REFERENCES users(id) ON DELETE SET NULL,
     document_type document_type NOT NULL DEFAULT 'OTHER',
     document_name VARCHAR(300) NOT NULL,
     file_url VARCHAR(1000) NOT NULL,

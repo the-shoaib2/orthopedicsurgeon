@@ -34,7 +34,7 @@ public class AdminBlogController {
     @Operation(summary = "Create a new blog post")
     public ResponseEntity<BlogPostResponse> createPost(@Valid @RequestBody CreateBlogPostRequest request) {
         // Placeholder authorId
-        Long authorId = 1L;
+        UUID authorId = UUID.randomUUID();
         return ResponseEntity.ok(blogService.createPost(request, authorId));
     }
 

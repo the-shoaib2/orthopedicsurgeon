@@ -18,6 +18,7 @@ public class GlobalAuthExceptionHandler {
     public ResponseEntity<Map<String, String>> handleAuthException(AuthException ex) {
         Map<String, String> error = new HashMap<>();
         error.put("error", ex.getMessage());
+        error.put("message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
@@ -25,6 +26,7 @@ public class GlobalAuthExceptionHandler {
     public ResponseEntity<Map<String, String>> handleInvalidCredentialsException(InvalidCredentialsException ex) {
         Map<String, String> error = new HashMap<>();
         error.put("error", ex.getMessage());
+        error.put("message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 
@@ -32,6 +34,7 @@ public class GlobalAuthExceptionHandler {
     public ResponseEntity<Map<String, String>> handleAccessDeniedException(AccessDeniedException ex) {
         Map<String, String> error = new HashMap<>();
         error.put("error", "Access Denied: You do not have permission to access this resource");
+        error.put("message", "Access Denied: You do not have permission to access this resource");
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 
@@ -39,14 +42,15 @@ public class GlobalAuthExceptionHandler {
     public ResponseEntity<Map<String, String>> handleAuthenticationException(AuthenticationException ex) {
         Map<String, String> error = new HashMap<>();
         error.put("error", "Authentication failed: " + ex.getMessage());
+        error.put("message", "Authentication failed: " + ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error -> 
-            errors.put(error.getField(), error.getDefaultMessage()));
+        ex.getBindingResult().getFieldErrors()
+                .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 }

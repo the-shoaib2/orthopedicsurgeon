@@ -28,9 +28,12 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class PrescriptionServiceTest {
 
-    @Mock private PrescriptionRepository prescriptionRepository;
-    @Mock private AppointmentRepository appointmentRepository;
-    @Mock private PrescriptionMapper prescriptionMapper;
+    @Mock
+    private PrescriptionRepository prescriptionRepository;
+    @Mock
+    private AppointmentRepository appointmentRepository;
+    @Mock
+    private PrescriptionMapper prescriptionMapper;
 
     @InjectMocks
     private PrescriptionServiceImpl prescriptionService;
@@ -41,7 +44,7 @@ class PrescriptionServiceTest {
     @BeforeEach
     void setUp() {
         doctorUser = new User();
-        doctorUser.setId(10L);
+        doctorUser.setId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
 
         Doctor doctor = new Doctor();
         doctor.setUser(doctorUser);

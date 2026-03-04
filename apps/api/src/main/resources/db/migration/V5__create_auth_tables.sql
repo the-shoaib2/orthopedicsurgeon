@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS refresh_tokens (
-    id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT NOT NULL REFERENCES users(id),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id),
     token_hash VARCHAR(255) UNIQUE NOT NULL,
     expiry_date TIMESTAMP NOT NULL,
     revoked BOOLEAN DEFAULT FALSE,
@@ -9,16 +9,16 @@ CREATE TABLE IF NOT EXISTS refresh_tokens (
 );
 
 CREATE TABLE IF NOT EXISTS totp_secrets (
-    id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT UNIQUE NOT NULL REFERENCES users(id),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID UNIQUE NOT NULL REFERENCES users(id),
     secret VARCHAR(255) NOT NULL,
     verified BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS oauth2_accounts (
-    id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT NOT NULL REFERENCES users(id),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id),
     provider VARCHAR(50) NOT NULL,
     provider_id VARCHAR(100) NOT NULL,
     email VARCHAR(100),
@@ -27,8 +27,8 @@ CREATE TABLE IF NOT EXISTS oauth2_accounts (
 );
 
 CREATE TABLE IF NOT EXISTS login_audit (
-    id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT REFERENCES users(id),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id),
     ip_address VARCHAR(50),
     device_info TEXT,
     status VARCHAR(50), -- SUCCESS, FAILURE, 2FA_PENDING

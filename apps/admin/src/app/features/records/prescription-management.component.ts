@@ -21,67 +21,67 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   ],
   template: `
     <div class="space-y-10 animate-fade-in pb-24 px-2">
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8 border-b border-white/5 pb-10">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8 border-b pb-10">
         <div class="flex items-center gap-6">
-          <div class="w-16 h-16 bg-rose-600/20 rounded-2xl flex items-center justify-center border border-rose-500/30 shadow-2xl shadow-rose-500/10">
-            <mat-icon class="text-rose-400 scale-[1.5]">medication</mat-icon>
+          <div class="w-16 h-16 rounded-2xl flex items-center justify-center border shadow-2xl shadow-rose-500/10">
+            <mat-icon class="scale-[1.5]">medication</mat-icon>
           </div>
           <div>
-            <h1 class="text-4xl font-black text-white tracking-tighter italic uppercase leading-tight">Prescription Audit</h1>
+            <h1 class="text-4xl font-black tracking-tighter italic uppercase leading-tight">Prescription Audit</h1>
             <div class="flex items-center gap-3 mt-1.5">
-              <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
-              <p class="text-primary-500 font-black text-[10px] uppercase tracking-[0.4em]">Review and audit digital prescriptions issued by medical authorities</p>
+              <span class="w-2 h-2 rounded-full animate-pulse"></span>
+              <p class="font-black text-[10px] uppercase tracking-[0.4em]">Review and audit digital prescriptions issued by medical authorities</p>
             </div>
           </div>
         </div>
-        <button mat-flat-button color="primary" class="rounded-2xl h-14 px-10 font-black uppercase tracking-tighter italic shadow-2xl shadow-primary-500/20 premium-border bg-primary-600 hover:bg-primary-500 transition-all shrink-0">
+        <button mat-flat-button color="primary" class="rounded-2xl h-14 px-10 font-black uppercase tracking-tighter italic shadow-2xl shadow-primary-500/20 premium-border hover: transition-all shrink-0">
            Initialize Audit Trace
         </button>
       </div>
 
-      <mat-card class="bg-white/[0.01] border border-white/5 rounded-[40px] glass overflow-hidden animate-slide-up shadow-2xl">
+      <mat-card class="/[0.01] border rounded-[40px] glass overflow-hidden animate-slide-up shadow-2xl">
         <div class="overflow-x-auto p-4">
-          <table mat-table [dataSource]="prescriptions()" class="w-full bg-transparent">
+          <table mat-table [dataSource]="prescriptions()" class="w-full">
              <ng-container matColumnDef="id">
-                <th mat-header-cell *matHeaderCellDef class="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] py-8 px-10">Protocol ID</th>
-                <td mat-cell *matCellDef="let row" class="py-10 px-10 border-b border-white/[0.03]">
-                  <span class="text-sm font-black text-rose-400 bg-rose-500/10 px-4 py-2 rounded-xl border border-rose-500/20 uppercase tracking-[0.1em] italic">
+                <th mat-header-cell *matHeaderCellDef class="text-[9px] font-black uppercase tracking-[0.3em] py-8 px-10">Protocol ID</th>
+                <td mat-cell *matCellDef="let row" class="py-10 px-10 border-b /[0.03]">
+                  <span class="text-sm font-black px-4 py-2 rounded-xl border uppercase tracking-[0.1em] italic">
                     {{row.id}}
                   </span>
                 </td>
              </ng-container>
 
              <ng-container matColumnDef="doctor">
-                <th mat-header-cell *matHeaderCellDef class="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] py-8">Medical Authority</th>
-                <td mat-cell *matCellDef="let row" class="py-10 border-b border-white/[0.03]">
+                <th mat-header-cell *matHeaderCellDef class="text-[9px] font-black uppercase tracking-[0.3em] py-8">Medical Authority</th>
+                <td mat-cell *matCellDef="let row" class="py-10 border-b /[0.03]">
                   <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/5">
-                       <mat-icon class="text-white/20 scale-75">clinical_notes</mat-icon>
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center border">
+                       <mat-icon class="scale-75">clinical_notes</mat-icon>
                     </div>
-                    <span class="text-sm font-black text-white uppercase italic tracking-tighter">{{row.doctor}}</span>
+                    <span class="text-sm font-black uppercase italic tracking-tighter">{{row.doctor}}</span>
                   </div>
                 </td>
              </ng-container>
 
              <ng-container matColumnDef="patient">
-                <th mat-header-cell *matHeaderCellDef class="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] py-8">Subject Node</th>
-                <td mat-cell *matCellDef="let row" class="py-10 border-b border-white/[0.03]">
-                   <span class="text-sm font-black text-white/40 uppercase tracking-widest italic">{{row.patient}}</span>
+                <th mat-header-cell *matHeaderCellDef class="text-[9px] font-black uppercase tracking-[0.3em] py-8">Subject Node</th>
+                <td mat-cell *matCellDef="let row" class="py-10 border-b /[0.03]">
+                   <span class="text-sm font-black uppercase tracking-widest italic">{{row.patient}}</span>
                 </td>
              </ng-container>
 
              <ng-container matColumnDef="date">
-                <th mat-header-cell *matHeaderCellDef class="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] py-8 px-10 text-right">Timestamp</th>
-                <td mat-cell *matCellDef="let row" class="py-10 px-10 border-b border-white/[0.03] text-right">
+                <th mat-header-cell *matHeaderCellDef class="text-[9px] font-black uppercase tracking-[0.3em] py-8 px-10 text-right">Timestamp</th>
+                <td mat-cell *matCellDef="let row" class="py-10 px-10 border-b /[0.03] text-right">
                    <div class="flex flex-col items-end">
-                      <span class="text-xs font-black text-white italic tracking-tighter uppercase">{{row.date}}</span>
-                      <span class="text-[7px] font-black text-white/20 uppercase tracking-widest mt-1">Audit Logged</span>
+                      <span class="text-xs font-black italic tracking-tighter uppercase">{{row.date}}</span>
+                      <span class="text-[7px] font-black uppercase tracking-widest mt-1">Audit Logged</span>
                    </div>
                 </td>
              </ng-container>
 
-             <tr mat-header-row *matHeaderRowDef="columns" class="bg-white/[0.02]"></tr>
-             <tr mat-row *matRowDef="let row; columns: columns;" class="group hover:bg-white/[0.02] transition-all cursor-pointer border-white/5"></tr>
+             <tr mat-header-row *matHeaderRowDef="columns" class="/[0.02]"></tr>
+             <tr mat-row *matRowDef="let row; columns: columns;" class="group hover:/[0.02] transition-all cursor-pointer"></tr>
           </table>
         </div>
       </mat-card>

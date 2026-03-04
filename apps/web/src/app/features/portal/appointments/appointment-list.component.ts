@@ -1,7 +1,8 @@
-import { Component, signal, ViewChild, TemplateRef } from '@angular/core';
+import { Component, signal, ViewChild, TemplateRef, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ZrdTableComponent, ZrdBadgeComponent, ZrdButtonComponent, ZrdPageHeaderComponent } from '@repo/ui';
+import { PublicApiService } from '../../../core/services/public-api.service';
 
 @Component({
   selector: 'app-appointment-list',
@@ -21,39 +22,51 @@ import { ZrdTableComponent, ZrdBadgeComponent, ZrdButtonComponent, ZrdPageHeader
           <ng-template #actionTemplate let-row>
              <div class="flex gap-2">
                 <button zrdButton variant="ghost" size="sm">Details</button>
-                <button *ngIf="row.status === 'SCHEDULED'" zrdButton variant="outline" size="sm" class="text-red-600 border-red-100 hover:bg-red-50">Cancel</button>
+                <button *ngIf="row.status === 'PENDING' || row.status === 'CONFIRMED'" zrdButton variant="outline" size="sm" class="text-red-600 border-red-100 hover:bg-red-50">Cancel</button>
              </div>
           </ng-template>
        </zrd-table>
     </div>
   `
 })
-export class AppointmentListComponent {
+export class AppointmentListComponent implements OnInit {
+  private apiService = inject(PublicApiService);
   loading = signal(false);
-  
-  appointments = signal([
-    { id: '1', doctor: 'Dr. Sarah Johnson', hospital: 'City Orthopedic', date: '2024-10-24', time: '10:00 AM', type: 'Follow up', status: 'SCHEDULED' },
-    { id: '2', doctor: 'Dr. Mike Ross', hospital: 'Bone Health Center', date: '2024-10-28', time: '02:30 PM', type: 'Consultation', status: 'SCHEDULED' },
-    { id: '3', doctor: 'Dr. Sarah Johnson', hospital: 'City Orthopedic', date: '2024-10-10', time: '11:00 AM', type: 'Emergency', status: 'COMPLETED' },
-    { id: '4', doctor: 'Dr. David King', hospital: 'Metro General', date: '2024-10-05', time: '09:00 AM', type: 'Surgery', status: 'COMPLETED' },
-  ]);
+  appointments = signal<any[]>([]);
 
   columns: any[] = [
-    { key: 'doctor', header: 'Specialist' },
-    { key: 'hospital', header: 'Location' },
-    { key: 'date', header: 'Date', width: '120px' },
-    { key: 'time', header: 'Time', width: '100px' },
+    { key: 'doctorName', header: 'Specialist' },
+    { key: 'appointmentDate', header: 'Date', width: '120px' },
+    { key: 'startTime', header: 'Time', width: '100px' },
     { key: 'type', header: 'Type' },
     { key: 'status', header: 'Status', cellTemplate: null, width: '120px' },
     { key: 'actions', header: '', cellTemplate: null, width: '150px' }
   ];
 
-  @ViewChild('statusTemplate') set statusTemplate(v: TemplateRef<any>) { this.columns[5].cellTemplate = v; }
-  @ViewChild('actionTemplate') set actionTemplate(v: TemplateRef<any>) { this.columns[6].cellTemplate = v; }
+  @ViewChild('statusTemplate') set statusTemplate(v: TemplateRef<any>) { this.columns[4].cellTemplate = v; }
+  @ViewChild('actionTemplate') set actionTemplate(v: TemplateRef<any>) { this.columns[5].cellTemplate = v; }
+
+  ngOnInit() {
+    this.loadAppointments();
+  }
+
+  loadAppointments() {
+    this.loading.set(true);
+    this.apiService.getMyAppointments().subscribe({
+      next: (res) => {
+        this.appointments.set(res.data.content);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loading.set(false);
+      }
+    });
+  }
 
   getStatusVariant(status: string): any {
     switch (status) {
-      case 'SCHEDULED': return 'info';
+      case 'PENDING': return 'warning';
+      case 'CONFIRMED': return 'info';
       case 'COMPLETED': return 'success';
       case 'CANCELLED': return 'danger';
       default: return 'default';

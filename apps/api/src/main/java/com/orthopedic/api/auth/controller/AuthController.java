@@ -4,6 +4,7 @@ import com.orthopedic.api.auth.dto.*;
 import com.orthopedic.api.auth.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -30,9 +31,10 @@ public class AuthController {
         String userAgent = servletRequest.getHeader("User-Agent");
         LoginResponse response = authService.login(request, ip, userAgent);
 
+        // Also set refresh token in HttpOnly cookie for browser clients
         if (response.getRefreshToken() != null) {
             addRefreshTokenCookie(servletResponse, response.getRefreshToken());
-            response.setRefreshToken(null);
+            // Keep refresh token in body so API clients (Postman/mobile) can use it
         }
 
         return ResponseEntity.ok(response);
@@ -55,7 +57,6 @@ public class AuthController {
 
         if (response.getRefreshToken() != null) {
             addRefreshTokenCookie(servletResponse, response.getRefreshToken());
-            response.setRefreshToken(null);
         }
 
         return ResponseEntity.ok(response);
@@ -79,12 +80,23 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    @Operation(summary = "Refresh access token using refresh token")
-    public ResponseEntity<TokenResponse> refresh(@CookieValue(name = "refreshToken") String refreshToken,
+    @Operation(summary = "Refresh access token using refresh token (cookie or request body)")
+    public ResponseEntity<TokenResponse> refresh(
+            @CookieValue(name = "refreshToken", required = false) String cookieRefreshToken,
+            @RequestBody(required = false) RefreshTokenRequest body,
             HttpServletResponse servletResponse) {
+
+        // Accept from cookie (browsers) or body (Postman/mobile)
+        String refreshToken = cookieRefreshToken;
+        if (refreshToken == null && body != null) {
+            refreshToken = body.getRefreshToken();
+        }
+        if (refreshToken == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
         TokenResponse response = authService.refreshToken(refreshToken);
         addRefreshTokenCookie(servletResponse, response.getRefreshToken());
-        response.setRefreshToken(null);
         return ResponseEntity.ok(response);
     }
 
@@ -97,16 +109,23 @@ public class AuthController {
         TokenResponse response = authService.verify2fa(request, userAgent);
         if (response.getRefreshToken() != null) {
             addRefreshTokenCookie(servletResponse, response.getRefreshToken());
-            response.setRefreshToken(null);
         }
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/logout")
     @Operation(summary = "Logout user and invalidate tokens")
-    public ResponseEntity<Void> logout(@RequestHeader("Authorization") String authHeader,
-            @CookieValue(name = "refreshToken") String refreshToken,
+    public ResponseEntity<Void> logout(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @CookieValue(name = "refreshToken", required = false) String cookieRefreshToken,
+            @RequestBody(required = false) RefreshTokenRequest body,
             HttpServletResponse servletResponse) {
+
+        String refreshToken = cookieRefreshToken;
+        if (refreshToken == null && body != null) {
+            refreshToken = body.getRefreshToken();
+        }
+
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             authService.logout(authHeader.substring(7), refreshToken);
         }
@@ -115,18 +134,18 @@ public class AuthController {
     }
 
     private void addRefreshTokenCookie(HttpServletResponse response, String token) {
-        jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie("refreshToken", token);
+        Cookie cookie = new Cookie("refreshToken", token);
         cookie.setHttpOnly(true);
-        cookie.setSecure(true); // Should be true in production (HTTPS)
+        cookie.setSecure(false); // Set to true in production (HTTPS required)
         cookie.setPath("/");
         cookie.setMaxAge(7 * 24 * 60 * 60); // 7 days
         response.addCookie(cookie);
     }
 
     private void clearRefreshTokenCookie(HttpServletResponse response) {
-        jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie("refreshToken", null);
+        Cookie cookie = new Cookie("refreshToken", null);
         cookie.setHttpOnly(true);
-        cookie.setSecure(true);
+        cookie.setSecure(false);
         cookie.setPath("/");
         cookie.setMaxAge(0);
         response.addCookie(cookie);

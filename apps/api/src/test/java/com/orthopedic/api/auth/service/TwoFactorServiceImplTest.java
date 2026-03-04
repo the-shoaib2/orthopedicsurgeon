@@ -21,6 +21,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -56,18 +57,18 @@ class TwoFactorServiceImplTest {
     @BeforeEach
     void setUp() {
         testUser = new User();
-        testUser.setId(1L);
+        testUser.setId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
         testUser.setEmail("admin@example.com");
     }
 
     @Test
     void setupTotp_Success() throws Exception {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+        when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
         when(secretGenerator.generate()).thenReturn("SECRET");
         when(qrGenerator.generate(any())).thenReturn(new byte[] { 1, 2, 3 });
         when(qrGenerator.getImageMimeType()).thenReturn("image/png");
 
-        TwoFactorSetupResponse response = twoFactorService.setupTotp(1L);
+        TwoFactorSetupResponse response = twoFactorService.setupTotp(testUser.getId());
 
         assertNotNull(response);
         assertEquals("SECRET", response.getSecretKey());
@@ -80,11 +81,11 @@ class TwoFactorServiceImplTest {
         TotpSecret secret = new TotpSecret();
         secret.setSecret("SECRET");
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+        when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
         when(totpSecretRepository.findByUser(any())).thenReturn(Optional.of(secret));
         when(codeVerifier.isValidCode(anyString(), anyString())).thenReturn(true);
 
-        boolean result = twoFactorService.verifyAndEnableTotp(1L, "123456");
+        boolean result = twoFactorService.verifyAndEnableTotp(testUser.getId(), "123456");
 
         assertTrue(result);
         assertTrue(testUser.isUsing2fa());

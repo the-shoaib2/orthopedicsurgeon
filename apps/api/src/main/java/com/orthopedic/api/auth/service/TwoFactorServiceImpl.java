@@ -60,7 +60,7 @@ public class TwoFactorServiceImpl implements TwoFactorService {
 
     @Override
     @Transactional
-    public TwoFactorSetupResponse setupTotp(Long userId) {
+    public TwoFactorSetupResponse setupTotp(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AuthException("User not found"));
 
@@ -101,7 +101,7 @@ public class TwoFactorServiceImpl implements TwoFactorService {
 
     @Override
     @Transactional
-    public boolean verifyAndEnableTotp(Long userId, String code) {
+    public boolean verifyAndEnableTotp(UUID userId, String code) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AuthException("User not found"));
 

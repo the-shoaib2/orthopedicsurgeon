@@ -10,7 +10,7 @@ CREATE TYPE notification_channel AS ENUM ('IN_APP', 'EMAIL', 'SMS', 'PUSH');
 
 CREATE TABLE notifications (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id BIGINT NOT NULL REFERENCES users(id),
+    user_id UUID NOT NULL REFERENCES users(id),
     title VARCHAR(100) NOT NULL,
     message TEXT NOT NULL,
     type notification_type NOT NULL,

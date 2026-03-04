@@ -12,12 +12,13 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
+
 public interface DoctorService {
     PageResponse<DoctorSummaryResponse> getAllDoctors(DoctorFilterRequest filters, Pageable pageable);
 
     DoctorResponse getDoctorById(UUID id);
 
-    DoctorResponse getDoctorByUserId(Long userId);
+    DoctorResponse getDoctorByUserId(UUID userId);
 
     DoctorResponse createDoctor(CreateDoctorRequest request);
 

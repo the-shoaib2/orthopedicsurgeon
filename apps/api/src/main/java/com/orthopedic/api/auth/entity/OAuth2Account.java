@@ -14,8 +14,8 @@ public class OAuth2Account {
     }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private java.util.UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -33,11 +33,11 @@ public class OAuth2Account {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    public Long getId() {
+    public java.util.UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(java.util.UUID id) {
         this.id = id;
     }
 

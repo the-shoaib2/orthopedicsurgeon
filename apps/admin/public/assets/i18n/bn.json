@@ -2,17 +2,23 @@
     "COMMON": {
         "SEARCH": "অনুসন্ধান...",
         "LOGOUT": "লগআউট",
+        "LOGOUT_CONFIRM_TITLE": "লগআউট নিশ্চিত করুন",
+        "LOGOUT_CONFIRM_MESSAGE": "আপনি কি নিশ্চিত যে আপনি আপনার বর্তমান সেশনটি শেষ করতে চান? কনসোল অ্যাক্সেস করতে আপনাকে আবার লগ ইন করতে হবে।",
+        "CANCEL": "বাতিল",
         "SETTINGS": "সেটিংস",
         "DASHBOARD": "ড্যাশবোর্ড",
         "NAV": {
             "OVERVIEW": "ওভারভিউ",
             "ORGANIZATION": "সংস্থা",
+            "DEPARTMENTS": "বিভাগ",
+            "HOSPITALS": "হাসপাতাল",
             "MEDICAL_STAFF": "চিকিৎসা কর্মী",
             "PATIENTS": "রোগী",
             "APPOINTMENTS": "অ্যাপয়েন্টমেন্ট",
             "RECORDS": "রেকর্ড",
             "FINANCE": "ফাইন্যান্স",
             "CONTENT": {
+                "GROUP": "ওয়েব কন্টেন্ট",
                 "HERO": "হিরো ব্যানার",
                 "FAQ": "এফএকিউ",
                 "PARTNERS": "অংশীদার",

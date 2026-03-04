@@ -35,14 +35,22 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class AppointmentServiceTest {
 
-    @Mock private AppointmentRepository appointmentRepository;
-    @Mock private DoctorRepository doctorRepository;
-    @Mock private PatientRepository patientRepository;
-    @Mock private ServiceRepository serviceRepository;
-    @Mock private AppointmentMapper appointmentMapper;
-    @Mock private RedisTemplate<String, Object> redisTemplate;
-    @Mock private ValueOperations<String, Object> valueOperations;
-    @Mock private io.micrometer.core.instrument.Counter appointmentBookedCounter;
+    @Mock
+    private AppointmentRepository appointmentRepository;
+    @Mock
+    private DoctorRepository doctorRepository;
+    @Mock
+    private PatientRepository patientRepository;
+    @Mock
+    private ServiceRepository serviceRepository;
+    @Mock
+    private AppointmentMapper appointmentMapper;
+    @Mock
+    private RedisTemplate<String, Object> redisTemplate;
+    @Mock
+    private ValueOperations<String, Object> valueOperations;
+    @Mock
+    private io.micrometer.core.instrument.Counter appointmentBookedCounter;
 
     @InjectMocks
     private AppointmentServiceImpl appointmentService;
@@ -55,7 +63,7 @@ class AppointmentServiceTest {
     @BeforeEach
     void setUp() {
         currentUser = new User();
-        currentUser.setId(1L);
+        currentUser.setId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
         currentUser.setEmail("patient@test.com");
 
         doctor = new Doctor();
@@ -85,9 +93,10 @@ class AppointmentServiceTest {
         when(doctorRepository.findById(doctor.getId())).thenReturn(Optional.of(doctor));
         when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
         when(patientRepository.findByUserId(any())).thenReturn(Optional.of(patient));
-        when(appointmentRepository.existsByDoctorIdAndAppointmentDateAndStartTimeAndStatusNotIn(any(), any(), any(), any()))
+        when(appointmentRepository.existsByDoctorIdAndAppointmentDateAndStartTimeAndStatusNotIn(any(), any(), any(),
+                any()))
                 .thenReturn(false);
-        
+
         when(appointmentMapper.toEntity(any())).thenReturn(new Appointment());
         when(appointmentRepository.save(any())).thenReturn(new Appointment());
         when(appointmentMapper.toResponse(any())).thenReturn(new AppointmentResponse());
@@ -110,7 +119,8 @@ class AppointmentServiceTest {
         when(doctorRepository.findById(any())).thenReturn(Optional.of(doctor));
         when(serviceRepository.findById(any())).thenReturn(Optional.of(service));
         when(patientRepository.findByUserId(any())).thenReturn(Optional.of(patient));
-        when(appointmentRepository.existsByDoctorIdAndAppointmentDateAndStartTimeAndStatusNotIn(any(), any(), any(), any()))
+        when(appointmentRepository.existsByDoctorIdAndAppointmentDateAndStartTimeAndStatusNotIn(any(), any(), any(),
+                any()))
                 .thenReturn(true);
 
         assertThrows(SlotUnavailableException.class, () -> appointmentService.bookAppointment(request, currentUser));

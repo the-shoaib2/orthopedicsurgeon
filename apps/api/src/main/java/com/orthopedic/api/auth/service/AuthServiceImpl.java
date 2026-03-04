@@ -22,6 +22,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import lombok.extern.slf4j.Slf4j;
+import com.orthopedic.api.shared.service.EmailService;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -30,6 +32,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Service
+@Slf4j
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
@@ -43,6 +46,7 @@ public class AuthServiceImpl implements AuthService {
     private final CustomUserDetailsService userDetailsService;
     private final TokenService tokenService;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final EmailService emailService;
 
     @Value("${spring.security.oauth2.client.registration.google.client-id:}")
     private String googleClientId;
@@ -57,7 +61,8 @@ public class AuthServiceImpl implements AuthService {
             AuditService auditService,
             CustomUserDetailsService userDetailsService,
             TokenService tokenService,
-            PasswordResetTokenRepository passwordResetTokenRepository) {
+            PasswordResetTokenRepository passwordResetTokenRepository,
+            EmailService emailService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
@@ -69,19 +74,13 @@ public class AuthServiceImpl implements AuthService {
         this.userDetailsService = userDetailsService;
         this.tokenService = tokenService;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
+        this.emailService = emailService;
     }
 
     @Override
     @Transactional
     public LoginResponse login(LoginRequest request, String ipAddress, String userAgent) {
-        // ⚡ PERF: Load from cache via CustomUserDetailsService if available
-        UserDetails userDetails;
-        try {
-            userDetails = userDetailsService.loadUserByUsername(request.getEmail());
-        } catch (Exception e) {
-            throw new InvalidCredentialsException("Invalid email or password");
-        }
-
+        // Load user directly from DB — single call, no exception-swallowing
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
 
@@ -115,19 +114,25 @@ public class AuthServiceImpl implements AuthService {
         redisTemplate.delete(attemptKey);
         updateLoginMetadataAsync(user);
 
-        // 🔒 SECURITY: Check if 2FA is required for any user that has it enabled, not
-        // just admins
-        if (user.isUsing2fa()) {
+        // 🔒 SECURITY: Check if 2FA is required. Mandatory for
+        // ROLE_ADMIN/ROLE_SUPER_ADMIN
+        boolean isAdmin = user.getRoles().stream()
+                .anyMatch(r -> r.getName().equals("ROLE_ADMIN") || r.getName().equals("ROLE_SUPER_ADMIN")
+                        || r.getName().equals("ADMIN") || r.getName().equals("SUPER_ADMIN"));
+
+        if (isAdmin || user.isUsing2fa()) {
             String tempToken = UUID.randomUUID().toString();
             redisTemplate.opsForValue().set("temp_auth:" + tempToken, user.getEmail(), 10, TimeUnit.MINUTES);
 
-            auditService.logAudit(user, ipAddress, userAgent, "2FA_PENDING");
+            auditService.logAudit(user, ipAddress, userAgent, isAdmin ? "2FA_MANDATORY_ADMIN" : "2FA_PENDING");
             return LoginResponse.builder()
                     .requiresTwoFactor(true)
                     .tempToken(tempToken)
                     .build();
         }
 
+        // Build UserDetails from the loaded user (no extra DB call)
+        UserDetails userDetails = new com.orthopedic.api.auth.security.CustomUserDetails(user);
         String accessToken = tokenProvider.generateAccessToken(userDetails);
         String refreshTokenString = tokenService.generateAndSaveRefreshToken(user, userAgent);
 
@@ -143,10 +148,14 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @org.springframework.scheduling.annotation.Async
-    protected void updateLoginMetadataAsync(User user) {
-        user.setLastLoginAt(java.time.LocalDateTime.now());
-        user.resetFailedAttempts();
-        userRepository.save(user);
+    @Transactional
+    public void updateLoginMetadataAsync(User user) {
+        // Reload in a fresh Hibernate session to avoid detached entity issues
+        userRepository.findById(user.getId()).ifPresent(freshUser -> {
+            freshUser.setLastLoginAt(java.time.LocalDateTime.now());
+            freshUser.resetFailedAttempts();
+            userRepository.save(freshUser);
+        });
     }
 
     @Override
@@ -282,10 +291,14 @@ public class AuthServiceImpl implements AuthService {
 
         updateLoginMetadataAsync(user);
 
-        if (user.isUsing2fa()) {
+        boolean isAdmin = user.getRoles().stream()
+                .anyMatch(r -> r.getName().equals("ROLE_ADMIN") || r.getName().equals("ROLE_SUPER_ADMIN"));
+
+        if (isAdmin || user.isUsing2fa()) {
             String tempToken = UUID.randomUUID().toString();
             redisTemplate.opsForValue().set("temp_auth:" + tempToken, user.getEmail(), 10, TimeUnit.MINUTES);
-            auditService.logAudit(user, ipAddress, userAgent, "2FA_PENDING_GOOGLE");
+            auditService.logAudit(user, ipAddress, userAgent,
+                    isAdmin ? "2FA_MANDATORY_ADMIN_GOOGLE" : "2FA_PENDING_GOOGLE");
             return LoginResponse.builder()
                     .requiresTwoFactor(true)
                     .tempToken(tempToken)
@@ -331,9 +344,16 @@ public class AuthServiceImpl implements AuthService {
 
         passwordResetTokenRepository.save(resetToken);
 
-        // TODO: In a real system, send this via email using a MailService
-        // example: mailService.sendPasswordResetEmail(user.getEmail(), token);
-        System.out.println("Password reset token for " + user.getEmail() + ": " + token);
+        // 📧 EMAIL: Send reset link
+        String resetUrl = "http://localhost:4200/auth/reset-password?token=" + token;
+        java.util.Map<String, Object> variables = new java.util.HashMap<>();
+        variables.put("name", user.getFirstName());
+        variables.put("resetUrl", resetUrl);
+        variables.put("token", token);
+
+        emailService.sendHtmlEmail(user.getEmail(), "Password Reset Request", "password-reset", variables);
+
+        log.info("Password reset token generated and sent for: {}", user.getEmail());
     }
 
     @Override
