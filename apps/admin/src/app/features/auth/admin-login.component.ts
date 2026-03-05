@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ReactiveFormsModule,
@@ -8,13 +8,11 @@ import {
   Validators
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { 
-  ZrdCardComponent, 
-  ZrdButtonComponent, 
-  ZrdInputComponent,
-  ZrdBadgeComponent 
-} from '@repo/ui';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthService } from '@repo/auth';
@@ -32,225 +30,172 @@ declare var google: any;
     ReactiveFormsModule,
     FormsModule,
     RouterModule,
-    ZrdCardComponent,
-    ZrdButtonComponent,
-    ZrdInputComponent,
-    ZrdBadgeComponent,
+    MatCardModule,
+    MatButtonModule,
     MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
     MatProgressSpinnerModule,
     MatSnackBarModule
   ],
   template: `
-    <div class="min-h-screen flex flex-col lg:flex-row overflow-hidden bg-white dark:bg-google-gray-950">
-      
-      <!-- Left Cinematic Side -->
-      <div class="hidden lg:flex lg:w-[55%] relative group overflow-hidden">
-        <!-- Generative Ambient Background -->
-        <div class="absolute inset-0 bg-google-gray-900">
-           <div class="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_#4285F4_0%,_transparent_70%)] animate-pulse-slow"></div>
-           <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-        </div>
-
-        <!-- Branding Overlay -->
-        <div class="absolute inset-0 flex flex-col justify-between p-20 z-10">
-           <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-lg">
-                 <mat-icon class="text-google-blue">admin_panel_settings</mat-icon>
-              </div>
-              <span class="text-xl font-black text-white tracking-tighter uppercase">Precision Admin</span>
-           </div>
-
-           <div class="max-w-xl">
-              <zrd-badge variant="info" class="bg-white/10 text-white border-white/20 mb-6 font-black text-[10px]">LATEST DEPLOYMENT: v2.4.0</zrd-badge>
-              <h1 class="text-6xl font-black text-white leading-[1.05] tracking-tighter mb-6">
-                Clinical Excellence <br/>
-                <span class="text-google-blue">Architected for Scale.</span>
-              </h1>
-              <p class="text-lg text-google-gray-300 font-medium leading-relaxed opacity-80">
-                Advanced governance tools for the modern orthopedic practitioner. Secure, high-performance, and intuitively designed.
-              </p>
-           </div>
-
-           <div class="flex items-center gap-6">
-              <div class="flex -space-x-3">
-                 <div class="w-10 h-10 rounded-full border-2 border-google-gray-900 bg-google-gray-700"></div>
-                 <div class="w-10 h-10 rounded-full border-2 border-google-gray-900 bg-google-blue"></div>
-                 <div class="w-10 h-10 rounded-full border-2 border-google-gray-900 bg-google-emerald"></div>
-              </div>
-              <span class="text-xs font-bold text-google-gray-400 tracking-tight">Trusted by 12,000+ medical professionals worldwide.</span>
-           </div>
+    <div class="min-h-screen flex flex-col lg:flex-row overflow-hidden bg-white">
+      <!-- Left Side: Image -->
+      <div class="hidden lg:flex lg:w-1/2 relative bg-slate-100">
+        <img src="assets/images/auth-bg.png" alt="Precision Orthopedics" class="absolute inset-0 w-full h-full object-cover">
+        <div class="absolute inset-0 bg-primary-900/10 backdrop-blur-[1px]"></div>
+        <div class="absolute inset-y-0 right-0 w-32 bg-gradient-to-r from-transparent to-white pointer-events-none"></div>
+        <div class="absolute inset-0 flex flex-col justify-end p-16 text-white bg-gradient-to-t from-slate-900/60 to-transparent">
+          <h1 class="text-5xl font-bold mb-4 tracking-tight">Precision Console</h1>
+          <p class="text-xl opacity-90 max-w-lg leading-relaxed font-light">
+            Advanced Management Interface for Orthopedic Surgeons & Clinical Excellence.
+          </p>
         </div>
       </div>
 
-      <!-- Right Governance Form -->
-      <div class="flex-1 flex items-center justify-center p-8 sm:p-24 bg-google-gray-50/50 dark:bg-google-gray-950">
-        <div class="w-full max-w-[420px] animate-in slide-in-from-right-12 duration-700">
-          
-          <zrd-card variant="default" class="p-10 border-none shadow-google-xl relative overflow-hidden">
-            <!-- Glass Morphic Accent -->
-             <div class="absolute top-0 right-0 w-32 h-32 bg-google-blue/10 blur-[60px] rounded-full -mr-16 -mt-16"></div>
-
+      <!-- Right Side: Form Content -->
+      <div class="flex-1 flex items-center justify-center p-8 sm:p-16 bg-white overflow-y-auto">
+        <div class="w-full max-w-md">
+          <mat-card class="w-full border border-slate-200 shadow-xl shadow-slate-200/50 rounded-2xl">
             @if (step() === 'login') {
-              <div class="relative z-10">
-                <header class="mb-10 text-center">
-                  <h2 class="text-3xl font-black text-google-gray-900 dark:text-white tracking-tighter m-0">Identity Gate</h2>
-                  <p class="text-sm text-google-gray-500 dark:text-google-gray-400 mt-2 font-medium leading-relaxed">Authorize your session to access the administrative lattice.</p>
-                </header>
+              <mat-card-header class="flex flex-col items-center pt-8 pb-4">
+                 <div class="mb-4 text-primary-600">
+                    <mat-icon class="scale-[2]">admin_panel_settings</mat-icon>
+                 </div>
+                 <mat-card-title class="text-2xl font-medium m-0 text-center">Welcome Back</mat-card-title>
+                 <mat-card-subtitle class="mt-2 text-sm text-slate-500 text-center">Sign in to your administrative console</mat-card-subtitle>
+              </mat-card-header>
 
-                <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
-                  <div class="space-y-2">
-                    <label class="text-[10px] font-black uppercase tracking-widest text-google-gray-400 ml-1">Administrative Email</label>
-                    <zrd-input 
-                      placeholder="e.g. admin@precision.md" 
-                      formControlName="email"
-                      [hasPrefix]="true"
-                    >
-                      <mat-icon prefix class="text-google-gray-400">alternate_email</mat-icon>
-                    </zrd-input>
-                    @if (loginForm.get('email')?.touched && loginForm.get('email')?.invalid) {
-                       <p class="text-[10px] font-bold text-google-red ml-1 mt-1 uppercase tracking-tight">Invalid identity format</p>
-                    }
-                  </div>
+              <mat-card-content class="px-6 pb-6">
+                <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+                   <mat-form-field appearance="outline" class="w-full">
+                      <mat-label>Email Address</mat-label>
+                      <input matInput type="email" formControlName="email">
+                      <mat-error>
+                          @if (loginForm.get('email')?.hasError('required')) { Email is required }
+                          @else if (loginForm.get('email')?.hasError('email')) { Invalid email format }
+                      </mat-error>
+                   </mat-form-field>
 
-                  <div class="space-y-2">
-                    <div class="flex items-center justify-between ml-1">
-                       <label class="text-[10px] font-black uppercase tracking-widest text-google-gray-400">Security Key</label>
-                       <a routerLink="/auth/forgot-password" class="text-[10px] font-black uppercase tracking-widest text-google-blue hover:underline">Recovery Options</a>
-                    </div>
-                    <zrd-input 
-                      [type]="hidePassword() ? 'password' : 'text'" 
-                      formControlName="password"
-                      placeholder="••••••••••••"
-                      [hasPrefix]="true"
-                    >
-                      <mat-icon prefix class="text-google-gray-400">lock_open</mat-icon>
-                      <button type="button" class="ml-2 text-google-gray-400 hover:text-google-blue transition-colors" (click)="hidePassword.set(!hidePassword())">
-                         <mat-icon class="text-[20px]">{{hidePassword() ? 'visibility' : 'visibility_off'}}</mat-icon>
-                      </button>
-                    </zrd-input>
-                  </div>
+                   <div class="flex flex-col gap-1">
+                      <mat-form-field appearance="outline" class="w-full">
+                          <mat-label>Password</mat-label>
+                          <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password">
+                          <button mat-icon-button matSuffix (click)="hidePassword.set(!hidePassword())" type="button">
+                            <mat-icon>{{hidePassword() ? 'visibility_off' : 'visibility'}}</mat-icon>
+                          </button>
+                          @if (loginForm.get('password')?.hasError('required')) {
+                            <mat-error>Password is required</mat-error>
+                          }
+                      </mat-form-field>
+                   </div>
 
-                  <zrd-button 
-                    variant="primary" 
-                    size="lg" 
-                    class="w-full h-14 rounded-2xl shadow-lg shadow-google-blue/20 mt-4"
-                    [disabled]="loading() || loginForm.invalid"
-                  >
-                    @if (!loading()) {
-                      <div class="flex items-center justify-center gap-2">
-                        <span class="font-black text-sm uppercase tracking-widest">Verify & Authorize</span>
-                        <mat-icon class="text-lg">arrow_forward</mat-icon>
-                      </div>
-                    } @else {
-                      <mat-spinner diameter="24" class="inline-block"></mat-spinner>
-                    }
-                  </zrd-button>
+                   <button mat-flat-button color="primary" 
+                           [disabled]="loading() || loginForm.invalid"
+                           class="w-full py-2 mt-2">
+                      @if (!loading()) {
+                        <span>Continue</span>
+                      } @else {
+                        <mat-spinner diameter="24" class="inline-block"></mat-spinner>
+                      }
+                   </button>
+                   
+                   <div class="relative my-2">
+                      <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-100"></div></div>
+                      <div class="relative flex justify-center text-xs uppercase"><span class="bg-white px-2 text-slate-400 font-bold tracking-wider">Or continue with</span></div>
+                   </div>
 
-                  <div class="relative my-8">
-                    <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-google-gray-100 dark:border-white/5"></div></div>
-                    <div class="relative flex justify-center text-[10px] uppercase tracking-widest font-black"><span class="bg-white dark:bg-google-gray-900 px-4 text-google-gray-400">Biometric / Federated</span></div>
-                  </div>
-
-                  <zrd-button 
-                    type="button" 
-                    variant="outline" 
-                    size="lg" 
-                    class="w-full h-14 rounded-2xl border-google-gray-200 dark:border-white/10 hover:bg-google-gray-50 dark:hover:bg-white/5"
-                    (click)="onGoogleLogin()"
-                    [disabled]="loading()"
-                  >
-                    <div class="flex items-center justify-center gap-3">
-                      <svg class="w-5 h-5" viewBox="0 0 24 24">
-                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                      </svg>
-                      <span class="font-black text-sm uppercase tracking-widest text-google-gray-700 dark:text-google-gray-300">Google Credentials</span>
-                    </div>
-                  </zrd-button>
+                   <button type="button" mat-stroked-button (click)="onGoogleLogin()" 
+                           [disabled]="loading()"
+                           class="w-full py-2">
+                       <div class="flex items-center justify-center gap-3">
+                          <svg class="w-5 h-5" viewBox="0 0 24 24">
+                             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                             <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                             <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+                             <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                          </svg>
+                          Sign in with Google
+                       </div>
+                   </button>
                 </form>
-              </div>
+              </mat-card-content>
             } @else if (step() === 'mfa') {
-              <div class="relative z-10 animate-in fade-in duration-500">
-                <header class="mb-10 text-center">
-                  <h2 class="text-3xl font-black text-google-gray-900 dark:text-white tracking-tighter m-0">Multi-Factor Sync</h2>
-                  <p class="text-sm text-google-gray-500 dark:text-google-gray-400 mt-2 font-medium leading-relaxed">Enter the high-security ephemeral token dispatched to your endpoint.</p>
-                </header>
+              <mat-card-header class="flex flex-col items-center pt-8 pb-4">
+                 <div class="mb-4 text-primary-600">
+                    <mat-icon class="scale-[2]">mark_email_read</mat-icon>
+                 </div>
+                 <mat-card-title class="text-2xl font-medium m-0">Two-Factor Auth</mat-card-title>
+                 <mat-card-subtitle class="mt-2 text-sm text-slate-500 text-center px-4">
+                    Enter the 6-digit code sent to your email
+                 </mat-card-subtitle>
+              </mat-card-header>
 
-                <form (ngSubmit)="onMfaSubmit()" class="space-y-8">
-                  <div class="p-6 rounded-3xl bg-google-blue/5 border border-google-blue/10 text-center">
-                    <span class="text-[10px] font-black uppercase tracking-widest text-google-blue">Entropy Valid For:</span>
-                    <div class="text-5xl font-black text-google-blue mt-2 tracking-tighter tabular-nums">
-                      {{ formatTime(timer()) }}
-                    </div>
-                  </div>
+              <mat-card-content class="px-6 pb-6">
+                <form (ngSubmit)="onMfaSubmit()" class="flex flex-col gap-4">
+                   <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-2">
+                       <p class="text-xs text-center text-slate-500 mb-3">Time remaining:</p>
+                       <div class="text-3xl font-mono font-bold text-center text-primary-600 tracking-widest">
+                          {{ formatTime(timer()) }}
+                       </div>
+                   </div>
 
-                  <div class="space-y-4">
-                    <label class="text-[10px] font-black uppercase tracking-widest text-google-gray-400 text-center block">6-Digit Access Token</label>
-                    <zrd-input 
-                      [ngModel]="otpCode()" 
-                      (ngModelChange)="otpCode.set($event)"
-                      name="otpCode" 
-                      maxlength="6" 
-                      [disabled]="timer() <= 0"
-                      placeholder="0  0  0  0  0  0"
-                      class="text-center text-3xl font-black tracking-[0.4em] dark:bg-white/5"
-                    ></zrd-input>
-                  </div>
+                   <mat-form-field appearance="outline" class="w-full">
+                      <mat-label>Verification Code</mat-label>
+                      <input matInput type="text" 
+                             [ngModel]="otpCode()" 
+                             (ngModelChange)="otpCode.set($event)"
+                             name="otpCode" maxlength="6" 
+                             [disabled]="timer() <= 0"
+                             placeholder="000000"
+                             class="text-center text-2xl tracking-[0.5em] font-bold">
+                   </mat-form-field>
 
-                  @if (timer() <= 0) {
-                    <div class="flex items-center gap-3 p-4 bg-google-red/5 text-google-red rounded-2xl border border-google-red/10 animate-shake">
-                       <mat-icon class="text-lg">error_outline</mat-icon>
-                       <span class="text-xs font-bold uppercase tracking-tight">Token identity expired. Requesting re-issue.</span>
-                    </div>
-                  }
+                   @if (timer() <= 0) {
+                      <div class="text-center p-3 mb-2 bg-red-50 text-red-600 rounded-lg text-sm font-medium">
+                         The verification code has expired.
+                      </div>
+                   }
 
-                  <zrd-button 
-                    variant="primary" 
-                    size="lg" 
-                    class="w-full h-14 rounded-2xl shadow-lg shadow-google-blue/20"
-                    [disabled]="loading() || otpCode().length !== 6 || timer() <= 0"
-                  >
-                    @if (!loading()) {
-                      <span class="font-black text-sm uppercase tracking-widest">Authenticate & Access</span>
-                    } @else {
-                      <mat-spinner diameter="24" class="inline-block"></mat-spinner>
-                    }
-                  </zrd-button>
-                  
-                  <div class="flex flex-col gap-4 mt-8">
-                     <button type="button" class="text-[10px] font-black uppercase tracking-widest text-google-blue hover:underline p-2 disabled:opacity-50"
-                             [disabled]="loading() || (timer() > 240)"
-                             (click)="onSubmit()">
-                        Resend Temporal Token {{ timer() > 240 ? '(' + (timer() - 240) + 's)' : '' }}
-                     </button>
-                     <button type="button" class="text-[10px] font-black uppercase tracking-widest text-google-gray-400 hover:text-google-gray-600 transition-colors p-2"
-                             (click)="cancelMfa()">
-                        Return to Identity Gate
-                     </button>
-                  </div>
+                   <button mat-flat-button color="primary" 
+                           [disabled]="loading() || otpCode().length !== 6 || timer() <= 0"
+                           class="w-full py-2 mt-2">
+                      @if (!loading()) {
+                        <span>Verify & Access</span>
+                      } @else {
+                        <mat-spinner diameter="24" class="inline-block"></mat-spinner>
+                      }
+                   </button>
+                   
+                   <div class="flex flex-col items-center gap-2 mt-4">
+                      <button type="button" mat-button color="primary" 
+                              [disabled]="loading() || (timer() > 240)"
+                              (click)="onSubmit()">
+                         Resend Code {{ timer() > 240 ? '(' + (timer() - 240) + 's)' : '' }}
+                      </button>
+                      <button mat-button (click)="cancelMfa()" type="button">
+                         Back to Login
+                      </button>
+                   </div>
                 </form>
-              </div>
+              </mat-card-content>
             }
 
-            <footer class="mt-12 text-center border-t border-google-gray-100 dark:border-white/5 pt-6">
-               <span class="text-[10px] font-black uppercase tracking-widest text-google-gray-400">&copy; 2026 PRECISION CLINICAL CONSOLE • ALL RIGHTS RESERVED</span>
-            </footer>
-          </zrd-card>
+            <mat-card-footer class="py-4 text-center">
+               <span class="text-xs text-slate-500">Admin Console &copy; 2026</span>
+            </mat-card-footer>
+          </mat-card>
         </div>
       </div>
     </div>
   `,
   styles: [`
     :host { display: block; }
-    .animate-pulse-slow { animation: pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-    @keyframes pulse { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.35; } }
-    @keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); } 20%, 40%, 60%, 80% { transform: translateX(2px); } }
-    .animate-shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+    ::ng-deep .success-snackbar { --mdc-snackbar-container-color: #059669; --mdc-snackbar-supporting-text-color: white; }
+    ::ng-deep .error-snackbar { --mdc-snackbar-container-color: #dc2626; --mdc-snackbar-supporting-text-color: white; }
   `]
 })
-export class AdminLoginComponent implements OnInit, OnDestroy {
+export class AdminLoginComponent implements OnDestroy {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
