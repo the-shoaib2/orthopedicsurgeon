@@ -13,8 +13,9 @@ export interface AuthResponse {
   accessToken?: string;
   refreshToken?: string;
   user?: User;
-  requiresTwoFactor?: boolean;
-  tempToken?: string;
+  requiresMfa?: boolean;
+  sessionToken?: string;
+  userId?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -60,9 +61,11 @@ export class AuthService {
     this.router.navigate(['/auth/login']);
   }
 
-  verify2fa(data: { tempToken: string; totpCode: string }): Observable<AuthResponse> {
+  verify2fa(data: { sessionToken: string; code: string; deviceFingerprint?: string }): Observable<AuthResponse> {
     this.loading.set(true);
-    return this.http.post<AuthResponse>(`${this.apiUrl}/verify-2fa`, data).pipe(
+    // Use /login/mfa for admin if the URL suggests it, otherwise fallback/standard
+    const endpoint = this.apiUrl.includes('/admin') ? `${this.apiUrl}/login/mfa` : `${this.apiUrl}/verify-2fa`;
+    return this.http.post<AuthResponse>(endpoint, data).pipe(
       switchMap((res: AuthResponse) => {
         if (res.accessToken) {
           return this.handleSuccess(res);
