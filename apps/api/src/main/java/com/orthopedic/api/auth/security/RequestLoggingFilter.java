@@ -35,14 +35,15 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        long startTime = System.currentTimeMillis();
+        long startTime = System.nanoTime();
         String path = request.getRequestURI();
         String method = request.getMethod();
 
         try {
             filterChain.doFilter(request, response);
         } finally {
-            long duration = System.currentTimeMillis() - startTime;
+            long durationNs = System.nanoTime() - startTime;
+            long durationMs = durationNs / 1_000_000;
             int status = response.getStatus();
 
             // 🎨 Color Logic
@@ -66,17 +67,16 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
                 }
             };
 
-            // User requested red if 500-800ms or higher
-            String durationColor = (duration >= 500) ? RED : (duration >= 200 ? YELLOW : GREEN);
+            // User requested red if 500ms or higher
+            String durationColor = (durationMs >= 500) ? RED : (durationMs >= 200 ? YELLOW : GREEN);
 
-            // Format: ✓ POST /api/v1/auth/login 401 255ms
-            String symbol = (status >= 400) ? RED + " ⨯ " : GREEN + " ✓ ";
+            // Format: ✓ POST /api/v1/auth/login 200 15ms
+            String symbol = (status >= 400) ? RED + "⨯" + RESET : GREEN + "✓" + RESET;
+            String methodPart = methodColor + BOLD + method + RESET;
+            String statusPart = statusColor + BOLD + status + RESET;
+            String durationPart = durationColor + durationMs + "ms" + RESET;
 
-            log.info("{}{} {}{} " + RESET + "{}{} " + RESET + "{}{}ms{}",
-                    symbol, methodColor + BOLD, method, RESET,
-                    path,
-                    statusColor + BOLD, status,
-                    durationColor, duration, RESET);
+            log.info("{} {} {} {} {}", symbol, methodPart, path, statusPart, durationPart);
         }
     }
 

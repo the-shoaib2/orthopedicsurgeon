@@ -1,0 +1,3808 @@
+{
+  "info": {
+    "name": "🩺 Orthopedic Surgeon: Public & Web APIs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "🔐 GROUP A: PUBLIC AUTH (no token required)",
+      "item": [
+        {
+          "name": "POST /auth/login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "ID: A-01\nBody: { email, password, deviceFingerprint,",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"shoaib@orthopedicsurgeon.com\",\n  \"password\": \"shoaib123\",\n  \"deviceFingerprint\": \"df78-gh90-23kj-90lk\",\n  \"totpCode\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /auth/login/mfa-verify",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/login/mfa-verify",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login",
+                "mfa-verify"
+              ]
+            },
+            "description": "ID: A-02\nBody: { userId, totpCode OR backupCode,",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tempToken\": \"b55a6f1c-4272-b737-506ac5d6074a\",\n  \"totpCode\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /auth/login/passkey/begin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/login/passkey/begin",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login",
+                "passkey",
+                "begin"
+              ]
+            },
+            "description": "ID: A-03\nBody: { email }",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"string\",\n  \"password\": \"string\",\n  \"deviceFingerprint\": \"string\",\n  \"deviceName\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /auth/login/passkey/complete",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/login/passkey/complete",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login",
+                "passkey",
+                "complete"
+              ]
+            },
+            "description": "ID: A-04\nBody: { email, credentialResponse (WebAuthn) }",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"shoaib@orthopedicsurgeon.com\",\n  \"password\": \"shoaib123\",\n  \"deviceFingerprint\": \"df78-gh90-23kj-90lk\",\n  \"totpCode\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /auth/login/google",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/login/google",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login",
+                "google"
+              ]
+            },
+            "description": "ID: A-05\nRedirect: → Google OAuth2 consent screen"
+          }
+        },
+        {
+          "name": "GET /auth/oauth2/callback/google",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/oauth2/callback/google",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "oauth2",
+                "callback",
+                "google"
+              ]
+            },
+            "description": "ID: A-06\nHandles OAuth2 callback"
+          }
+        },
+        {
+          "name": "POST /auth/register/patient",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/register/patient",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register",
+                "patient"
+              ]
+            },
+            "description": "ID: A-07\nBody: { firstName, lastName, email, phone,",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Shoaib\",\n  \"lastName\": \"Hasan\",\n  \"email\": \"shoaib@orthopedicsurgeon.com\",\n  \"password\": \"shoaib123\",\n  \"confirmPassword\": \"shoaib123\",\n  \"phone\": \"+8801700000000\",\n  \"dateOfBirth\": \"+8801700000000\",\n  \"gender\": \"1990-01-01\",\n  \"deviceFingerprint\": \"MALE\",\n  \"role\": \"PATIENT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /auth/verify-email/{token}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/verify-email/{{token}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "verify-email",
+                "{{token}}"
+              ]
+            },
+            "description": "ID: A-08\nActivates account"
+          }
+        },
+        {
+          "name": "POST /auth/resend-verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/resend-verification",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "resend-verification"
+              ]
+            },
+            "description": "ID: A-09\nBody: { email }",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"shoaib@orthopedicsurgeon.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /auth/forgot-password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/forgot-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "forgot-password"
+              ]
+            },
+            "description": "ID: A-10\nBody: { email }",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /auth/reset-password/{token}",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/reset-password/{{token}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "reset-password",
+                "{{token}}"
+              ]
+            },
+            "description": "ID: A-11\nBody: { newPassword, confirmPassword }",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"string\",\n  \"newPassword\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /auth/refresh",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/refresh",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
+            },
+            "description": "ID: A-12\nCookie: refreshToken (HttpOnly)",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /auth/logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "ID: A-13\nHeader: Authorization Bearer",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /auth/check-email",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/check-email",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "check-email"
+              ]
+            },
+            "description": "ID: A-14\nQuery: ?email="
+          }
+        },
+        {
+          "name": "POST /auth/passkey/register/begin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/passkey/register/begin",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "passkey",
+                "register",
+                "begin"
+              ]
+            },
+            "description": "ID: A-15\nHeader: Authorization Bearer [PATIENT]",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /auth/passkey/register/complete",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/passkey/register/complete",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "passkey",
+                "register",
+                "complete"
+              ]
+            },
+            "description": "ID: A-16\nHeader: Authorization Bearer [PATIENT]",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /auth/2fa/setup/begin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/2fa/setup/begin",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "2fa",
+                "setup",
+                "begin"
+              ]
+            },
+            "description": "ID: A-17\nHeader: Authorization Bearer [PATIENT]",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /auth/2fa/setup/verify",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/2fa/setup/verify",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "2fa",
+                "setup",
+                "verify"
+              ]
+            },
+            "description": "ID: A-18\nHeader: Authorization Bearer [PATIENT]",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /auth/2fa/disable",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/2fa/disable",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "2fa",
+                "disable"
+              ]
+            },
+            "description": "ID: A-19\nHeader: Authorization Bearer [PATIENT]"
+          }
+        },
+        {
+          "name": "POST /auth/token/verify",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/token/verify",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "token",
+                "verify"
+              ]
+            },
+            "description": "ID: A-20\nBody: { token }",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"550e8400-e29b-41d4-a716-446655440000\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📁 GROUP B: HOME PAGE APIs (all public)",
+      "item": [
+        {
+          "name": "GET /public/home/hero-slides",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/home/hero-slides",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "home",
+                "hero-slides"
+              ]
+            },
+            "description": "ID: B-01\nCache: 30 min"
+          }
+        },
+        {
+          "name": "GET /public/home/stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/home/stats",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "home",
+                "stats"
+              ]
+            },
+            "description": "ID: B-02\nCache: 1 hour"
+          }
+        },
+        {
+          "name": "GET /public/home/featured-doctors",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/home/featured-doctors",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "home",
+                "featured-doctors"
+              ]
+            },
+            "description": "ID: B-03\nCache: 5 min"
+          }
+        },
+        {
+          "name": "GET /public/home/featured-services",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/home/featured-services",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "home",
+                "featured-services"
+              ]
+            },
+            "description": "ID: B-04\nCache: 15 min"
+          }
+        },
+        {
+          "name": "GET /public/home/testimonials",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/home/testimonials",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "home",
+                "testimonials"
+              ]
+            },
+            "description": "ID: B-05\nCache: 1 hour"
+          }
+        },
+        {
+          "name": "GET /public/home/latest-blog-posts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/home/latest-blog-posts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "home",
+                "latest-blog-posts"
+              ]
+            },
+            "description": "ID: B-06\nCache: 10 min"
+          }
+        },
+        {
+          "name": "GET /public/home/gallery",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/home/gallery",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "home",
+                "gallery"
+              ]
+            },
+            "description": "ID: B-07\nCache: 1 hour"
+          }
+        },
+        {
+          "name": "GET /public/home/awards",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/home/awards",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "home",
+                "awards"
+              ]
+            },
+            "description": "ID: B-08\nCache: 24 hours"
+          }
+        },
+        {
+          "name": "GET /public/home/partners",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/home/partners",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "home",
+                "partners"
+              ]
+            },
+            "description": "ID: B-09\nCache: 24 hours"
+          }
+        },
+        {
+          "name": "GET /public/home/working-hours",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/home/working-hours",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "home",
+                "working-hours"
+              ]
+            },
+            "description": "ID: B-10\nCache: 1 hour"
+          }
+        },
+        {
+          "name": "GET /public/home/meta",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/home/meta",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "home",
+                "meta"
+              ]
+            },
+            "description": "ID: B-11\nCache: 1 hour"
+          }
+        },
+        {
+          "name": "GET /public/home/announcement",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/home/announcement",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "home",
+                "announcement"
+              ]
+            },
+            "description": "ID: B-12\nCache: 5 min"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👨‍⚕️ GROUP C: DOCTORS APIs (all public)",
+      "item": [
+        {
+          "name": "GET /public/doctors",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/doctors",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "doctors"
+              ]
+            },
+            "description": "ID: C-01\nQuery: specialization, gender, availableForOnline,"
+          }
+        },
+        {
+          "name": "GET /public/doctors/{id}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/doctors/{{id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "doctors",
+                "{{id}}"
+              ]
+            },
+            "description": "ID: C-02\nCache: 5 min"
+          }
+        },
+        {
+          "name": "GET /public/doctors/{id}/availability",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/doctors/{{id}}/availability",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "doctors",
+                "{{id}}",
+                "availability"
+              ]
+            },
+            "description": "ID: C-03\nCache: 2 min"
+          }
+        },
+        {
+          "name": "GET /public/doctors/{id}/available-slots",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/doctors/{{id}}/available-slots",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "doctors",
+                "{{id}}",
+                "available-slots"
+              ]
+            },
+            "description": "ID: C-04\nQuery: ?date=2025-03-12"
+          }
+        },
+        {
+          "name": "GET /public/doctors/{id}/reviews",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/doctors/{{id}}/reviews",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "doctors",
+                "{{id}}",
+                "reviews"
+              ]
+            },
+            "description": "ID: C-05\nQuery: rating?, page, size, sort"
+          }
+        },
+        {
+          "name": "GET /public/doctors/{id}/services",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/doctors/{{id}}/services",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "doctors",
+                "{{id}}",
+                "services"
+              ]
+            },
+            "description": "ID: C-06\nCache: 10 min"
+          }
+        },
+        {
+          "name": "GET /public/doctors/specializations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/doctors/specializations",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "doctors",
+                "specializations"
+              ]
+            },
+            "description": "ID: C-07\nCache: 1 hour"
+          }
+        },
+        {
+          "name": "GET /public/doctors/search",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/doctors/search",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "doctors",
+                "search"
+              ]
+            },
+            "description": "ID: C-08\nQuery: ?q=search+term&page&size"
+          }
+        },
+        {
+          "name": "GET /public/doctors/{id}/meta",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/doctors/{{id}}/meta",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "doctors",
+                "{{id}}",
+                "meta"
+              ]
+            },
+            "description": "ID: C-09\nCache: 30 min"
+          }
+        },
+        {
+          "name": "GET /public/doctors/cities",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/doctors/cities",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "doctors",
+                "cities"
+              ]
+            },
+            "description": "ID: C-10\nCache: 1 hour"
+          }
+        },
+        {
+          "name": "GET /public/doctors/featured",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/doctors/featured",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "doctors",
+                "featured"
+              ]
+            },
+            "description": "ID: C-11\nCache: 5 min"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📁 GROUP D: SERVICES APIs (all public)",
+      "item": [
+        {
+          "name": "GET /public/services",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/services",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "services"
+              ]
+            },
+            "description": "ID: D-01\nQuery: category, hospitalId, minPrice, maxPrice,"
+          }
+        },
+        {
+          "name": "GET /public/services/{id}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/services/{{id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "services",
+                "{{id}}"
+              ]
+            },
+            "description": "ID: D-02\nCache: 15 min"
+          }
+        },
+        {
+          "name": "GET /public/services/categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/services/categories",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "services",
+                "categories"
+              ]
+            },
+            "description": "ID: D-03\nCache: 1 hour"
+          }
+        },
+        {
+          "name": "GET /public/services/featured",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/services/featured",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "services",
+                "featured"
+              ]
+            },
+            "description": "ID: D-04\nCache: 15 min"
+          }
+        },
+        {
+          "name": "GET /public/services/{id}/doctors",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/services/{{id}}/doctors",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "services",
+                "{{id}}",
+                "doctors"
+              ]
+            },
+            "description": "ID: D-05\nCache: 5 min"
+          }
+        },
+        {
+          "name": "GET /public/services/{id}/meta",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/services/{{id}}/meta",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "services",
+                "{{id}}",
+                "meta"
+              ]
+            },
+            "description": "ID: D-06\nCache: 30 min"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📝 GROUP E: BLOG APIs (all public)",
+      "item": [
+        {
+          "name": "GET /public/blog/posts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/blog/posts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "blog",
+                "posts"
+              ]
+            },
+            "description": "ID: E-01\nQuery: categorySlug, tagSlug, search,"
+          }
+        },
+        {
+          "name": "GET /public/blog/posts/{slug}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/blog/posts/{{slug}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "blog",
+                "posts",
+                "{{slug}}"
+              ]
+            },
+            "description": "ID: E-02\nCache: 10 min"
+          }
+        },
+        {
+          "name": "GET /public/blog/posts/featured",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/blog/posts/featured",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "blog",
+                "posts",
+                "featured"
+              ]
+            },
+            "description": "ID: E-03\nCache: 15 min"
+          }
+        },
+        {
+          "name": "GET /public/blog/categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/blog/categories",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "blog",
+                "categories"
+              ]
+            },
+            "description": "ID: E-04\nCache: 1 hour"
+          }
+        },
+        {
+          "name": "GET /public/blog/categories/{slug}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/blog/categories/{{slug}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "blog",
+                "categories",
+                "{{slug}}"
+              ]
+            },
+            "description": "ID: E-05\nQuery: page, size"
+          }
+        },
+        {
+          "name": "GET /public/blog/tags",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/blog/tags",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "blog",
+                "tags"
+              ]
+            },
+            "description": "ID: E-06\nCache: 1 hour"
+          }
+        },
+        {
+          "name": "GET /public/blog/tags/{slug}/posts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/blog/tags/{{slug}}/posts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "blog",
+                "tags",
+                "{{slug}}",
+                "posts"
+              ]
+            },
+            "description": "ID: E-07\nQuery: page, size"
+          }
+        },
+        {
+          "name": "GET /public/blog/posts/{slug}/comments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/blog/posts/{{slug}}/comments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "blog",
+                "posts",
+                "{{slug}}",
+                "comments"
+              ]
+            },
+            "description": "ID: E-08\nQuery: page, size"
+          }
+        },
+        {
+          "name": "POST /public/blog/posts/{slug}/comments",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/blog/posts/{{slug}}/comments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "blog",
+                "posts",
+                "{{slug}}",
+                "comments"
+              ]
+            },
+            "description": "ID: E-09\nBody: { content, parentCommentId?,",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /public/blog/posts/{slug}/related",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/blog/posts/{{slug}}/related",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "blog",
+                "posts",
+                "{{slug}}",
+                "related"
+              ]
+            },
+            "description": "ID: E-10\nCache: 15 min"
+          }
+        },
+        {
+          "name": "GET /public/blog/posts/{slug}/meta",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/blog/posts/{{slug}}/meta",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "blog",
+                "posts",
+                "{{slug}}",
+                "meta"
+              ]
+            },
+            "description": "ID: E-11\nCache: 30 min"
+          }
+        },
+        {
+          "name": "GET /public/blog/popular",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/blog/popular",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "blog",
+                "popular"
+              ]
+            },
+            "description": "ID: E-12\nCache: 30 min"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📁 GROUP F: ABOUT & CONTACT (all public)",
+      "item": [
+        {
+          "name": "GET /public/about/hospital",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/about/hospital",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "about",
+                "hospital"
+              ]
+            },
+            "description": "ID: F-01\nCache: 1 hour"
+          }
+        },
+        {
+          "name": "GET /public/about/team",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/about/team",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "about",
+                "team"
+              ]
+            },
+            "description": "ID: F-02\nCache: 1 hour"
+          }
+        },
+        {
+          "name": "GET /public/about/awards",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/about/awards",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "about",
+                "awards"
+              ]
+            },
+            "description": "ID: F-03\nCache: 24 hours"
+          }
+        },
+        {
+          "name": "GET /public/about/gallery",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/about/gallery",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "about",
+                "gallery"
+              ]
+            },
+            "description": "ID: F-04\nQuery: category, page, size"
+          }
+        },
+        {
+          "name": "GET /public/about/partners",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/about/partners",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "about",
+                "partners"
+              ]
+            },
+            "description": "ID: F-05\nCache: 24 hours"
+          }
+        },
+        {
+          "name": "GET /public/about/meta",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/about/meta",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "about",
+                "meta"
+              ]
+            },
+            "description": "ID: F-06\nCache: 1 hour"
+          }
+        },
+        {
+          "name": "POST /public/contact/message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/contact/message",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "contact",
+                "message"
+              ]
+            },
+            "description": "ID: F-07\nBody: { name, email, phone, subject, message }",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"string\",\n  \"email\": \"{{patient_email}}\",\n  \"phone\": \"+1234567890\",\n  \"subject\": \"string\",\n  \"message\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /public/contact/faqs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/contact/faqs",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "contact",
+                "faqs"
+              ]
+            },
+            "description": "ID: F-08\nQuery: ?category="
+          }
+        },
+        {
+          "name": "GET /public/contact/faqs/categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/contact/faqs/categories",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "contact",
+                "faqs",
+                "categories"
+              ]
+            },
+            "description": "ID: F-09\nCache: 1 hour"
+          }
+        },
+        {
+          "name": "GET /public/contact/info",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/contact/info",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "contact",
+                "info"
+              ]
+            },
+            "description": "ID: F-10\nCache: 1 hour"
+          }
+        },
+        {
+          "name": "POST /public/contact/newsletter",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/contact/newsletter",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "contact",
+                "newsletter"
+              ]
+            },
+            "description": "ID: F-11\nBody: { email, name? }",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{patient_email}}\",\n  \"name\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /public/contact/newsletter/confirm/{token}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/contact/newsletter/confirm/{{token}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "contact",
+                "newsletter",
+                "confirm",
+                "{{token}}"
+              ]
+            },
+            "description": "ID: F-12\nReturns: { success, message }"
+          }
+        },
+        {
+          "name": "DELETE /public/contact/newsletter/unsubscribe/{token}",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/contact/newsletter/unsubscribe/{{token}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "contact",
+                "newsletter",
+                "unsubscribe",
+                "{{token}}"
+              ]
+            },
+            "description": "ID: F-13\nReturns: { success }"
+          }
+        },
+        {
+          "name": "GET /public/contact/meta",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/contact/meta",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "contact",
+                "meta"
+              ]
+            },
+            "description": "ID: F-14\nCache: 1 hour"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📁 GROUP G: REVIEWS (public read)",
+      "item": [
+        {
+          "name": "GET /public/reviews/doctor/{doctorId}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/reviews/doctor/{{doctorId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "reviews",
+                "doctor",
+                "{{doctorId}}"
+              ]
+            },
+            "description": "ID: G-01\nQuery: rating?, page, size, sort"
+          }
+        },
+        {
+          "name": "GET /public/reviews/summary/{doctorId}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/reviews/summary/{{doctorId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "reviews",
+                "summary",
+                "{{doctorId}}"
+              ]
+            },
+            "description": "ID: G-02\nCache: 5 min"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📁 GROUP H: GLOBAL SEARCH & SEO (public)",
+      "item": [
+        {
+          "name": "GET /public/search",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/search",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "search"
+              ]
+            },
+            "description": "ID: H-01\nQuery: q, type (all/doctors/services/blog), page"
+          }
+        },
+        {
+          "name": "GET /public/settings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/settings",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "settings"
+              ]
+            },
+            "description": "ID: H-02\nCache: 30 min"
+          }
+        },
+        {
+          "name": "GET /public/sitemap",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/sitemap",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "sitemap"
+              ]
+            },
+            "description": "ID: H-03\nCache: 1 hour"
+          }
+        },
+        {
+          "name": "GET /public/health-check",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/health-check",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "health-check"
+              ]
+            },
+            "description": "ID: H-04\nNo auth. No cache."
+          }
+        },
+        {
+          "name": "POST /public/analytics/page-view",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/analytics/page-view",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "analytics",
+                "page-view"
+              ]
+            },
+            "description": "ID: H-05\nBody: { page, sessionId, referrer }",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"page\": \"string\",\n  \"sessionId\": \"{{last_uuid}}\",\n  \"referrer\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /public/about/stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/about/stats",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "about",
+                "stats"
+              ]
+            },
+            "description": "ID: H-06\nCache: 1 hour"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👤 GROUP I: BOOKING (patient protected)",
+      "item": [
+        {
+          "name": "GET /public/booking/check-slot",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/booking/check-slot",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "booking",
+                "check-slot"
+              ]
+            },
+            "description": "ID: I-01\nAuth: NONE (public)"
+          }
+        },
+        {
+          "name": "POST /public/booking/appointments",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/booking/appointments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "booking",
+                "appointments"
+              ]
+            },
+            "description": "ID: I-02\nAuth: PATIENT [JWT]",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"doctorId\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"serviceId\": \"550e8400-e29b-41d4-a716-446655440001\",\n  \"appointmentDate\": \"2024-12-25\",\n  \"startTime\": \"10:30\",\n  \"type\": \"ONLINE\",\n  \"chiefComplaint\": \"Severe knee pain since yesterday\",\n  \"patientId\": \"550e8400-e29b-41d4-a716-446655440002\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /public/booking/appointments/{id}/status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/booking/appointments/{{id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "booking",
+                "appointments",
+                "{{id}}",
+                "status"
+              ]
+            },
+            "description": "ID: I-03\nAuth: PATIENT [JWT] (own appointment only)"
+          }
+        },
+        {
+          "name": "POST /public/booking/appointments/{id}/cancel",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/booking/appointments/{{id}}/cancel",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "booking",
+                "appointments",
+                "{{id}}",
+                "cancel"
+              ]
+            },
+            "description": "ID: I-04\nAuth: PATIENT [JWT] (own only)",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"doctorId\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"serviceId\": \"550e8400-e29b-41d4-a716-446655440001\",\n  \"appointmentDate\": \"2024-12-25\",\n  \"startTime\": \"10:30\",\n  \"type\": \"ONLINE\",\n  \"chiefComplaint\": \"Severe knee pain since yesterday\",\n  \"patientId\": \"550e8400-e29b-41d4-a716-446655440002\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /public/booking/appointments/{id}/reschedule",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/booking/appointments/{{id}}/reschedule",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "booking",
+                "appointments",
+                "{{id}}",
+                "reschedule"
+              ]
+            },
+            "description": "ID: I-05\nAuth: PATIENT [JWT] (own only)",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"doctorId\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"serviceId\": \"550e8400-e29b-41d4-a716-446655440001\",\n  \"appointmentDate\": \"2024-12-25\",\n  \"startTime\": \"10:30\",\n  \"type\": \"ONLINE\",\n  \"chiefComplaint\": \"Severe knee pain since yesterday\",\n  \"patientId\": \"550e8400-e29b-41d4-a716-446655440002\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /public/booking/my-appointments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/booking/my-appointments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "booking",
+                "my-appointments"
+              ]
+            },
+            "description": "ID: I-06\nAuth: PATIENT [JWT]"
+          }
+        },
+        {
+          "name": "GET /public/booking/my-appointments/{id}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/booking/my-appointments/{{id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "public",
+                "booking",
+                "my-appointments",
+                "{{id}}"
+              ]
+            },
+            "description": "ID: I-07\nAuth: PATIENT [JWT] (own only)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👤 GROUP J: PATIENT PORTAL (patient protected)",
+      "item": [
+        {
+          "name": "GET /portal/dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/dashboard",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "dashboard"
+              ]
+            },
+            "description": "ID: J-01\nReturns: PatientDashboardResponse"
+          }
+        },
+        {
+          "name": "GET /portal/profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "profile"
+              ]
+            },
+            "description": "ID: J-02\nReturns: PatientProfile (full)"
+          }
+        },
+        {
+          "name": "PUT /portal/profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "profile"
+              ]
+            },
+            "description": "ID: J-03\nBody: PatientUpdateRequest",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PUT /portal/profile/avatar",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/profile/avatar",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "profile",
+                "avatar"
+              ]
+            },
+            "description": "ID: J-04\nBody: multipart/form-data (image)",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /portal/prescriptions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/prescriptions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "prescriptions"
+              ]
+            },
+            "description": "ID: J-05\nQuery: status, dateFrom, dateTo, page, size"
+          }
+        },
+        {
+          "name": "GET /portal/prescriptions/{id}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/prescriptions/{{id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "prescriptions",
+                "{{id}}"
+              ]
+            },
+            "description": "ID: J-06\nSecurity: own prescription only"
+          }
+        },
+        {
+          "name": "GET /portal/lab-reports",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/lab-reports",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "lab-reports"
+              ]
+            },
+            "description": "ID: J-07\nQuery: type, status, dateFrom, dateTo, page, size"
+          }
+        },
+        {
+          "name": "GET /portal/lab-reports/{id}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/lab-reports/{{id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "lab-reports",
+                "{{id}}"
+              ]
+            },
+            "description": "ID: J-08\nSecurity: own report only"
+          }
+        },
+        {
+          "name": "GET /portal/payments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/payments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "payments"
+              ]
+            },
+            "description": "ID: J-09\nQuery: status, dateFrom, dateTo, page, size"
+          }
+        },
+        {
+          "name": "GET /portal/payments/{id}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/payments/{{id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "payments",
+                "{{id}}"
+              ]
+            },
+            "description": "ID: J-10\nSecurity: own payment only"
+          }
+        },
+        {
+          "name": "GET /portal/payments/{id}/invoice",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/payments/{{id}}/invoice",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "payments",
+                "{{id}}",
+                "invoice"
+              ]
+            },
+            "description": "ID: J-11\nSecurity: own invoice only"
+          }
+        },
+        {
+          "name": "GET /portal/notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/notifications",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "notifications"
+              ]
+            },
+            "description": "ID: J-12\nQuery: isRead, type, page, size"
+          }
+        },
+        {
+          "name": "PUT /portal/notifications/{id}/read",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/notifications/{{id}}/read",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "notifications",
+                "{{id}}",
+                "read"
+              ]
+            },
+            "description": "ID: J-13\nReturns: { success }",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PUT /portal/notifications/read-all",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/notifications/read-all",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "notifications",
+                "read-all"
+              ]
+            },
+            "description": "ID: J-14\nReturns: { count: markedCount }",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /portal/notifications/unread-count",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/notifications/unread-count",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "notifications",
+                "unread-count"
+              ]
+            },
+            "description": "ID: J-15\nCache: per-user 30 sec"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👤 GROUP K: HEALTH RECORDS (patient protected)",
+      "item": [
+        {
+          "name": "GET /portal/health/timeline",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/health/timeline",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "health",
+                "timeline"
+              ]
+            },
+            "description": "ID: K-01\nQuery: eventType, dateFrom, dateTo, page, size"
+          }
+        },
+        {
+          "name": "GET /portal/health/vitals",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/health/vitals",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "health",
+                "vitals"
+              ]
+            },
+            "description": "ID: K-02\nQuery: page, size"
+          }
+        },
+        {
+          "name": "POST /portal/health/vitals",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/health/vitals",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "health",
+                "vitals"
+              ]
+            },
+            "description": "ID: K-03\nBody: RecordVitalsRequest",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /portal/health/vitals/latest",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/health/vitals/latest",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "health",
+                "vitals",
+                "latest"
+              ]
+            },
+            "description": "ID: K-04\nReturns: VitalSigns (most recent)"
+          }
+        },
+        {
+          "name": "GET /portal/health/vitals/chart",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/health/vitals/chart",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "health",
+                "vitals",
+                "chart"
+              ]
+            },
+            "description": "ID: K-05\nQuery: metric (bp/weight/heartRate/bmi),"
+          }
+        },
+        {
+          "name": "GET /portal/health/documents",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/health/documents",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "health",
+                "documents"
+              ]
+            },
+            "description": "ID: K-06\nQuery: type, dateFrom, dateTo, page, size"
+          }
+        },
+        {
+          "name": "POST /portal/health/documents",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/health/documents",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "health",
+                "documents"
+              ]
+            },
+            "description": "ID: K-07\nBody: multipart/form-data",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /portal/health/documents/{id}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/health/documents/{{id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "health",
+                "documents",
+                "{{id}}"
+              ]
+            },
+            "description": "ID: K-08\nSecurity: own document only"
+          }
+        },
+        {
+          "name": "DELETE /portal/health/documents/{id}",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/health/documents/{{id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "health",
+                "documents",
+                "{{id}}"
+              ]
+            },
+            "description": "ID: K-09\nSecurity: own document only"
+          }
+        },
+        {
+          "name": "GET /portal/health/treatment-history",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/health/treatment-history",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "health",
+                "treatment-history"
+              ]
+            },
+            "description": "ID: K-10\nQuery: doctorId, dateFrom, dateTo, page, size"
+          }
+        },
+        {
+          "name": "GET /portal/health/summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/health/summary",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "health",
+                "summary"
+              ]
+            },
+            "description": "ID: K-11\nReturns: HealthSummaryResponse"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👤 GROUP L: PATIENT REVIEWS (patient protected)",
+      "item": [
+        {
+          "name": "POST /portal/reviews",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/reviews",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "reviews"
+              ]
+            },
+            "description": "ID: L-01\nAuth: PATIENT [JWT]",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /portal/reviews/my-reviews",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/reviews/my-reviews",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "reviews",
+                "my-reviews"
+              ]
+            },
+            "description": "ID: L-02\nAuth: PATIENT [JWT]"
+          }
+        },
+        {
+          "name": "PUT /portal/reviews/{id}",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/reviews/{{id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "reviews",
+                "{{id}}"
+              ]
+            },
+            "description": "ID: L-03\nAuth: PATIENT [JWT] (own, unpublished only)",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "👤 GROUP M: PATIENT SECURITY APIs",
+      "item": [
+        {
+          "name": "GET /portal/security/sessions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/security/sessions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "security",
+                "sessions"
+              ]
+            },
+            "description": "ID: M-01\nReturns: Session[] (all active sessions)"
+          }
+        },
+        {
+          "name": "DELETE /portal/security/sessions/{sessionId}",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/security/sessions/{{sessionId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "security",
+                "sessions",
+                "{{sessionId}}"
+              ]
+            },
+            "description": "ID: M-02\nSecurity: own session only"
+          }
+        },
+        {
+          "name": "DELETE /portal/security/sessions/all-except-current",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/security/sessions/all-except-current",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "security",
+                "sessions",
+                "all-except-current"
+              ]
+            },
+            "description": "ID: M-03\nAction: terminate all other sessions"
+          }
+        },
+        {
+          "name": "GET /portal/security/devices",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/security/devices",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "security",
+                "devices"
+              ]
+            },
+            "description": "ID: M-04\nReturns: TrustedDevice[]"
+          }
+        },
+        {
+          "name": "DELETE /portal/security/devices/{deviceId}",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/security/devices/{{deviceId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "security",
+                "devices",
+                "{{deviceId}}"
+              ]
+            },
+            "description": "ID: M-05\nSecurity: own device only"
+          }
+        },
+        {
+          "name": "GET /portal/security/login-history",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/security/login-history",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "security",
+                "login-history"
+              ]
+            },
+            "description": "ID: M-06\nQuery: page, size"
+          }
+        },
+        {
+          "name": "POST /portal/security/passkeys",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/security/passkeys",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "security",
+                "passkeys"
+              ]
+            },
+            "description": "ID: M-07\nBody: WebAuthn registration complete",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /portal/security/passkeys",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/security/passkeys",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "security",
+                "passkeys"
+              ]
+            },
+            "description": "ID: M-08\nReturns: Passkey[]"
+          }
+        },
+        {
+          "name": "DELETE /portal/security/passkeys/{id}",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/security/passkeys/{{id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "security",
+                "passkeys",
+                "{{id}}"
+              ]
+            },
+            "description": "ID: M-09\nReturns: { success }"
+          }
+        },
+        {
+          "name": "POST /portal/security/passkeys/{id}/rename",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/security/passkeys/{{id}}/rename",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "security",
+                "passkeys",
+                "{{id}}",
+                "rename"
+              ]
+            },
+            "description": "ID: M-10\nBody: { name }",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /portal/security/2fa/status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/security/2fa/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "security",
+                "2fa",
+                "status"
+              ]
+            },
+            "description": "ID: M-11\nReturns: { enabled, enrolledAt,"
+          }
+        },
+        {
+          "name": "POST /portal/security/2fa/backup-codes/regenerate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/security/2fa/backup-codes/regenerate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "security",
+                "2fa",
+                "backup-codes",
+                "regenerate"
+              ]
+            },
+            "description": "ID: M-12\nBody: { totpCode }",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"totpCode\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /portal/security/change-password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/security/change-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "security",
+                "change-password"
+              ]
+            },
+            "description": "ID: M-13\nBody: { currentPassword, newPassword,",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /portal/security/change-email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/security/change-email",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "security",
+                "change-email"
+              ]
+            },
+            "description": "ID: M-14\nBody: { newEmail, password, totpCode? }",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newEmail\": \"{{patient_email}}\",\n  \"password\": \"{{default_password}}\",\n  \"totpCode\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /portal/security/change-email/verify/{token}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/portal/security/change-email/verify/{{token}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "portal",
+                "security",
+                "change-email",
+                "verify",
+                "{{token}}"
+              ]
+            },
+            "description": "ID: M-15\nReturns: { success }"
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "your_token_here",
+      "type": "string"
+    },
+    {
+      "key": "admin_email",
+      "value": "admin@orthopedicsurgeon.com",
+      "type": "string"
+    },
+    {
+      "key": "patient_email",
+      "value": "patient@example.com",
+      "type": "string"
+    },
+    {
+      "key": "default_password",
+      "value": "Admin@123",
+      "type": "string"
+    },
+    {
+      "key": "last_uuid",
+      "value": "00000000-0000-0000-0000-000000000000",
+      "type": "string"
+    }
+  ]
+}

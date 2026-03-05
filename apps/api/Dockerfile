@@ -1,24 +1,43 @@
-# Build stage
+# ─── Stage 1: Build ───────────────────────────────────────────────────────────
 FROM maven:3.9-eclipse-temurin-21-alpine AS build
 WORKDIR /app
-COPY apps/api/pom.xml .
-RUN mvn dependency:go-offline
 
-COPY apps/api/src ./src
-RUN mvn clean package -DskipTests
+# Cache dependencies layer separately (only re-run when pom.xml changes)
+COPY pom.xml .
+RUN mvn dependency:go-offline -q
 
-# Layer extraction stage
-FROM eclipse-temurin:21-jre-alpine AS builder
+# Build the application
+COPY src ./src
+RUN mvn clean package -DskipTests -q
+
+# ─── Stage 2: Extract layers ──────────────────────────────────────────────────
+FROM eclipse-temurin:21-jre-alpine AS layers
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 RUN java -Djarmode=layertools -jar app.jar extract
 
-# Production stage
+# ─── Stage 3: Production image ────────────────────────────────────────────────
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-COPY --from=builder /app/dependencies/ ./
-COPY --from=builder /app/spring-boot-loader/ ./
-COPY --from=builder /app/snapshot-dependencies/ ./
-COPY --from=builder /app/application/ ./
 
-ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]
+# Run as non-root user
+RUN addgroup -S spring && adduser -S spring -G spring
+USER spring:spring
+
+# Copy extracted layers for optimal caching
+COPY --from=layers /app/dependencies/ ./
+COPY --from=layers /app/spring-boot-loader/ ./
+COPY --from=layers /app/snapshot-dependencies/ ./
+COPY --from=layers /app/application/ ./
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+    CMD wget -qO- http://localhost:8080/actuator/health || exit 1
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", \
+    "-XX:+UseContainerSupport", \
+    "-XX:MaxRAMPercentage=75.0", \
+    "-Djava.security.egd=file:/dev/./urandom", \
+    "org.springframework.boot.loader.launch.JarLauncher"]

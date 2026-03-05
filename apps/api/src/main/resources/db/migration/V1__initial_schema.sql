@@ -685,6 +685,7 @@ CREATE TABLE audit_logs (
     ip_address VARCHAR(45),
     user_agent TEXT,
     status VARCHAR(20),
+    details VARCHAR(1000),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -767,34 +768,4 @@ CREATE INDEX idx_blog_posts_status_date ON blog_posts(status, published_at DESC)
 CREATE INDEX idx_audit_logs_user_date ON audit_logs (user_id, created_at DESC);
 CREATE INDEX idx_notif_queue_status ON notification_queue(status, scheduled_at);
 
--- ==========================================
--- 9. Base Seed Data
--- ==========================================
 
--- Roles (No Prefix)
-INSERT INTO roles (name) VALUES 
-('SUPER_ADMIN'), ('ADMIN'), ('DOCTOR'), ('STAFF'), ('PATIENT'), 
-('ACCOUNTANT'), ('LAB_TECH'), ('PHARMACY')
-ON CONFLICT DO NOTHING;
-
--- Super Admin Account
--- Password: "khan23105101484@." 
--- (Note: Stored as plain text for now, should be replaced with BCrypt hash)
-INSERT INTO users (id, email, password, first_name, last_name, phone, gender, enabled)
-VALUES (
-    '550e8400-e29b-41d4-a716-446655440000',
-    'khan23105101484@diu.edu.bd',
-    'khan23105101484@', 
-    'MD Shoaib',
-    'Khan',
-    '01909978166',
-    'MALE',
-    TRUE
-);
-
--- Link Super Admin to Role
-INSERT INTO user_roles (user_id, role_id)
-SELECT u.id, r.id
-FROM users u, roles r
-WHERE u.email = 'khan23105101484@diu.edu.bd'
-AND r.name = 'SUPER_ADMIN';

@@ -24,24 +24,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider tokenProvider;
 
+    @org.springframework.beans.factory.annotation.Value("${app.auth.cookie-name.access:accessToken}")
+    private String accessTokenCookieName;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
         String header = request.getHeader("Authorization");
+        String token = null;
 
-        if (header == null || !header.startsWith("Bearer ")) {
+        if (header != null && header.startsWith("Bearer ")) {
+            token = header.substring(7);
+        } else {
+            token = getCookieValue(request, accessTokenCookieName);
+        }
+
+        if (token == null) {
             filterChain.doFilter(request, response);
             return;
         }
-
-        String token = header.substring(7);
 
         try {
             if (tokenProvider.validateToken(token)) {
                 io.jsonwebtoken.Claims claims = tokenProvider.getClaimsFromToken(token);
 
                 String username = claims.getSubject();
+                @SuppressWarnings("unchecked")
                 List<String> roles = (List<String>) claims.get("roles");
 
                 // Device fingerprint check (simplified for now)
@@ -65,6 +74,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         null,
                         authorities);
 
+                authentication
+                        .setDetails(new org.springframework.security.web.authentication.WebAuthenticationDetailsSource()
+                                .buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
             }
 
         } catch (Exception e) {
@@ -80,5 +94,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String al = request.getHeader("Accept-Language");
         String df = request.getHeader("X-Device-Fingerprint");
         return (ua != null ? ua : "") + "|" + (al != null ? al : "") + "|" + (df != null ? df : "");
+    }
+
+    private String getCookieValue(HttpServletRequest request, String name) {
+        if (request.getCookies() == null)
+            return null;
+        for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
+            if (cookie.getName().equals(name)) {
+                return cookie.getValue();
+            }
+        }
+        return null;
     }
 }

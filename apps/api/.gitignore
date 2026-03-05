@@ -13,5 +13,6 @@ target/
 *.project
 *.settings/
 
-# Temp
+# Temp / Local
 tmp/
+**/src/main/resources/application-local.yaml

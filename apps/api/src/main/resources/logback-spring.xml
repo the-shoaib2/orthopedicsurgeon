@@ -13,7 +13,7 @@
         </encoder>
     </appender>
 
-    <!-- 🚀 Next.js-style Clean Console Appender (No Prefix) -->
+    <!-- 🚀 Console Appender (No Prefix) -->
     <appender name="CleanConsole" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <Pattern>%msg%n</Pattern>

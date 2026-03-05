@@ -10,12 +10,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -38,10 +43,31 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage(), request);
     }
 
-    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiResponse<Object>> handleAccessDenied(
-            org.springframework.security.access.AccessDeniedException ex, HttpServletRequest request) {
+            AccessDeniedException ex, HttpServletRequest request) {
         return buildErrorResponse(HttpStatus.FORBIDDEN, "Access denied: you don't have enough permissions", request);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiResponse<Object>> handleMethodNotSupported(
+            HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
+        String message = String.format("HTTP method '%s' is not supported for this endpoint. Supported methods: %s",
+                ex.getMethod(), ex.getSupportedHttpMethods());
+        return buildErrorResponse(HttpStatus.METHOD_NOT_ALLOWED, message, request);
+    }
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleNoHandlerFound(
+            NoHandlerFoundException ex, HttpServletRequest request) {
+        String message = String.format("No handler found for %s %s", ex.getHttpMethod(), ex.getRequestURL());
+        return buildErrorResponse(HttpStatus.NOT_FOUND, message, request);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleNoResourceFound(
+            NoResourceFoundException ex, HttpServletRequest request) {
+        return buildErrorResponse(HttpStatus.NOT_FOUND, "Resource not found: " + request.getRequestURI(), request);
     }
 
     @ExceptionHandler(BusinessException.class)
@@ -75,8 +101,26 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleGeneric(Exception ex, HttpServletRequest request) {
-        log.error("Unhandled exception occurred", ex);
-        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred", request);
+        log.error("Unhandled exception [{}]: {}", ex.getClass().getName(), ex.getMessage(), ex);
+
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        String message = "An unexpected error occurred";
+
+        // Defensive check for 404-like exceptions if the specific handlers were
+        // bypassed
+        if (ex.getClass().getSimpleName().contains("NoResourceFoundException") ||
+                ex.getClass().getSimpleName().contains("NoHandlerFoundException")) {
+            status = HttpStatus.NOT_FOUND;
+            message = "Endpoint not found: " + request.getRequestURI();
+        }
+
+        return buildErrorResponse(status, message, request);
+    }
+
+    @ExceptionHandler(Throwable.class)
+    public ResponseEntity<ApiResponse<Object>> handleThrowable(Throwable ex, HttpServletRequest request) {
+        log.error("Critical error [{}]: {}", ex.getClass().getName(), ex.getMessage(), ex);
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "A critical system error occurred", request);
     }
 
     private ResponseEntity<ApiResponse<Object>> buildErrorResponse(HttpStatus status, String message,

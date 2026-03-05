@@ -23,8 +23,11 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @Value("${app.auth.cookie-name:refreshToken}")
-    private String cookieName;
+    @Value("${app.auth.cookie-name.refresh:refreshToken}")
+    private String refreshTokenCookieName;
+
+    @Value("${app.auth.cookie-name.access:accessToken}")
+    private String accessTokenCookieName;
 
     @PostMapping("/login")
     @Operation(summary = "Login with email and password", description = "Spec A-01: Primary login endpoint for patients and staff.")
@@ -37,6 +40,9 @@ public class AuthController {
 
         if (response.getRefreshToken() != null) {
             addRefreshTokenCookie(servletResponse, response.getRefreshToken());
+        }
+        if (response.getAccessToken() != null) {
+            addAccessTokenCookie(servletResponse, response.getAccessToken());
         }
 
         return ResponseEntity.ok(response);
@@ -51,6 +57,9 @@ public class AuthController {
         TokenResponse response = authService.verify2fa(request, userAgent);
         if (response.getRefreshToken() != null) {
             addRefreshTokenCookie(servletResponse, response.getRefreshToken());
+        }
+        if (response.getAccessToken() != null) {
+            addAccessTokenCookie(servletResponse, response.getAccessToken());
         }
         return ResponseEntity.ok(response);
     }
@@ -112,27 +121,28 @@ public class AuthController {
     @PostMapping("/refresh")
     @Operation(summary = "Refresh access token", description = "Spec A-13: Rotates access and refresh tokens.")
     public ResponseEntity<TokenResponse> refreshToken(
-            @CookieValue(name = "${app.auth.cookie-name:refreshToken}", required = false) String refreshToken,
+            @CookieValue(name = "${app.auth.cookie-name.refresh:refreshToken}", required = false) String refreshToken,
             HttpServletResponse servletResponse) {
         if (refreshToken == null) {
             return ResponseEntity.badRequest().build();
         }
         TokenResponse response = authService.refreshToken(refreshToken);
         addRefreshTokenCookie(servletResponse, response.getRefreshToken());
+        addAccessTokenCookie(servletResponse, response.getAccessToken());
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/logout")
     @Operation(summary = "Logout user", description = "Spec A-14: Revokes current session and blacklists token.")
     public ResponseEntity<Void> logout(HttpServletRequest request,
-            @CookieValue(name = "${app.auth.cookie-name:refreshToken}", required = false) String refreshToken,
+            @CookieValue(name = "${app.auth.cookie-name.refresh:refreshToken}", required = false) String refreshToken,
             HttpServletResponse response) {
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String accessToken = authHeader.substring(7);
             authService.logout(accessToken, refreshToken);
         }
-        clearRefreshTokenCookie(response);
+        clearAllCookies(response);
         return ResponseEntity.ok().build();
     }
 
@@ -146,7 +156,7 @@ public class AuthController {
         String ip = request.getRemoteAddr();
         String userAgent = request.getHeader("User-Agent");
         authService.logoutAll(ip, userAgent, user.getEmail());
-        clearRefreshTokenCookie(response);
+        clearAllCookies(response);
         return ResponseEntity.noContent().build();
     }
 
@@ -168,12 +178,15 @@ public class AuthController {
         if (response.getRefreshToken() != null) {
             addRefreshTokenCookie(servletResponse, response.getRefreshToken());
         }
+        if (response.getAccessToken() != null) {
+            addAccessTokenCookie(servletResponse, response.getAccessToken());
+        }
 
         return ResponseEntity.ok(response);
     }
 
     private void addRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
-        Cookie cookie = new Cookie(cookieName, refreshToken);
+        Cookie cookie = new Cookie(refreshTokenCookieName, refreshToken);
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         cookie.setPath("/");
@@ -181,8 +194,22 @@ public class AuthController {
         response.addCookie(cookie);
     }
 
-    private void clearRefreshTokenCookie(HttpServletResponse response) {
-        Cookie cookie = new Cookie(cookieName, null);
+    private void addAccessTokenCookie(HttpServletResponse response, String accessToken) {
+        Cookie cookie = new Cookie(accessTokenCookieName, accessToken);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(15 * 60); // 15 mins (match policy)
+        response.addCookie(cookie);
+    }
+
+    private void clearAllCookies(HttpServletResponse response) {
+        clearCookie(response, refreshTokenCookieName);
+        clearCookie(response, accessTokenCookieName);
+    }
+
+    private void clearCookie(HttpServletResponse response, String name) {
+        Cookie cookie = new Cookie(name, null);
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         cookie.setPath("/");

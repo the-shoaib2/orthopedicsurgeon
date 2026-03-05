@@ -29,11 +29,14 @@ public class SecurityConfig {
 
         private static final String[] PUBLIC_URLS = {
                         "/api/v1/auth/login",
-                        "/api/v1/auth/register",
+                        "/api/v1/auth/register/patient",
                         "/api/v1/auth/refresh",
                         "/api/v1/auth/verify-email/**",
                         "/api/v1/auth/forgot-password/**",
                         "/api/v1/auth/reset-password/**",
+                        "/api/v1/admin/auth/login",
+                        "/api/v1/admin/auth/login/mfa",
+                        "/api/v1/admin/auth/refresh",
                         "/v3/api-docs/**",
                         "/swagger-ui/**",
                         "/oauth2/**",
@@ -74,6 +77,8 @@ public class SecurityConfig {
                                 .sessionManagement(session -> session
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**")
+                                                .permitAll()
                                                 .requestMatchers(PUBLIC_URLS).permitAll()
                                                 .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                                                 .requestMatchers("/actuator/**").hasAuthority("SUPER_ADMIN")

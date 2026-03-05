@@ -112,8 +112,7 @@ public class AuthServiceImpl implements AuthService {
         updateLoginMetadataAsync(user);
 
         boolean isAdmin = user.getRoles().stream()
-                .anyMatch(r -> r.getName().equals("ADMIN") || r.getName().equals("SUPER_ADMIN'")
-                        || r.getName().equals("ADMIN") || r.getName().equals("SUPER_ADMIN"));
+                .anyMatch(r -> r.getName().equals("ADMIN") || r.getName().equals("SUPER_ADMIN"));
 
         if (isAdmin || user.isUsing2fa()) {
             String tempToken = UUID.randomUUID().toString();
@@ -423,7 +422,7 @@ public class AuthServiceImpl implements AuthService {
         updateLoginMetadataAsync(user);
 
         boolean isAdmin = user.getRoles().stream()
-                .anyMatch(r -> r.getName().equals("ADMIN") || r.getName().equals("SUPER_ADMIN'"));
+                .anyMatch(r -> r.getName().equals("ADMIN") || r.getName().equals("SUPER_ADMIN"));
 
         if (isAdmin || user.isUsing2fa()) {
             String tempToken = UUID.randomUUID().toString();
