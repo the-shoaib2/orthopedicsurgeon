@@ -8,9 +8,14 @@ export const authGuard: CanActivateFn = () => {
   const router = inject(Router);
 
   if (authService.isLoggedIn()) {
+    // If we have a token but no user object (e.g. after refresh), fetch it
+    if (!authService.currentUser()) {
+      return authService.checkAuth().pipe(
+        map(isAuth => isAuth ? true : router.createUrlTree(['/auth/login']))
+      );
+    }
     return true;
   }
 
-  router.navigate(['/auth/login']);
-  return false;
+  return router.createUrlTree(['/auth/login']);
 };

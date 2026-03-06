@@ -1,6 +1,8 @@
 package com.orthopedic.api.auth.controller;
 
 import com.orthopedic.api.auth.dto.*;
+import com.orthopedic.api.auth.entity.User;
+import com.orthopedic.api.rbac.annotation.CurrentUser;
 import com.orthopedic.api.auth.service.AdminAuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -59,6 +61,15 @@ public class AdminAuthController {
         }
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/me")
+    @Operation(summary = "Get current authenticated admin profile")
+    public ResponseEntity<UserDto> getCurrentUser(@CurrentUser User user) {
+        if (user == null) {
+            return ResponseEntity.status(401).build();
+        }
+        return ResponseEntity.ok(UserDto.fromEntity(user));
     }
 
     @PostMapping("/refresh")

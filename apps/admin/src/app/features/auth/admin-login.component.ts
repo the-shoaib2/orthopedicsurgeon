@@ -100,6 +100,10 @@ declare var google: any;
                       }
                    </button>
                    
+                   <div class="text-center mt-2">
+                     <a routerLink="/auth/forgot-password" class="text-xs text-primary-600 hover:underline">Forgot password?</a>
+                   </div>
+                   
                    <div class="relative my-2">
                       <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-100"></div></div>
                       <div class="relative flex justify-center text-xs uppercase"><span class="bg-white px-2 text-slate-400 font-bold tracking-wider">Or continue with</span></div>

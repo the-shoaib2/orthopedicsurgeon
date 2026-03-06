@@ -8,7 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-totp-setup',
@@ -124,7 +124,10 @@ export class TotpSetupComponent implements OnInit {
   error: string | null = null;
   success: boolean = false;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     this.http.post('/api/v1/auth/2fa/setup', {}).subscribe({
@@ -134,10 +137,14 @@ export class TotpSetupComponent implements OnInit {
   }
 
   verify() {
-    this.http.post('/api/v1/auth/2fa/confirm-setup', this.verificationCode).subscribe({
+    this.http.post('/api/v1/auth/2fa/confirm-setup', { code: this.verificationCode }).subscribe({
       next: () => {
         this.success = true;
         this.error = null;
+        // Automatically redirect to dashboard after a short delay
+        setTimeout(() => {
+          this.router.navigate(['/dashboard']);
+        }, 1500);
       },
       error: () => this.error = 'Invalid code. Verification failed.'
     });

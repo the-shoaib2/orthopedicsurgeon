@@ -157,6 +157,7 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
+    @org.springframework.cache.annotation.CacheEvict(value = "users", key = "#user.email")
     @org.springframework.scheduling.annotation.Async
     @Transactional
     public void updateLoginMetadataAsync(User user) {
@@ -220,6 +221,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "users", key = "#request.email")
     public void verifyEmail(VerifyEmailRequest request) {
         VerificationToken token = verificationTokenRepository.findByToken(request.getToken())
                 .orElseThrow(() -> new AuthException("Invalid or expired verification token"));
@@ -496,6 +498,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "users", allEntries = true)
     public void resetPassword(ResetPasswordRequest request, String ipAddress, String userAgent) {
         PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(request.getToken())
                 .orElseThrow(() -> new AuthException("Invalid or expired password reset token"));

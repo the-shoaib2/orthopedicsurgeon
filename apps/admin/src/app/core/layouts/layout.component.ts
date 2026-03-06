@@ -5,9 +5,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { 
   ZrdSidebarComponent, 
-  ZrdAvatarComponent,
   ZrdNavItem 
 } from '@repo/ui';
+import { AdminUserMenuComponent } from '@core/components/admin-header/user-menu.component';
 import { ThemeService } from '@core/services/theme.service';
 
 @Component({
@@ -19,7 +19,7 @@ import { ThemeService } from '@core/services/theme.service';
     MatIconModule,
     MatTooltipModule,
     ZrdSidebarComponent,
-    ZrdAvatarComponent
+    AdminUserMenuComponent
   ],
   template: `
     <div class="flex h-screen overflow-hidden bg-google-gray-50 dark:bg-google-gray-900">
@@ -73,12 +73,8 @@ import { ThemeService } from '@core/services/theme.service';
 
             <div class="w-px h-6 bg-google-gray-200 dark:bg-white/10 mx-2"></div>
 
-            <div class="flex items-center gap-3 pl-2">
-              <div class="text-right hidden sm:block">
-                <p class="text-sm font-medium text-google-gray-900 dark:text-white leading-tight">Admin User</p>
-                <p class="text-xs text-google-gray-500 dark:text-google-gray-400">Super Admin</p>
-              </div>
-              <zrd-avatar src="assets/images/avatar.jpg" fallback="A" size="md"></zrd-avatar>
+            <div class="flex items-center gap-2">
+              <app-admin-user-menu></app-admin-user-menu>
             </div>
           </div>
         </header>

@@ -1,5 +1,6 @@
 package com.orthopedic.api.security.filter;
 
+import com.orthopedic.api.auth.security.CustomUserDetailsService;
 import com.orthopedic.api.auth.security.JwtTokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -8,14 +9,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -23,6 +22,7 @@ import java.util.stream.Collectors;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider tokenProvider;
+    private final CustomUserDetailsService userDetailsService;
 
     @org.springframework.beans.factory.annotation.Value("${app.auth.cookie-name.access:accessToken}")
     private String accessTokenCookieName;
@@ -50,8 +50,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 io.jsonwebtoken.Claims claims = tokenProvider.getClaimsFromToken(token);
 
                 String username = claims.getSubject();
-                @SuppressWarnings("unchecked")
-                List<String> roles = (List<String>) claims.get("roles");
 
                 // Device fingerprint check (simplified for now)
                 String storedFingerprint = (String) claims.get("deviceFingerprint");
@@ -66,13 +64,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     }
                 }
 
-                var authorities = roles.stream()
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList());
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username,
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        userDetails,
                         null,
-                        authorities);
+                        userDetails.getAuthorities());
 
                 authentication
                         .setDetails(new org.springframework.security.web.authentication.WebAuthenticationDetailsSource()

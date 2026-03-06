@@ -51,6 +51,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "users", allEntries = true)
     public void lockUser(UUID id, int minutes) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
@@ -60,6 +61,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "users", allEntries = true)
     public void unlockUser(UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
@@ -69,6 +71,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "users", allEntries = true)
     public void deleteUser(UUID id) {
         if (!userRepository.existsById(id)) {
             throw new ResourceNotFoundException("User not found with id: " + id);
@@ -78,6 +81,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "users", allEntries = true)
     public void resetPassword(UUID id, String newPassword) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
@@ -88,6 +92,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "users", allEntries = true)
     public void updateUserEnabledStatus(UUID id, boolean enabled) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));

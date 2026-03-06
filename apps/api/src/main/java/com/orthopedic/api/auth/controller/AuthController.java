@@ -66,11 +66,11 @@ public class AuthController {
 
     @GetMapping("/me")
     @Operation(summary = "Get current authenticated user profile", description = "Spec A-12: Identifies current authenticated user profile from token.")
-    public ResponseEntity<User> getCurrentUser(@CurrentUser User currentUser) {
+    public ResponseEntity<UserDto> getCurrentUser(@CurrentUser User currentUser) {
         if (currentUser == null) {
             return ResponseEntity.status(401).build();
         }
-        return ResponseEntity.ok(currentUser);
+        return ResponseEntity.ok(UserDto.fromEntity(currentUser));
     }
 
     @PostMapping("/register/patient")

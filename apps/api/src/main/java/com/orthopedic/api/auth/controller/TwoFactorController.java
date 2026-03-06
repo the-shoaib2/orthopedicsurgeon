@@ -1,6 +1,7 @@
 package com.orthopedic.api.auth.controller;
 
 import com.orthopedic.api.auth.dto.TokenResponse;
+import com.orthopedic.api.auth.dto.TwoFactorConfirmRequest;
 import com.orthopedic.api.auth.dto.TwoFactorRequest;
 import com.orthopedic.api.auth.dto.TwoFactorSetupResponse;
 import com.orthopedic.api.auth.security.CustomUserDetails;
@@ -38,9 +39,10 @@ public class TwoFactorController {
     @PostMapping("/confirm-setup")
     @Operation(summary = "Confirm and enable TOTP after verifying first code")
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
-    public ResponseEntity<Void> confirmSetup(@CurrentUser UserDetails userDetails, @RequestBody String code) {
+    public ResponseEntity<Void> confirmSetup(@CurrentUser UserDetails userDetails,
+            @Valid @RequestBody TwoFactorConfirmRequest request) {
         CustomUserDetails customUser = (CustomUserDetails) userDetails;
-        if (twoFactorService.verifyAndEnableTotp(customUser.getUser().getId(), code)) {
+        if (twoFactorService.verifyAndEnableTotp(customUser.getUser().getId(), request.getCode())) {
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.badRequest().build();

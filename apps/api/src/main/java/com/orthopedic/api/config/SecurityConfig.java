@@ -83,7 +83,7 @@ public class SecurityConfig {
                                                 .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                                                 .requestMatchers("/actuator/**").hasAuthority("SUPER_ADMIN")
                                                 .requestMatchers("/api/v1/admin/**")
-                                                .hasAnyAuthority("ADMIN", "SUPER_ADMIN")
+                                                .hasAnyRole("ADMIN", "SUPER_ADMIN")
                                                 .requestMatchers("/api/v1/patient/**").hasAuthority("PATIENT")
                                                 .anyRequest().authenticated())
                                 .oauth2Login(oauth2 -> oauth2
