@@ -91,9 +91,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 throw new BusinessException("Doctor is not associated with any hospital");
 
             Patient patient;
-            if (Arrays.asList("ADMIN", "STAFF", "SUPER_ADMIN'").stream()
-                    .anyMatch(role -> currentUser.getAuthorities().stream()
-                            .anyMatch(a -> a.getAuthority().equals(role)))) {
+            if (hasAnyRole(currentUser, "ADMIN", "STAFF", "SUPER_ADMIN")) {
                 if (request.getPatientId() == null)
                     throw new BusinessException("Patient ID is required for staff booking");
                 patient = patientRepository.findById(request.getPatientId())
@@ -161,7 +159,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         } else if (hasRole(currentUser, "DOCTOR")) {
             doctorId = doctorRepository.findByUserId(currentUser.getId())
                     .map(Doctor::getId).orElseThrow(() -> new BusinessException("Doctor profile not found"));
-        } else if (hasAnyRole(currentUser, "ADMIN", "STAFF", "SUPER_ADMIN'")) {
+        } else if (hasAnyRole(currentUser, "ADMIN", "STAFF", "SUPER_ADMIN")) {
             patientId = filters.getPatientId();
             doctorId = filters.getDoctorId();
         } else {
@@ -348,7 +346,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     private void validateOwnership(Appointment appointment, User currentUser) {
-        if (hasAnyRole(currentUser, "ADMIN", "STAFF", "SUPER_ADMIN'")) {
+        if (hasAnyRole(currentUser, "ADMIN", "STAFF", "SUPER_ADMIN")) {
             return;
         }
 
@@ -364,11 +362,11 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     private boolean hasRole(User user, String role) {
-        return user.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(role));
+        String roleName = role.startsWith("ROLE_") ? role : "ROLE_" + role;
+        return user.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(roleName));
     }
 
     private boolean hasAnyRole(User user, String... roles) {
-        List<String> roleList = Arrays.asList(roles);
-        return user.getAuthorities().stream().anyMatch(a -> roleList.contains(a.getAuthority()));
+        return Arrays.stream(roles).anyMatch(role -> hasRole(user, role));
     }
 }

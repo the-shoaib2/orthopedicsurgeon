@@ -105,7 +105,7 @@ public class User {
 
     public java.util.Collection<? extends org.springframework.security.core.GrantedAuthority> getAuthorities() {
         return roles.stream()
-                .map(role -> new org.springframework.security.core.authority.SimpleGrantedAuthority(role.getName()))
+                .map(role -> new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + role.getName()))
                 .collect(java.util.stream.Collectors.toList());
     }
 }

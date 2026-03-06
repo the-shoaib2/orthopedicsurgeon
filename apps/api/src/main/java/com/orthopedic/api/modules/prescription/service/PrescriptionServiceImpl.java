@@ -109,7 +109,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     }
 
     private void validatePatientAccess(UUID patientId, User currentUser) {
-        if (hasAnyRole(currentUser, "ADMIN", "STAFF", "SUPER_ADMIN'")) {
+        if (hasAnyRole(currentUser, "ADMIN", "STAFF", "SUPER_ADMIN")) {
             return;
         }
         if (hasRole(currentUser, "PATIENT")) {
@@ -124,7 +124,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     }
 
     private void validateOwnership(Prescription prescription, User currentUser) {
-        if (hasAnyRole(currentUser, "ADMIN", "STAFF", "SUPER_ADMIN'")) {
+        if (hasAnyRole(currentUser, "ADMIN", "STAFF", "SUPER_ADMIN")) {
             return;
         }
 
@@ -140,11 +140,11 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     }
 
     private boolean hasRole(User user, String role) {
-        return user.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(role));
+        String roleName = role.startsWith("ROLE_") ? role : "ROLE_" + role;
+        return user.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(roleName));
     }
 
     private boolean hasAnyRole(User user, String... roles) {
-        List<String> roleList = Arrays.asList(roles);
-        return user.getAuthorities().stream().anyMatch(a -> roleList.contains(a.getAuthority()));
+        return Arrays.stream(roles).anyMatch(role -> hasRole(user, role));
     }
 }

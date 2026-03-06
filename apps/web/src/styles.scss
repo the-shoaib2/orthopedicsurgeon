@@ -2,18 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Global Material UI Input Focus Border Removal ── */
-.mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
-.mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
-.mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
-  @apply border-gray-200 dark:border-white/10 !important;
-  border-width: 1px !important;
-}
-
-.mat-mdc-form-field.mat-focused .mat-mdc-form-field-label {
-  @apply text-slate-500 dark:text-slate-400 !important;
-}
-
-.mat-mdc-form-field-focus-indicator::before {
-  display: none !important;
+.mat-mdc-form-field .mat-mdc-input-element:focus {
+  outline: none !important;
+  box-shadow: none !important;
 }

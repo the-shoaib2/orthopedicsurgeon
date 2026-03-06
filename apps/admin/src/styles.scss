@@ -6,6 +6,8 @@
 
 
 
+
+
 @layer base {
   body {
     font-family: 'Inter', 'Roboto', sans-serif;
@@ -65,23 +67,6 @@
   color: #fff !important;
 }
 
-/* ── Dense toolbar search field ── */
-.dense-toolbar-field .mat-mdc-text-field-wrapper {
-  @apply bg-google-gray-100 dark:bg-white/5 !important;
-  border-radius: 8px !important;
-}
-
-.dense-toolbar-field .mdc-notched-outline__leading,
-.dense-toolbar-field .mdc-notched-outline__notch,
-.dense-toolbar-field .mdc-notched-outline__trailing {
-  @apply border-google-gray-200 dark:border-white/10 !important;
-}
-
-.dense-toolbar-field .mat-mdc-form-field-infix {
-  padding-top: 8px !important;
-  padding-bottom: 8px !important;
-  min-height: 36px !important;
-}
 
 /* ── Sidebar mat-expansion-panel ── */
 .sidebar-expansion .mat-expansion-panel {
@@ -166,19 +151,7 @@ mat-card {
   border: none !important;
 }
 
-/* ── Global Material UI Input Focus Border Removal ── */
-.mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
-.mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
-.mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
-  @apply border-google-gray-200 dark:border-white/10 !important;
-  border-width: 1px !important;
-}
-
-.mat-mdc-form-field.mat-focused .mat-mdc-form-field-label {
-  @apply text-google-gray-500 dark:text-google-gray-400 !important;
-}
-
-/* Remove focus ring for standard and filled variants if used */
-.mat-mdc-form-field-focus-indicator::before {
-  display: none !important;
+.mat-mdc-form-field .mat-mdc-input-element:focus {
+  outline: none !important;
+  box-shadow: none !important;
 }
