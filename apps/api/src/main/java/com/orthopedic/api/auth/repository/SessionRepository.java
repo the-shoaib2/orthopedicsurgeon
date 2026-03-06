@@ -17,4 +17,6 @@ public interface SessionRepository extends JpaRepository<Session, UUID> {
     Optional<Session> findBySessionIdAndUserId(UUID sessionId, UUID userId);
 
     List<Session> findByUser(com.orthopedic.api.auth.entity.User user);
+
+    List<Session> findAllByIsActiveTrue();
 }

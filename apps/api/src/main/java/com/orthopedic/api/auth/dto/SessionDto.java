@@ -1,13 +1,13 @@
 package com.orthopedic.api.auth.dto;
 
-import lombok.Builder;
 import lombok.Data;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
-@Builder
+@SuperBuilder
 public class SessionDto {
     private UUID sessionId;
     private String deviceName;

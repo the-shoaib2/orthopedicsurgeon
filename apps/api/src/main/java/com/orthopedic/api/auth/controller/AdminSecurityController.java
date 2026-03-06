@@ -1,5 +1,6 @@
 package com.orthopedic.api.auth.controller;
 
+import com.orthopedic.api.auth.dto.AdminSessionDto;
 import com.orthopedic.api.auth.dto.SessionDto;
 import com.orthopedic.api.auth.dto.TrustedDeviceDto;
 import com.orthopedic.api.auth.entity.User;
@@ -134,17 +135,15 @@ public class AdminSecurityController {
     @GetMapping("/active-admin-sessions")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @Operation(summary = "SUPER_ADMIN: Get all active admin sessions")
-    public ResponseEntity<List<SessionDto>> getAllActiveSessions() {
-        // Implementation for Super Admin to see everyone's sessions
-        // For now returning empty list to satisfy API shape
-        return ResponseEntity.ok(List.of());
+    public ResponseEntity<List<AdminSessionDto>> getAllActiveSessions() {
+        return ResponseEntity.ok(sessionService.getAllActiveSessions());
     }
 
     @DeleteMapping("/force-logout/{userId}")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @Operation(summary = "SUPER_ADMIN: Force logout a user")
     public ResponseEntity<Void> forceLogout(@PathVariable UUID userId) {
-        // sessionService.revokeAllSessions(userId); // If implemented
+        sessionService.forceLogout(userId);
         return ResponseEntity.noContent().build();
     }
 

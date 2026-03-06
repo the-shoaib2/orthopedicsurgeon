@@ -1,5 +1,6 @@
 package com.orthopedic.api.auth.service;
 
+import com.orthopedic.api.auth.dto.AdminSessionDto;
 import com.orthopedic.api.auth.dto.SessionDto;
 import com.orthopedic.api.auth.entity.User;
 
@@ -7,6 +8,16 @@ import java.util.List;
 import java.util.UUID;
 
 public interface UserSessionService {
+
+    /**
+     * Get all active sessions in the system (SUPER_ADMIN only).
+     */
+    List<AdminSessionDto> getAllActiveSessions();
+
+    /**
+     * Force logout a specific user by revoking all their sessions.
+     */
+    void forceLogout(UUID userId);
 
     /**
      * Get all active sessions for the given user.
